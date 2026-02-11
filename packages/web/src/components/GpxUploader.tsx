@@ -1,11 +1,10 @@
-import { useState } from 'react'
+import styles from "../App.module.css"
 
 interface GpxUploaderProps {
   onFileSelect: (content: string) => void
 }
 
 export function GpxUploader({ onFileSelect }: GpxUploaderProps) {
-  const [isDragging, setIsDragging] = useState(false)
 
   const handleFile = async (file: File) => {
     if (!file.name.endsWith('.gpx')) {
@@ -19,7 +18,6 @@ export function GpxUploader({ onFileSelect }: GpxUploaderProps) {
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
-    setIsDragging(false)
     
     const file = e.dataTransfer.files[0]
     if (file) handleFile(file)
@@ -32,17 +30,8 @@ export function GpxUploader({ onFileSelect }: GpxUploaderProps) {
 
   return (
     <div
-      onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
-      onDragLeave={() => setIsDragging(false)}
       onDrop={handleDrop}
-      style={{
-        border: `2px dashed ${isDragging ? '#4CAF50' : '#ccc'}`,
-        borderRadius: '8px',
-        padding: '40px',
-        textAlign: 'center',
-        backgroundColor: isDragging ? '#f0f8f0' : '#fafafa',
-        cursor: 'pointer'
-      }}
+      className={styles.upload}
     >
       <input
         type="file"
@@ -54,10 +43,7 @@ export function GpxUploader({ onFileSelect }: GpxUploaderProps) {
       <label htmlFor="gpx-input" style={{ cursor: 'pointer' }}>
         <div>
           <p style={{ fontSize: '18px', marginBottom: '8px' }}>
-            📁 Drop your GPX file here
-          </p>
-          <p style={{ color: '#666', fontSize: '14px' }}>
-            or click to browse
+            📁 Upload your GPX file here
           </p>
         </div>
       </label>
