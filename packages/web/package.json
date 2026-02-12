@@ -10,17 +10,15 @@
         "preview": "vite preview"
     },
     "dependencies": {
+        "@fortawesome/fontawesome-svg-core": "^7.2.0",
+        "@fortawesome/free-solid-svg-icons": "^7.2.0",
+        "@fortawesome/react-fontawesome": "^3.2.0",
         "@roadtrip/shared": "workspace:*",
         "@tanstack/react-query": "^5.90.21",
-        "@trpc/client": "^11.10.0",
-        "@trpc/react-query": "^11.10.0",
         "maplibre-gl": "^5.18.0",
         "react": "^19.2.4",
         "react-dom": "^19.2.4",
-        "react-map-gl": "^8.1.0",
-        "@fortawesome/fontawesome-svg-core": "^7.2.0",
-        "@fortawesome/free-solid-svg-icons": "^7.2.0",
-        "@fortawesome/react-fontawesome": "^3.2.0"
+        "react-map-gl": "^8.1.0"
     },
     "devDependencies": {
         "@eslint/js": "^10.0.1",
