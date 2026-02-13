@@ -1,7 +1,7 @@
-import { Request, Response } from "express";
-import { z } from "zod";
+import { Request, Response } from 'express'
+import { z } from 'zod'
 
-type Handler<TInput, TOutput> = (body: TInput) => Promise<TOutput> | TOutput;
+type Handler<TInput, TOutput> = (body: TInput) => Promise<TOutput> | TOutput
 
 export function processPost<TInput, TOutput>(
   inputSchema: z.ZodSchema<TInput>,
@@ -9,30 +9,30 @@ export function processPost<TInput, TOutput>(
 ) {
   return async (req: Request, res: Response) => {
     try {
-      const validatedInput = inputSchema.parse(req.body); // validate input body using zod to parse with schema
+      const validatedInput = inputSchema.parse(req.body) // validate input body using zod to parse with schema
 
-      const result = await handler(validatedInput);
+      const result = await handler(validatedInput)
 
-      res.json(result);
+      res.json(result)
     } catch (error) {
-      console.error("Error:", error);
+      console.error('Error:', error)
 
       if (error instanceof z.ZodError) {
         return res.status(400).json({
-          error: "Validation error",
+          error: 'Validation error',
           details: error.errors,
-        });
+        })
       }
       res.status(500).json({
-        error: error instanceof Error ? error.message : "Unknown error",
-      });
+        error: error instanceof Error ? error.message : 'Unknown error',
+      })
     }
-  };
+  }
 }
 
 export function processGet<TQuery, TOutput>(
   querySchema: z.ZodSchema<TQuery>,
-  handler: Handler<TQuery, TOutput>
+  handler: Handler<TQuery, TOutput>,
 ) {
   return async (req: Request, res: Response) => {
     try {
@@ -41,16 +41,16 @@ export function processGet<TQuery, TOutput>(
       res.json(result)
     } catch (error) {
       console.error('Error:', error)
-      
+
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
-          details: error.errors
+          details: error.errors,
         })
       }
-      
+
       res.status(500).json({
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       })
     }
   }

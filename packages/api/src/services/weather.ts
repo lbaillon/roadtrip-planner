@@ -4,7 +4,7 @@ const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY
 
 export async function fetchWeatherForPoint(
   lat: number,
-  lon: number
+  lon: number,
 ): Promise<WeatherData> {
   if (!OPENWEATHER_API_KEY) {
     // Return mock data for development
@@ -15,14 +15,14 @@ export async function fetchWeatherForPoint(
       description: 'Clear sky',
       icon: '01d',
       windSpeed: 5,
-      humidity: 60
+      humidity: 60,
     }
   }
 
   const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${OPENWEATHER_API_KEY}&units=metric`
-  
+
   const response = await fetch(url)
-  
+
   if (!response.ok) {
     throw new Error(`Weather API error: ${response.statusText}`)
   }
@@ -36,6 +36,6 @@ export async function fetchWeatherForPoint(
     description: data.weather[0].description,
     icon: data.weather[0].icon,
     windSpeed: data.wind.speed,
-    humidity: data.main.humidity
+    humidity: data.main.humidity,
   })
 }
