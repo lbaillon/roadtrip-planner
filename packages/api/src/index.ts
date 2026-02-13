@@ -1,24 +1,22 @@
-import { ParseGpxRequestSchema } from "@roadtrip/shared";
-import cors from "cors";
-import dotenv from "dotenv";
-import express from "express";
-import { handleParseGpx } from "./router/routes";
-import { processPost } from "./utils/route-handler";
+import cors from 'cors'
+import dotenv from 'dotenv'
+import express from 'express'
+import routes from './routes'
 
-dotenv.config();
+dotenv.config()
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+const app = express()
+const PORT = process.env.PORT || 3000
 
-app.use(cors());
-app.use(express.json({ limit: "10mb" }));
+app.use(cors())
+app.use(express.json({ limit: '10mb' }))
 
-app.post("/api/gpx", processPost(ParseGpxRequestSchema, handleParseGpx));
+app.use('/api', routes)
 
-app.get("/health", (req, res) => {
-  res.json({ status: "ok" });
-});
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' })
+})
 
 app.listen(PORT, () => {
-  console.log(`🚀 API server running on http://localhost:${PORT}`);
-});
+  console.log(`🚀 API server running on http://localhost:${PORT}`)
+})
