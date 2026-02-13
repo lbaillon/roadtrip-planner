@@ -1,35 +1,19 @@
-import { useState } from "react";
+import styles from "./App.module.css";
 import { GpxUploader } from "./components/GpxUploader";
-import { MapView } from "./components/MapView";
-import styles from "./App.module.css"
-import type { ParsedGpx, WeatherData } from "@roadtrip/shared";
 import { Header } from "./components/Header";
+import { MapView } from "./components/MapView";
 import { Title } from "./components/Title";
+import { useParseGpx } from "./hooks/useApi";
 
 function App() {
-    const [routeData, setRouteData] = useState<{
-        route: ParsedGpx;
-        weather: WeatherData[];
-    } | null>(null);
-
-    const [loading, setLoading] = useState(false)
-
+    const { mutate: uploadGpx, data: routeData, isPending: loading, isError, error } = useParseGpx()
 
     const handleFileSelect = (content: string) => {
-        setLoading(true)
-        fetch("http://localhost:3000/gpx", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({gpxContent: content}),
-        })
-            .then((response) => response.json())
-            .then((data: any) => {
-                setRouteData(data);
-            })
-            .catch((reason) => alert(`Error: ${reason}`))
-            .finally(()=> setLoading(false));
-    };
-
+        uploadGpx(
+            { gpxContent: content },
+            { onError: (error) => alert(`Error: ${error.message}`) }
+        )
+    }
     return (
         // <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "20px" }}>
         //     <h1 style={{ textAlign: "center", marginBottom: "30px" }}>
@@ -94,14 +78,19 @@ function App() {
         // </div>
 
         <div className={styles.main}>
-          <Header/>
-          <Title/>
-          <div className={styles.uploadBox}>
-            <GpxUploader onFileSelect={handleFileSelect} />
-          </div>
-          {loading && (
+            <Header />
+            <Title />
+            <div className={styles.uploadBox}>
+                <GpxUploader onFileSelect={handleFileSelect} />
+            </div>
+            {loading && (
                 <div style={{ textAlign: "center", marginTop: "20px" }}>
                     <p>Loading route and weather data...</p>
+                </div>
+            )}
+            {isError && (
+                <div style={{ textAlign: "center", marginTop: "20px" }}>
+                    <p>Error occurred: {error.message}</p>
                 </div>
             )}
 
