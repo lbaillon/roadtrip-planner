@@ -9,7 +9,7 @@ export function processPost<TInput, TOutput>(
 ) {
   return async (req: Request, res: Response) => {
     try {
-      const validatedInput = inputSchema.parse(req.body);
+      const validatedInput = inputSchema.parse(req.body); // validate input body using zod to parse with schema
 
       const result = await handler(validatedInput);
 
