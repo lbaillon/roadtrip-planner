@@ -9,18 +9,20 @@ interface MapViewProps {
 }
 
 export function MapView({ coordinates, weather }: MapViewProps) {
-  const [selectedWeather, setSelectedWeather] = useState<WeatherData | null>(null)
-  
+  const [selectedWeather, setSelectedWeather] = useState<WeatherData | null>(
+    null,
+  )
+
   if (coordinates.length === 0) return null
 
   // Calculate bounds
-  const latitudes = coordinates.map(c => c.lat)
-  const longitudes = coordinates.map(c => c.lon)
-  
+  const latitudes = coordinates.map((c) => c.lat)
+  const longitudes = coordinates.map((c) => c.lon)
+
   const initialViewState = {
     longitude: (Math.max(...longitudes) + Math.min(...longitudes)) / 2,
     latitude: (Math.max(...latitudes) + Math.min(...latitudes)) / 2,
-    zoom: 8
+    zoom: 8,
   }
 
   // Create GeoJSON LineString from coordinates
@@ -29,12 +31,19 @@ export function MapView({ coordinates, weather }: MapViewProps) {
     properties: {},
     geometry: {
       type: 'LineString' as const,
-      coordinates: coordinates.map(c => [c.lon, c.lat])
-    }
+      coordinates: coordinates.map((c) => [c.lon, c.lat]),
+    },
   }
 
   return (
-    <div style={{ height: '500px', width: '100%', borderRadius: '8px', overflow: 'hidden' }}>
+    <div
+      style={{
+        height: '500px',
+        width: '100%',
+        borderRadius: '8px',
+        overflow: 'hidden',
+      }}
+    >
       <Map
         initialViewState={initialViewState}
         style={{ width: '100%', height: '100%' }}
@@ -48,7 +57,7 @@ export function MapView({ coordinates, weather }: MapViewProps) {
             paint={{
               'line-color': '#2563eb',
               'line-width': 4,
-              'line-opacity': 0.8
+              'line-opacity': 0.8,
             }}
           />
         </Source>
@@ -60,7 +69,7 @@ export function MapView({ coordinates, weather }: MapViewProps) {
             longitude={w.lon}
             latitude={w.lat}
             anchor="bottom"
-            onClick={e => {
+            onClick={(e) => {
               e.originalEvent.stopPropagation()
               setSelectedWeather(w)
             }}
@@ -69,7 +78,7 @@ export function MapView({ coordinates, weather }: MapViewProps) {
               style={{
                 cursor: 'pointer',
                 fontSize: '24px',
-                transform: 'translate(-50%, -100%)'
+                transform: 'translate(-50%, -100%)',
               }}
             >
               🌤️

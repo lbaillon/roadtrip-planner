@@ -1,11 +1,10 @@
-import styles from "../App.module.css"
+import styles from '../App.module.css'
 
 interface GpxUploaderProps {
   onFileSelect: (content: string) => void
 }
 
 export function GpxUploader({ onFileSelect }: GpxUploaderProps) {
-
   const handleFile = async (file: File) => {
     if (!file.name.endsWith('.gpx')) {
       alert('Please upload a GPX file')
@@ -18,7 +17,7 @@ export function GpxUploader({ onFileSelect }: GpxUploaderProps) {
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
-    
+
     const file = e.dataTransfer.files[0]
     if (file) handleFile(file)
   }
@@ -29,10 +28,7 @@ export function GpxUploader({ onFileSelect }: GpxUploaderProps) {
   }
 
   return (
-    <div
-      onDrop={handleDrop}
-      className={styles.upload}
-    >
+    <div onDrop={handleDrop} className={styles.upload}>
       <input
         type="file"
         accept=".gpx"
