@@ -1,6 +1,7 @@
 {
   "name": "@roadtrip/api",
   "version": "1.0.0",
+  "type": "module",
   "main": "dist/index.js",
   "scripts": {
     "dev": "NODE_NO_WARNINGS=1 tsx watch src/index.ts",
