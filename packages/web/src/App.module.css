@@ -78,3 +78,7 @@
   background-color: #fafafa;
   cursor: pointer;
 }
+
+.humidityPlot{
+  margin-top: 20%;
+}

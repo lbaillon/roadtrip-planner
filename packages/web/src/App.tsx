@@ -1,6 +1,7 @@
 import styles from './App.module.css'
 import { GpxUploader } from './components/GpxUploader'
 import { Header } from './components/Header'
+import { HumidityChart } from './components/HumidityChart'
 import { MapView } from './components/MapView'
 import { Title } from './components/Title'
 import { useParseGpx } from './hooks/useApi'
@@ -112,35 +113,12 @@ function App() {
             weather={routeData.weather}
           />
 
-          <div style={{ marginTop: '20px' }}>
-            <h3>Weather Along Route</h3>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-                gap: '15px',
-              }}
-            >
-              {routeData.weather.map((w, idx) => (
-                <div
-                  key={idx}
-                  style={{
-                    border: '1px solid #ddd',
-                    borderRadius: '8px',
-                    padding: '15px',
-                    backgroundColor: '#f9f9f9',
-                  }}
-                >
-                  <p>
-                    <strong>{w.description}</strong>
-                  </p>
-                  <p>🌡️ {w.temperature.toFixed(1)}°C</p>
-                  <p>💨 {w.windSpeed?.toFixed(1)} m/s</p>
-                  <p>💧 {w.humidity}%</p>
-                </div>
-              ))}
-            </div>
-          </div>
+          <h3 className={styles.humidityPlot} >Humidity Chart</h3>
+
+          <HumidityChart
+            coordinates={routeData.route.coordinates}
+            weather={routeData.weather}
+          />
         </div>
       )}
     </div>
