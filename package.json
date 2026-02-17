@@ -6,9 +6,9 @@
   "scripts": {
     "dev": "concurrently -n shared,api,web -c cyan,magenta,yellow \"pnpm --dir packages/shared run dev\" \"pnpm --dir packages/api run dev\" \"pnpm --dir packages/web run dev\"",
     "build": "pnpm --filter @roadtrip/shared build && pnpm --filter @roadtrip/api build && pnpm --filter @roadtrip/web build",
-    "type-check": "pnpm -r exec tsc --noEmit",
+    "type-check": "pnpm -r --bail exec tsc --noEmit",
     "format": "pnpm exec prettier --write \"packages/**/*.{ts,tsx,js,jsx,json}\"",
-    "lint": "pnpm -r run lint && pnpm exec prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\""
+    "lint": "pnpm -r --bail run lint && pnpm exec prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\""
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
