@@ -1,4 +1,3 @@
-import { useEffect, useRef } from 'react'
 import Map, { Source, Layer, Marker, Popup } from 'react-map-gl/maplibre'
 import type { GpxCoordinate, WeatherData } from '@roadtrip/shared'
 import { useState } from 'react'
