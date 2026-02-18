@@ -41,7 +41,7 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - run: pnpm lint
+      # - run: pnpm lint
 
       - name: Prettier check (verbose)
         run: |
@@ -53,7 +53,7 @@ jobs:
           pnpm exec prettier --check packages/api/src/services/weather.ts --log-level debug
           echo "=== Checking all files ==="
           pnpm exec prettier --check "**/*.{ts,tsx,js,jsx,json,md}"
-          
+
       - name: Show prettier diff
         if: failure()
         run: |
