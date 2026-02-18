@@ -1,11 +1,13 @@
 {
   "name": "@roadtrip/shared",
   "version": "1.0.0",
+  "type": "module",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "lint": "eslint src/"
   },
   "dependencies": {
     "zod": "^3.22.4"

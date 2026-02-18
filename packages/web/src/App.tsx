@@ -113,7 +113,7 @@ function App() {
             weather={routeData.weather}
           />
 
-          <h3 className={styles.humidityPlot} >Humidity Chart</h3>
+          <h3 className={styles.humidityPlot}>Humidity Chart</h3>
 
           <HumidityChart
             coordinates={routeData.route.coordinates}
