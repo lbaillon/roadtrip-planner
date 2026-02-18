@@ -26,7 +26,7 @@ export function parseGpxFile(gpxContent: string): ParsedGpx {
 // Sample points along route (e.g., every 50km)
 export function sampleRoutePoints(
   coordinates: Array<{ lat: number; lon: number }>,
-  intervalMeters: number = 50000,
+  intervalMeters: number = 50000
 ): Array<{ lat: number; lon: number }> {
   if (coordinates.length === 0) return []
 

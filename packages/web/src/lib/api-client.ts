@@ -13,7 +13,7 @@ class ApiError extends Error {
 
 export async function fetchApi<TResponse>(
   endpoint: string,
-  options?: RequestInit,
+  options?: RequestInit
 ): Promise<TResponse> {
   const response = await fetch(`${API_URL}${endpoint}`, {
     ...options,
@@ -27,7 +27,7 @@ export async function fetchApi<TResponse>(
     throw new ApiError(
       error.error || 'Request failed',
       response.status,
-      error.details,
+      error.details
     )
   }
   return response.json()
