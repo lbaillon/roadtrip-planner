@@ -21,5 +21,5 @@ export default defineConfig(
       '@typescript-eslint/no-explicit-any': 'warn',
       'no-console': ['error', { allow: ['warn', 'error', 'info'] }],
     },
-  },
+  }
 )
