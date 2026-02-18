@@ -54,12 +54,11 @@ const findNearestWeather = (
 
 export function HumidityChart({ coordinates, weather }: HumidityChartProps) {
   const svgRef = useRef<SVGSVGElement>(null)
-
   // Filtrer les points météo qui ont une humidité définie
   const weatherWithHumidity = useMemo(
     () =>
       weather.filter(
-        (w): w is WeatherData & { humidity: number } => w.humidity !== undefined
+        (w): w is WeatherData & { humidity: number } => w.timepoints[0].humidity !== undefined
       ),
     [weather]
   )
@@ -87,7 +86,7 @@ export function HumidityChart({ coordinates, weather }: HumidityChartProps) {
         lon: coord.lon,
         ele: coord.ele,
         distanceKm: parseFloat(cumulatedDistance.toFixed(2)),
-        humidity: nearest?.humidity ?? 0,
+        humidity: nearest?.timepoints[0].humidity ?? 0,
       }
     })
   }, [coordinates, weatherWithHumidity])

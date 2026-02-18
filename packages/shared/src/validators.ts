@@ -6,14 +6,19 @@ export const GpxCoordinateSchema = z.object({
   ele: z.number().nullable().optional(),
 })
 
-export const WeatherDataSchema = z.object({
-  lat: z.number(),
-  lon: z.number(),
+export const WeatherTimepointSchema = z.object({
+  time: z.number(),
   temperature: z.number(),
   description: z.string(),
   icon: z.string(),
   windSpeed: z.number().optional(),
   humidity: z.number().optional(),
+})
+
+export const WeatherDataSchema = z.object({
+  lat: z.number(),
+  lon: z.number(),
+  timepoints: z.array(WeatherTimepointSchema),
 })
 
 export const ParsedGpxSchema = z.object({
