@@ -1,4 +1,4 @@
-import styles from '../App.module.css'
+import styles from './GpxUploader.module.css'
 
 interface GpxUploaderProps {
   onFileSelect: (content: string) => void
@@ -36,9 +36,9 @@ export function GpxUploader({ onFileSelect }: GpxUploaderProps) {
         style={{ display: 'none' }}
         id="gpx-input"
       />
-      <label htmlFor="gpx-input" style={{ cursor: 'pointer' }}>
+      <label htmlFor="gpx-input" className={styles.label}>
         <div>
-          <p style={{ fontSize: '18px', marginBottom: '8px' }}>
+          <p className={styles.textLabel}>
             📁 Upload your GPX file here
           </p>
         </div>

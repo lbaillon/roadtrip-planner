@@ -1,0 +1,14 @@
+.mapMain {
+  height: 500px;
+  width: 90%;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.weatherIcons{
+  cursor: pointer;
+  width: 50px;
+  height: 50px;
+  background-color: rgba(125, 158, 228, 0.562);
+  border-radius: 25px;
+}
