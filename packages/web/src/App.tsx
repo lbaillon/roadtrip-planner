@@ -22,7 +22,6 @@ function App() {
     )
   }
   return (
-
     <div className={styles.main}>
       <Header />
       <Title />
@@ -42,7 +41,7 @@ function App() {
 
       {routeData && (
         <div className={styles.mapBox}>
-          <h2 className={styles.routeName} >{routeData.route.name}</h2>
+          <h2 className={styles.routeName}>{routeData.route.name}</h2>
           {routeData.route.distance && (
             <p>Distance: {(routeData.route.distance / 1000).toFixed(2)} km</p>
           )}

@@ -67,11 +67,11 @@ export function MapView({ coordinates, weather }: MapViewProps) {
               setSelectedWeather(w)
             }}
           >
-              <img
-                src={`https://openweathermap.org/img/wn/${w.icon}@2x.png`}
-                alt={w.description}
-                className={styles.weatherIcons}
-              />
+            <img
+              src={`https://openweathermap.org/img/wn/${w.icon}@2x.png`}
+              alt={w.description}
+              className={styles.weatherIcons}
+            />
           </Marker>
         ))}
 
