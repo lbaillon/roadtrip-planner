@@ -1,6 +1,5 @@
 import { WeatherDataSchema, type WeatherData } from '@roadtrip/shared'
 
-
 export async function fetchWeatherForPoint(
   lat: number,
   lon: number,

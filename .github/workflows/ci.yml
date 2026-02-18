@@ -41,21 +41,10 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # - run: pnpm lint
-
-      - name: Prettier check (verbose)
-        run: |
-          echo "=== Prettier version ==="
-          pnpm exec prettier --version
-          echo "=== Node version ==="
-          node --version
-          echo "=== Checking weather.ts specifically ==="
-          pnpm exec prettier --check packages/api/src/services/weather.ts --log-level debug
-          echo "=== Checking all files ==="
-          pnpm exec prettier --check "**/*.{ts,tsx,js,jsx,json,md}"
+      - run: pnpm lint
 
       - name: Show prettier diff
         if: failure()
         run: |
-          pnpm exec prettier --write packages/api/src/services/weather.ts
-          git diff packages/api/src/services/weather.ts
+          pnpm format
+          git diff
