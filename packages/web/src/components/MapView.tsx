@@ -1,3 +1,4 @@
+import styles from './MapView.module.css'
 import Map, { Source, Layer, Marker, Popup } from 'react-map-gl/maplibre'
 import type { GpxCoordinate, WeatherData } from '@roadtrip/shared'
 import { useState } from 'react'
@@ -35,14 +36,7 @@ export default function MapView({ coordinates, weather }: MapViewProps) {
   }
 
   return (
-    <div
-      style={{
-        height: '500px',
-        width: '100%',
-        borderRadius: '8px',
-        overflow: 'hidden',
-      }}
-    >
+    <div className={styles.mapMain}>
       <Map
         initialViewState={initialViewState}
         style={{ width: '100%', height: '100%' }}
@@ -73,15 +67,11 @@ export default function MapView({ coordinates, weather }: MapViewProps) {
               setSelectedWeather(w)
             }}
           >
-            <div
-              style={{
-                cursor: 'pointer',
-                fontSize: '24px',
-                transform: 'translate(-50%, -100%)',
-              }}
-            >
-              🌤️
-            </div>
+            <img
+              src={`https://openweathermap.org/img/wn/${w.icon}@2x.png`}
+              alt={w.description}
+              className={styles.weatherIcons}
+            />
           </Marker>
         ))}
 
