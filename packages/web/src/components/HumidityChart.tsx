@@ -19,7 +19,7 @@ const haversineDistance = (
   lat1: number,
   lon1: number,
   lat2: number,
-  lon2: number,
+  lon2: number
 ): number => {
   const R = 6371
   const dLat = ((lat2 - lat1) * Math.PI) / 180
@@ -34,20 +34,20 @@ const haversineDistance = (
 
 const findNearestWeather = (
   coord: GpxCoordinate,
-  weatherPoints: WeatherData[],
+  weatherPoints: WeatherData[]
 ): WeatherData | undefined =>
   weatherPoints.reduce((nearest, current) => {
     const distCurrent = haversineDistance(
       coord.lat,
       coord.lon,
       current.lat,
-      current.lon,
+      current.lon
     )
     const distNearest = haversineDistance(
       coord.lat,
       coord.lon,
       nearest.lat,
-      nearest.lon,
+      nearest.lon
     )
     return distCurrent < distNearest ? current : nearest
   })
@@ -59,10 +59,9 @@ export function HumidityChart({ coordinates, weather }: HumidityChartProps) {
   const weatherWithHumidity = useMemo(
     () =>
       weather.filter(
-        (w): w is WeatherData & { humidity: number } =>
-          w.humidity !== undefined,
+        (w): w is WeatherData & { humidity: number } => w.humidity !== undefined
       ),
-    [weather],
+    [weather]
   )
 
   // Construire les points enrichis : distance cumulée + humidité du point météo le plus proche
@@ -77,7 +76,7 @@ export function HumidityChart({ coordinates, weather }: HumidityChartProps) {
           coordinates[i - 1].lat,
           coordinates[i - 1].lon,
           coord.lat,
-          coord.lon,
+          coord.lon
         )
       }
 
@@ -130,14 +129,14 @@ export function HumidityChart({ coordinates, weather }: HumidityChartProps) {
         d3
           .axisLeft(yScale)
           .tickSize(-width)
-          .tickFormat(() => ''),
+          .tickFormat(() => '')
       )
       .call((g) => g.select('.domain').remove())
       .call((g) =>
         g
           .selectAll('.tick line')
           .attr('stroke', '#e2e8f0')
-          .attr('stroke-dasharray', '3,3'),
+          .attr('stroke-dasharray', '3,3')
       )
 
     // Axes
@@ -148,7 +147,7 @@ export function HumidityChart({ coordinates, weather }: HumidityChartProps) {
         d3
           .axisBottom(xScale)
           .ticks(6)
-          .tickFormat((d) => `${d} km`),
+          .tickFormat((d) => `${d} km`)
       )
       .call((g) => g.select('.domain').attr('stroke', '#cbd5e1'))
       .call((g) => g.selectAll('.tick line').attr('stroke', '#cbd5e1'))
@@ -156,7 +155,7 @@ export function HumidityChart({ coordinates, weather }: HumidityChartProps) {
         g
           .selectAll('.tick text')
           .attr('fill', '#64748b')
-          .attr('font-size', '11px'),
+          .attr('font-size', '11px')
       )
 
     svg
@@ -165,7 +164,7 @@ export function HumidityChart({ coordinates, weather }: HumidityChartProps) {
         d3
           .axisLeft(yScale)
           .ticks(5)
-          .tickFormat((d) => `${d}%`),
+          .tickFormat((d) => `${d}%`)
       )
       .call((g) => g.select('.domain').attr('stroke', '#cbd5e1'))
       .call((g) => g.selectAll('.tick line').attr('stroke', '#cbd5e1'))
@@ -173,7 +172,7 @@ export function HumidityChart({ coordinates, weather }: HumidityChartProps) {
         g
           .selectAll('.tick text')
           .attr('fill', '#64748b')
-          .attr('font-size', '11px'),
+          .attr('font-size', '11px')
       )
 
     // Labels axes
@@ -299,7 +298,7 @@ export function HumidityChart({ coordinates, weather }: HumidityChartProps) {
           Math.abs(a.distanceKm - distanceAtMouse) <
           Math.abs(b.distanceKm - distanceAtMouse)
             ? a
-            : b,
+            : b
         )
 
         const cx = xScale(nearest.distanceKm)
@@ -312,7 +311,7 @@ export function HumidityChart({ coordinates, weather }: HumidityChartProps) {
           .style('opacity', 1)
           .html(
             `<strong style="color:#2563eb">💧 ${nearest.humidity}%</strong><br/>
-            📏 ${nearest.distanceKm} km${nearest.ele != null ? `<br/>⛰️ ${Math.round(nearest.ele)} m` : ''}`,
+            📏 ${nearest.distanceKm} km${nearest.ele != null ? `<br/>⛰️ ${Math.round(nearest.ele)} m` : ''}`
           )
           .style('left', `${event.pageX + 14}px`)
           .style('top', `${event.pageY - 48}px`)

@@ -2,7 +2,7 @@ import { WeatherDataSchema, type WeatherData } from '@roadtrip/shared'
 
 export async function fetchWeatherForPoint(
   lat: number,
-  lon: number,
+  lon: number
 ): Promise<WeatherData> {
   const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY
   if (!OPENWEATHER_API_KEY) {

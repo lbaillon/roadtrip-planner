@@ -5,7 +5,7 @@ type Handler<TInput, TOutput> = (body: TInput) => Promise<TOutput> | TOutput
 
 export function processPost<TInput, TOutput>(
   inputSchema: z.ZodSchema<TInput>,
-  handler: Handler<TInput, TOutput>,
+  handler: Handler<TInput, TOutput>
 ) {
   return async (req: Request, res: Response) => {
     try {
@@ -32,7 +32,7 @@ export function processPost<TInput, TOutput>(
 
 export function processGet<TQuery, TOutput>(
   querySchema: z.ZodSchema<TQuery>,
-  handler: Handler<TQuery, TOutput>,
+  handler: Handler<TQuery, TOutput>
 ) {
   return async (req: Request, res: Response) => {
     try {

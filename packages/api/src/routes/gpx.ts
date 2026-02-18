@@ -11,12 +11,12 @@ import { processPost } from '../utils/route-handler'
 const router = Router()
 
 export async function handleParseGpx(
-  body: ParseGpxRequest,
+  body: ParseGpxRequest
 ): Promise<ParseGpxResponse> {
   const parsed = parseGpxFile(body.gpxContent)
   const samplePoints = sampleRoutePoints(parsed.coordinates)
   const weatherPromises = samplePoints.map((point) =>
-    fetchWeatherForPoint(point.lat, point.lon),
+    fetchWeatherForPoint(point.lat, point.lon)
   )
   const weatherData = await Promise.all(weatherPromises)
 

@@ -9,7 +9,7 @@ interface MapViewProps {
 
 export function MapView({ coordinates, weather }: MapViewProps) {
   const [selectedWeather, setSelectedWeather] = useState<WeatherData | null>(
-    null,
+    null
   )
 
   if (coordinates.length === 0) return null

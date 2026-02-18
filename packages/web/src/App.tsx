@@ -18,7 +18,7 @@ function App() {
   const handleFileSelect = (content: string) => {
     uploadGpx(
       { gpxContent: content },
-      { onError: (error) => alert(`Error: ${error.message}`) },
+      { onError: (error) => alert(`Error: ${error.message}`) }
     )
   }
   return (
