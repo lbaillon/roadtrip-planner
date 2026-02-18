@@ -7,7 +7,7 @@ interface MapViewProps {
   weather: WeatherData[]
 }
 
-export function MapView({ coordinates, weather }: MapViewProps) {
+export default function MapView({ coordinates, weather }: MapViewProps) {
   const [selectedWeather, setSelectedWeather] = useState<WeatherData | null>(
     null
   )
