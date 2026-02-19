@@ -26,6 +26,28 @@ jobs:
 
       - run: pnpm type-check
 
+  format-check:
+    name: Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm format:check
+
+      - name: Show prettier diff
+        if: failure()
+        run: |
+          pnpm format
+          git diff
   lint:
     name: Lint
     runs-on: ubuntu-latest
@@ -42,9 +64,4 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - run: pnpm lint
-
-      - name: Show prettier diff
-        if: failure()
-        run: |
-          pnpm format
-          git diff
+      
