@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import styles from './App.module.css'
 import { GpxUploader } from './components/GpxUploader'
 import { Header } from './components/Header'
@@ -8,6 +9,8 @@ import { Title } from './components/Title'
 import { useParseGpx } from './hooks/useApi'
 
 function App() {
+  const [timepointIndex, setTimepointIndex] = useState(0)
+
   const {
     mutate: uploadGpx,
     data: routeData,
@@ -50,11 +53,12 @@ function App() {
           <MapView
             coordinates={routeData.route.coordinates}
             weather={routeData.weather}
-            timepointIndex={0}
+            timepointIndex={timepointIndex}
           />
 
           <TimeSelector
             weather={routeData.weather}
+            setTimepointIndex={setTimepointIndex}
           />
 
           <h3 className={styles.humidityPlot}>Humidity Chart</h3>
