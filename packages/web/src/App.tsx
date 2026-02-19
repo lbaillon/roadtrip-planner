@@ -3,6 +3,7 @@ import { GpxUploader } from './components/GpxUploader'
 import { Header } from './components/Header'
 import { HumidityChart } from './components/HumidityChart'
 import { MapView } from './components/MapView'
+import { TimeSelector } from './components/TimeSelector'
 import { Title } from './components/Title'
 import { useParseGpx } from './hooks/useApi'
 
@@ -48,6 +49,11 @@ function App() {
 
           <MapView
             coordinates={routeData.route.coordinates}
+            weather={routeData.weather}
+            timepointIndex={0}
+          />
+
+          <TimeSelector
             weather={routeData.weather}
           />
 

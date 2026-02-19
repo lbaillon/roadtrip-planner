@@ -1,0 +1,16 @@
+.buttonContainer{
+  display: flex;
+  overflow-x: scroll;
+  gap: 8px;
+  scroll-snap-type: x mandatory;
+  width: 80%;
+  height: 8%;
+  background-color: aqua;
+  margin-top: 10px;
+}
+
+.button{
+  flex-shrink: 0;
+  width: 50px;
+  margin: 10px;
+}
