@@ -1,16 +1,13 @@
 .buttonContainer{
   display: flex;
+  align-items: center;
   overflow-x: scroll;
   gap: 8px;
   scroll-snap-type: x mandatory;
-  width: 80%;
-  height: 8%;
-  background-color: aqua;
+  width: 85%;
+  height: 6%;
+  border: solid 2px rgba(0, 0, 0, 0.438);
+  border-radius: 10px;
   margin-top: 10px;
 }
 
-.button{
-  flex-shrink: 0;
-  width: 50px;
-  margin: 10px;
-}

@@ -59,6 +59,7 @@ function App() {
           <TimeSelector
             weather={routeData.weather}
             setTimepointIndex={setTimepointIndex}
+            timepointIndex={timepointIndex}
           />
 
           <h3 className={styles.humidityPlot}>Humidity Chart</h3>
@@ -66,6 +67,7 @@ function App() {
           <HumidityChart
             coordinates={routeData.route.coordinates}
             weather={routeData.weather}
+            timepointIndex={timepointIndex}
           />
         </div>
       )}

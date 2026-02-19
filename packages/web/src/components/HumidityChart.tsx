@@ -5,6 +5,7 @@ import type { GpxCoordinate, WeatherData } from '@roadtrip/shared'
 interface HumidityChartProps {
   coordinates: GpxCoordinate[]
   weather: WeatherData[]
+  timepointIndex: number
 }
 
 interface EnrichedPoint {
@@ -52,15 +53,15 @@ const findNearestWeather = (
     return distCurrent < distNearest ? current : nearest
   })
 
-export function HumidityChart({ coordinates, weather }: HumidityChartProps) {
+export function HumidityChart({ coordinates, weather, timepointIndex }: HumidityChartProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   // Filtrer les points météo qui ont une humidité définie
   const weatherWithHumidity = useMemo(
     () =>
       weather.filter(
-        (w): w is WeatherData & { humidity: number } => w.timepoints[0].humidity !== undefined
+        (w): w is WeatherData & { humidity: number } => w.timepoints[timepointIndex].humidity !== undefined
       ),
-    [weather]
+    [weather, timepointIndex]
   )
 
   // Construire les points enrichis : distance cumulée + humidité du point météo le plus proche
@@ -86,7 +87,7 @@ export function HumidityChart({ coordinates, weather }: HumidityChartProps) {
         lon: coord.lon,
         ele: coord.ele,
         distanceKm: parseFloat(cumulatedDistance.toFixed(2)),
-        humidity: nearest?.timepoints[0].humidity ?? 0,
+        humidity: nearest?.timepoints[timepointIndex].humidity ?? 0,
       }
     })
   }, [coordinates, weatherWithHumidity])
