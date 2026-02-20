@@ -10,12 +10,13 @@ export function processPost<TInput, TOutput>(
   return async (req: Request, res: Response) => {
     try {
       const validatedInput = inputSchema.parse(req.body) // validate input body using zod to parse with schema
-
       const result = await handler(validatedInput)
-
       res.json(result)
     } catch (error) {
-      console.error('Error:', error)
+      console.error(
+        'Error:',
+        JSON.stringify(error, Object.getOwnPropertyNames(error), 2)
+      )
 
       if (error instanceof z.ZodError) {
         return res.status(400).json({
@@ -40,7 +41,10 @@ export function processGet<TQuery, TOutput>(
       const result = await handler(validatedQuery)
       res.json(result)
     } catch (error) {
-      console.error('Error:', error)
+      console.error(
+        'Error:',
+        JSON.stringify(error, Object.getOwnPropertyNames(error), 2)
+      )
 
       if (error instanceof z.ZodError) {
         return res.status(400).json({

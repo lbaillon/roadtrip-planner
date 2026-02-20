@@ -6,9 +6,14 @@ import { useState } from 'react'
 interface MapViewProps {
   coordinates: GpxCoordinate[]
   weather: WeatherData[]
+  timepointIndex: number
 }
 
-export default function MapView({ coordinates, weather }: MapViewProps) {
+export default function MapView({
+  coordinates,
+  weather,
+  timepointIndex,
+}: MapViewProps) {
   const [selectedWeather, setSelectedWeather] = useState<WeatherData | null>(
     null
   )
@@ -68,8 +73,8 @@ export default function MapView({ coordinates, weather }: MapViewProps) {
             }}
           >
             <img
-              src={`https://openweathermap.org/img/wn/${w.icon}@2x.png`}
-              alt={w.description}
+              src={`https://openweathermap.org/img/wn/${w.timepoints[timepointIndex].icon}@2x.png`}
+              alt={w.timepoints[timepointIndex].description}
               className={styles.weatherIcons}
             />
           </Marker>
@@ -85,13 +90,23 @@ export default function MapView({ coordinates, weather }: MapViewProps) {
             closeOnClick={false}
           >
             <div style={{ padding: '8px' }}>
-              <strong>{selectedWeather.description}</strong>
+              <strong>
+                {selectedWeather.timepoints[timepointIndex].description}
+              </strong>
               <br />
-              🌡️ {selectedWeather.temperature.toFixed(1)}°C
+              🌡️{' '}
+              {selectedWeather.timepoints[timepointIndex].temperature.toFixed(
+                1
+              )}
+              °C
               <br />
-              💨 {selectedWeather.windSpeed?.toFixed(1)} m/s
+              💨{' '}
+              {selectedWeather.timepoints[timepointIndex].windSpeed?.toFixed(
+                1
+              )}{' '}
+              m/s
               <br />
-              💧 {selectedWeather.humidity}% humidity
+              💧 {selectedWeather.timepoints[timepointIndex].humidity}% humidity
             </div>
           </Popup>
         )}

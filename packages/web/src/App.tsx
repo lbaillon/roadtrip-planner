@@ -1,13 +1,16 @@
-import { lazy, Suspense } from 'react'
+import { useState, lazy, Suspense } from 'react'
 import styles from './App.module.css'
 import { GpxUploader } from './components/GpxUploader'
 import { Header } from './components/Header'
 import { HumidityChart } from './components/HumidityChart'
+import { TimeSelector } from './components/TimeSelector'
 import { Title } from './components/Title'
 import { useParseGpx } from './hooks/useApi'
 const MapView = lazy(() => import('./components/MapView'))
 
 function App() {
+  const [timepointIndex, setTimepointIndex] = useState(0)
+
   const {
     mutate: uploadGpx,
     data: routeData,
@@ -46,18 +49,27 @@ function App() {
           {routeData.route.distance && (
             <p>Distance: {(routeData.route.distance / 1000).toFixed(2)} km</p>
           )}
+
           <Suspense fallback={<div>Loading map...</div>}>
             <MapView
               coordinates={routeData.route.coordinates}
               weather={routeData.weather}
+              timepointIndex={timepointIndex}
             />
           </Suspense>
+
+          <TimeSelector
+            weather={routeData.weather}
+            setTimepointIndex={setTimepointIndex}
+            timepointIndex={timepointIndex}
+          />
 
           <h3 className={styles.humidityPlot}>Humidity Chart</h3>
 
           <HumidityChart
             coordinates={routeData.route.coordinates}
             weather={routeData.weather}
+            timepointIndex={timepointIndex}
           />
         </div>
       )}

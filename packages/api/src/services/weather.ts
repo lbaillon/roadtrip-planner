@@ -9,7 +9,11 @@ export async function fetchWeatherForPoint(
     throw new Error('API key undefined')
   }
 
-  const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${OPENWEATHER_API_KEY}&units=metric`
+  //for current weather
+  // const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${OPENWEATHER_API_KEY}&units=metric`
+
+  //for weather every 3h (starting in 3h) for 24h
+  const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${OPENWEATHER_API_KEY}&units=metric&cnt=8`
 
   const response = await fetch(url)
 
@@ -22,10 +26,13 @@ export async function fetchWeatherForPoint(
   return WeatherDataSchema.parse({
     lat,
     lon,
-    temperature: data.main.temp,
-    description: data.weather[0].description,
-    icon: data.weather[0].icon,
-    windSpeed: data.wind.speed,
-    humidity: data.main.humidity,
+    timepoints: data.list.map((point: any) => ({
+      time: point.dt,
+      temperature: point.main.temp,
+      description: point.weather[0].description,
+      icon: point.weather[0].icon,
+      windSpeed: point.wind.speed,
+      humidity: point.main.humidity,
+    })),
   })
 }
