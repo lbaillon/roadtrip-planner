@@ -7,9 +7,13 @@ import { fileURLToPath } from 'url'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig(
-  js.configs.recommended,
-  ...tseslint.configs.recommended,
+  globalIgnores(['dist']),
   {
+    files: ['**/*.{ts}'],
+    extends: [
+      js.configs.recommended,
+      tseslint.configs.recommended,
+    ],
     languageOptions: {
       parserOptions: {
         tsconfigRootDir: __dirname,
