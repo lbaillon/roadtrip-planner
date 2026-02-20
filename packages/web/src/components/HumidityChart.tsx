@@ -95,7 +95,7 @@ export function HumidityChart({
         humidity: nearest?.timepoints[timepointIndex].humidity ?? 0,
       }
     })
-  }, [coordinates, weatherWithHumidity])
+  }, [coordinates, weatherWithHumidity, timepointIndex])
 
   useEffect(() => {
     if (!svgRef.current || data.length === 0) return
