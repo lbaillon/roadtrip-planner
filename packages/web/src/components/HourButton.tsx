@@ -1,13 +1,18 @@
 import styles from './HourButton.module.css'
 
 interface HourButtonProps {
-  label : string
+  label: string
   onClick: () => void
   isSelected: boolean
 }
 
-export function HourButton({label, onClick, isSelected} : HourButtonProps) {
+export function HourButton({ label, onClick, isSelected }: HourButtonProps) {
   return (
-    <button className={`${styles.hourButton} ${isSelected ? styles.selected : ''}`} onClick={onClick}>{label}</button>
+    <button
+      className={`${styles.hourButton} ${isSelected ? styles.selected : ''}`}
+      onClick={onClick}
+    >
+      {label}
+    </button>
   )
 }

@@ -11,7 +11,7 @@ interface TimeSelectorProps {
 export function TimeSelector({
   weather = [],
   setTimepointIndex,
-  timepointIndex
+  timepointIndex,
 }: TimeSelectorProps) {
   if (weather.length === 0) return null
   const allTimepoints = weather[0]?.timepoints ?? []

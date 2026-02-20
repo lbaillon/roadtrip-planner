@@ -9,7 +9,11 @@ interface MapViewProps {
   timepointIndex: number
 }
 
-export default function MapView({ coordinates, weather, timepointIndex }: MapViewProps) {
+export default function MapView({
+  coordinates,
+  weather,
+  timepointIndex,
+}: MapViewProps) {
   const [selectedWeather, setSelectedWeather] = useState<WeatherData | null>(
     null
   )
@@ -86,11 +90,21 @@ export default function MapView({ coordinates, weather, timepointIndex }: MapVie
             closeOnClick={false}
           >
             <div style={{ padding: '8px' }}>
-              <strong>{selectedWeather.timepoints[timepointIndex].description}</strong>
+              <strong>
+                {selectedWeather.timepoints[timepointIndex].description}
+              </strong>
               <br />
-              🌡️ {selectedWeather.timepoints[timepointIndex].temperature.toFixed(1)}°C
+              🌡️{' '}
+              {selectedWeather.timepoints[timepointIndex].temperature.toFixed(
+                1
+              )}
+              °C
               <br />
-              💨 {selectedWeather.timepoints[timepointIndex].windSpeed?.toFixed(1)} m/s
+              💨{' '}
+              {selectedWeather.timepoints[timepointIndex].windSpeed?.toFixed(
+                1
+              )}{' '}
+              m/s
               <br />
               💧 {selectedWeather.timepoints[timepointIndex].humidity}% humidity
             </div>

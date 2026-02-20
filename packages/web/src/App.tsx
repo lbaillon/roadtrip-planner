@@ -57,13 +57,13 @@ function App() {
               timepointIndex={timepointIndex}
             />
           </Suspense>
-          
+
           <TimeSelector
             weather={routeData.weather}
             setTimepointIndex={setTimepointIndex}
             timepointIndex={timepointIndex}
           />
-          
+
           <h3 className={styles.humidityPlot}>Humidity Chart</h3>
 
           <HumidityChart
