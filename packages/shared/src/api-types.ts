@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { ParsedGpxSchema, WeatherDataSchema } from './validators'
+import { ParsedGpxSchema, WeatherDataSchema } from './validators.js'
 
 // Request schemas
 export const ParseGpxRequestSchema = z.object({
