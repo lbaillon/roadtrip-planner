@@ -26,7 +26,7 @@ export async function fetchWeatherForPoint(
   return WeatherDataSchema.parse({
     lat,
     lon,
-    timepoints: data.list.map((point: any) => ({
+    timepoints: data.list.map((point: {dt:number; main: {temp: number; humidity: number}; wind:{speed: number}; weather:{description: string; icon: string}[]}) => ({
       time: point.dt,
       temperature: point.main.temp,
       description: point.weather[0].description,
