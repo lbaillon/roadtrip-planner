@@ -7,10 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      d3:
-        specifier: ^7.9.0
-        version: 7.9.0
     devDependencies:
       '@eslint/js':
         specifier: ^10.0.1
@@ -101,6 +97,9 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.90.21
         version: 5.90.21(react@19.2.4)
+      d3:
+        specifier: ^7.9.0
+        version: 7.9.0
       maplibre-gl:
         specifier: ^5.18.0
         version: 5.18.0

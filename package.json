@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "concurrently -n shared,api,web -c cyan,magenta,yellow \"pnpm --dir packages/shared run dev\" \"pnpm --dir packages/api run dev\" \"pnpm --dir packages/web run dev\"",
-    "build": "pnpm --filter @roadtrip/shared build && pnpm --filter @roadtrip/api build && pnpm --filter @roadtrip/web build",
+    "build": "tsc -b && pnpm --filter @roadtrip/web build",
     "type-check": "pnpm -r --bail exec tsc --noEmit",
     "format": "pnpm exec prettier --write \"packages/**/*.{ts,tsx,js,jsx,json}\"",
     "format:check": "pnpm exec prettier --check \"packages/**/*.{ts,tsx,js,jsx,json,md}\"",
@@ -24,8 +24,7 @@
   "author": "Laury Baillon",
   "license": "ISC",
   "packageManager": "pnpm@10.29.3",
-  "dependencies": {
-    "d3": "^7.9.0"
+  "dependencies": {   
   },
   "pnpm": {
     "onlyBuiltDependencies": ["esbuild"]

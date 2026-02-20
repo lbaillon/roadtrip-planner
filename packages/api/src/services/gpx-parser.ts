@@ -1,8 +1,10 @@
-import gpxParser from 'gpxparser'
 import { ParsedGpxSchema, type ParsedGpx } from '@roadtrip/shared'
 
+import GpxParser from 'gpxparser'
+
 export function parseGpxFile(gpxContent: string): ParsedGpx {
-  const gpx = new gpxParser()
+  // @ts-ignore
+  const gpx = new GpxParser()
   gpx.parse(gpxContent)
 
   if (!gpx.tracks || gpx.tracks.length === 0) {
@@ -10,11 +12,13 @@ export function parseGpxFile(gpxContent: string): ParsedGpx {
   }
 
   const track = gpx.tracks[0]
-  const coordinates = track.points.map((point) => ({
-    lat: point.lat,
-    lon: point.lon,
-    ele: point.ele,
-  }))
+  const coordinates = track.points.map(
+    (point: { lat: number; lon: number; ele?: number }) => ({
+      lat: point.lat,
+      lon: point.lon,
+      ele: point.ele,
+    })
+  )
 
   return ParsedGpxSchema.parse({
     name: track.name || 'Unnamed Route',

@@ -18,7 +18,8 @@
     "maplibre-gl": "^5.18.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "react-map-gl": "^8.1.0"
+    "react-map-gl": "^8.1.0",
+    "d3": "^7.9.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
