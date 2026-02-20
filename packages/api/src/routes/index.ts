@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import gpxRoutes from './gpx'
+import gpxRoutes from './gpx.js'
 
 const router = Router()
 

@@ -1,2 +1,2 @@
-export * from './validators'
-export * from './api-types'
+export * from './validators.js'
+export * from './api-types.js'
