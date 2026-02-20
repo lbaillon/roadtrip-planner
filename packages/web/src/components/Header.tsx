@@ -6,21 +6,20 @@ import { Dropdown } from 'antd'
 import { Link } from 'react-router-dom'
 
 export function Header() {
-
   const userMenu: MenuProps['items'] = [
     {
-      label: <Link to='/login'>Log in</Link>,
+      label: <Link to="/login">Log in</Link>,
       key: 'login',
     },
     {
-      label: <Link to='/signup'>Sign up</Link>,
+      label: <Link to="/signup">Sign up</Link>,
       key: 'signup',
     },
   ]
 
   const barsMenu: MenuProps['items'] = [
     {
-      label: <Link to='/'>Home</Link>,
+      label: <Link to="/">Home</Link>,
       key: 'home',
     },
   ]
