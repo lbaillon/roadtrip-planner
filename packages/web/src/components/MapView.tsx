@@ -9,7 +9,7 @@ interface MapViewProps {
   timepointIndex: number
 }
 
-export function MapView({ coordinates, weather, timepointIndex }: MapViewProps) {
+export default function MapView({ coordinates, weather, timepointIndex }: MapViewProps) {
   const [selectedWeather, setSelectedWeather] = useState<WeatherData | null>(
     null
   )
