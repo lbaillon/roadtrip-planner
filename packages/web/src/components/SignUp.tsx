@@ -1,24 +1,25 @@
 import styles from './SignUp-LogIn.module.css'
 import { Header } from './Header'
+import { Button, Input } from 'antd'
 
 export function SignUp() {
   return (
     <div className={styles.main}>
       <Header />
       <div className={styles.inputBox}>
-        <input className={styles.input} placeholder="username"></input>
-        <input className={styles.input} placeholder="email"></input>
-        <input
+        <Input className={styles.input} placeholder="username"></Input>
+        <Input className={styles.input} placeholder="email"></Input>
+        <Input
           className={styles.input}
           placeholder="password"
           type="password"
-        ></input>
-        <input
+        ></Input>
+        <Input
           className={styles.input}
           placeholder="confirm password"
           type="password"
-        ></input>
-        <button className={styles.button}>Sign up</button>
+        ></Input>
+        <Button className={styles.button}>Sign up</Button>
       </div>
     </div>
   )

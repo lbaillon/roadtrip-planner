@@ -3,38 +3,25 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUser, faBars } from '@fortawesome/free-solid-svg-icons'
 import type { MenuProps } from 'antd'
 import { Dropdown } from 'antd'
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 export function Header() {
-  const navigate = useNavigate()
-
-  const goToLogIn = () => {
-    navigate('/login')
-  }
-
-  const goToSignUp = () => {
-    navigate('/signup')
-  }
-
-  const goHome = () => {
-    navigate('/')
-  }
 
   const userMenu: MenuProps['items'] = [
     {
-      label: <p onClick={goToLogIn}>log in</p>,
-      key: '0',
+      label: <Link to='/login'>Log in</Link>,
+      key: 'login',
     },
     {
-      label: <p onClick={goToSignUp}>sign up</p>,
-      key: '1',
+      label: <Link to='/signup'>Sign up</Link>,
+      key: 'signup',
     },
   ]
 
   const barsMenu: MenuProps['items'] = [
     {
-      label: <p onClick={goHome}>Home</p>,
-      key: '0',
+      label: <Link to='/'>Home</Link>,
+      key: 'home',
     },
   ]
 
