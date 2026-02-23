@@ -16,13 +16,12 @@ export function SignUp() {
 
   const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
     postUser(values)
-    console.log('Success:', values)
   }
 
   const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (
     errorInfo
   ) => {
-    console.log('Failed:', errorInfo)
+    alert(`Failed: ${errorInfo}`)
   }
 
   return (

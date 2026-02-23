@@ -14,11 +14,11 @@ export function LogIn() {
       console.log('Success:', values)
     }
   
-    const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (
-      errorInfo
-    ) => {
-      console.log('Failed:', errorInfo)
-    }
+  const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (
+    errorInfo
+  ) => {
+    alert(`Failed: ${errorInfo}`)
+  }
 
   return (
 <div className={styles.main}>
