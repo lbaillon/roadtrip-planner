@@ -25,7 +25,6 @@ export function SignUp() {
     console.log('Failed:', errorInfo)
   }
 
-
   return (
     <div className={styles.main}>
       <Header />
@@ -67,7 +66,18 @@ export function SignUp() {
           <Form.Item<FieldType>
             label="Confirm password"
             name="confirmPassword"
-            rules={[{ required: true, message: 'Please input your password!' }]}
+            dependencies={['password']}
+            rules={[
+              { required: true, message: 'Please confirm your password!' },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (getFieldValue('password') === value) {
+                    return Promise.resolve()
+                  }
+                  return Promise.reject(new Error('Passwords do not match!'))
+                },
+              }),
+            ]}
           >
             <Input.Password />
           </Form.Item>
