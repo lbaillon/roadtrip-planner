@@ -1,7 +1,9 @@
-import styles from './MapView.module.css'
-import Map, { Source, Layer, Marker, Popup } from 'react-map-gl/maplibre'
 import type { GpxCoordinate, WeatherData } from '@roadtrip/shared'
+import 'maplibre-gl/dist/maplibre-gl.css'
 import { useState } from 'react'
+import Map, { Layer, Marker, Popup, Source } from 'react-map-gl/maplibre'
+import styles from './MapView.module.css'
+
 
 interface MapViewProps {
   coordinates: GpxCoordinate[]
