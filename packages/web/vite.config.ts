@@ -14,8 +14,9 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '#web': path.resolve(__dirname, 'src')
-    }},
+      '#web': path.resolve(__dirname, 'src'),
+    },
+  },
   build: {
     chunkSizeWarningLimit: 1200,
     rollupOptions: {
