@@ -50,7 +50,11 @@ router.post('/login', async (req, res) => {
     const validatedInput = LogInRequestSchema.parse(req.body)
     const result = await login(validatedInput)
     res.status(200).json(result)
-  } catch (err) {
+  } catch (error) {
+    console.error(
+      'Error:',
+      JSON.stringify(error, Object.getOwnPropertyNames(error), 2)
+    )
     res.status(401).json({ message: 'Invalid credentials' })
   }
 })

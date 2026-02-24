@@ -1,5 +1,5 @@
-import { drizzle as drizzlePg } from 'drizzle-orm/postgres-js'
-import postgres from 'postgres'
+// import { drizzle as drizzlePg } from 'drizzle-orm/postgres-js'
+// import postgres from 'postgres'
 import * as schema from './schema.js'
 import { drizzle as drizzleSqlite } from 'drizzle-orm/libsql'
 import { createClient } from '@libsql/client'
