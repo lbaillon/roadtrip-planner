@@ -27,6 +27,16 @@ export const ParsedGpxSchema = z.object({
   distance: z.number().optional(),
 })
 
+export const UserSchema = z.object({
+  id: z.string(),
+  email: z.string(),
+  username: z.string(),
+  password: z.string(),
+  profilePicture: z.string().optional(),
+  createdAt: z.number(),
+})
+
 export type GpxCoordinate = z.infer<typeof GpxCoordinateSchema>
 export type WeatherData = z.infer<typeof WeatherDataSchema>
 export type ParsedGpx = z.infer<typeof ParsedGpxSchema>
+export type User = z.infer<typeof UserSchema>
