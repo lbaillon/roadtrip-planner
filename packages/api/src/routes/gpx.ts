@@ -1,12 +1,12 @@
+import { parseGpxFile, sampleRoutePoints } from '#api/services/gpx-parser.js'
+import { fetchWeatherForPoint } from '#api/services/weather.js'
+import { processPost } from '#api/utils/route-handler.js'
 import {
   ParseGpxRequestSchema,
   type ParseGpxRequest,
   type ParseGpxResponse,
 } from '@roadtrip/shared'
-import { Router} from 'express'
-import { parseGpxFile, sampleRoutePoints } from '../services/gpx-parser.js'
-import { fetchWeatherForPoint } from '../services/weather.js'
-import { processPost } from '../utils/route-handler.js'
+import { Router } from 'express'
 
 const router: Router = Router()
 
