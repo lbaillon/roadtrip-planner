@@ -1,6 +1,7 @@
 import styles from './SignUp-LogIn.module.css'
 import { Header } from './Header'
 import { Button, Form, Input, type FormProps } from 'antd'
+import { useLogin } from '../hooks/useApi'
 
 type FieldType = {
   username: string
@@ -9,8 +10,11 @@ type FieldType = {
 }
 
 export function LogIn() {
+  const { mutate: postUser } = useLogin()
+
   const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
-    console.log('Success:', values)
+    console.log('coucou')
+    postUser(values)
   }
 
   const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (
