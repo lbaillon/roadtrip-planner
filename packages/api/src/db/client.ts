@@ -1,7 +1,7 @@
 import { drizzle as drizzlePg } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 import * as schema from './schema.js'
-import { drizzle as drizzleSqlite} from 'drizzle-orm/libsql'
+import { drizzle as drizzleSqlite } from 'drizzle-orm/libsql'
 import { createClient } from '@libsql/client'
 
 const isDev = process.env.NODE_ENV !== 'production'
@@ -18,11 +18,11 @@ const isDev = process.env.NODE_ENV !== 'production'
 
 // SQLite connection (local development)
 function createSqliteClient() {
-const client = createClient({
-  url: isDev ? 'file:dev.db' : process.env.DATABASE_URL!,
-})
+  const client = createClient({
+    url: isDev ? 'file:dev.db' : process.env.DATABASE_URL!,
+  })
   return drizzleSqlite(client, { schema })
 }
 
 // export const db = isDev ? createSqliteClient() : createPgClient()
-export const db =  createSqliteClient()
+export const db = createSqliteClient()

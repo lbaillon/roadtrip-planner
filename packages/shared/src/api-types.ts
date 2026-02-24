@@ -25,13 +25,12 @@ export const ParseGpxResponseSchema = z.object({
 })
 
 export const CreateResponseSchema = z.object({
-    id: z.string()
+  id: z.string(),
 })
 
 export const LogInResponseSchema = z.object({
-  id: z.string()
+  id: z.string(),
 })
-
 
 export type ParseGpxRequest = z.infer<typeof ParseGpxRequestSchema>
 export type ParseGpxResponse = z.infer<typeof ParseGpxResponseSchema>

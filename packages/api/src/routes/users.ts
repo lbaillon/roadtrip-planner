@@ -32,17 +32,16 @@ export async function createUser(
   }
 }
 
-export async function login(
-  body: LogInRequest
-) : Promise<LogInResponse> {
-  const [user] = await db.select().from(users).where(eq(users.username, body.username))
+export async function login(body: LogInRequest): Promise<LogInResponse> {
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.username, body.username))
   if (!user || !(await comparePassword(body.password, user.password))) {
     throw new Error('INVALID_CREDENTIALS')
   }
-  return {id: user.id}
+  return { id: user.id }
 }
-
-
 
 router.post('/', processPost(CreateUserRequestSchema, createUser))
 

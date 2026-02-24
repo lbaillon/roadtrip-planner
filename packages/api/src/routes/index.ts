@@ -7,5 +7,4 @@ const router: RouterType = Router()
 router.use('/gpx', gpxRoutes)
 router.use('/users', usersRoutes)
 
-
 export default router

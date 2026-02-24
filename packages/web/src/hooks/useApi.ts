@@ -1,4 +1,9 @@
-import type { CreateResponse, CreateUserRequest, ParseGpxRequest, ParseGpxResponse } from '@roadtrip/shared'
+import type {
+  CreateResponse,
+  CreateUserRequest,
+  ParseGpxRequest,
+  ParseGpxResponse,
+} from '@roadtrip/shared'
 import { useMutation } from '@tanstack/react-query'
 import { fetchApi } from '../lib/api-client'
 

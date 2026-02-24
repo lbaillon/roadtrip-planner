@@ -9,11 +9,10 @@ type FieldType = {
 }
 
 export function LogIn() {
+  const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
+    console.log('Success:', values)
+  }
 
-    const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
-      console.log('Success:', values)
-    }
-  
   const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (
     errorInfo
   ) => {
@@ -21,7 +20,7 @@ export function LogIn() {
   }
 
   return (
-<div className={styles.main}>
+    <div className={styles.main}>
       <Header />
       <div className={styles.inputBox}>
         <Form
