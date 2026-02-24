@@ -1,12 +1,12 @@
 import { useState, lazy, Suspense } from 'react'
 import styles from './Home.module.css'
-import { GpxUploader } from '../components/GpxUploader'
-import { Header } from '../components/Header'
-import { HumidityChart } from '../components/HumidityChart'
-import { TimeSelector } from '../components/TimeSelector'
-import { Title } from '../components/Title'
-import { useParseGpx } from '../hooks/useApi'
-const MapView = lazy(() => import('../components/MapView'))
+import { GpxUploader } from '#web/components/GpxUploader'
+import { Header } from '#web/components/Header'
+import { HumidityChart } from '#web/components/HumidityChart'
+import { TimeSelector } from '#web/components/TimeSelector'
+import { Title } from '#web/components/Title'
+import { useParseGpx } from '#web/hooks/useApi'
+const MapView = lazy(() => import('#web/components/MapView'))
 
 function Home() {
   const [timepointIndex, setTimepointIndex] = useState(0)

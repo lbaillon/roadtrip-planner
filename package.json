@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "concurrently -n shared,api,web -c cyan,magenta,yellow \"pnpm --dir packages/shared run dev\" \"pnpm --dir packages/api run dev\" \"pnpm --dir packages/web run dev\"",
     "build": "tsc -b && pnpm --filter @roadtrip/web build",
+    "build:clean": "tsc -b --clean",
     "type-check": "pnpm -r --bail exec tsc --noEmit",
     "format": "pnpm exec prettier --write \"packages/**/*.{ts,tsx,js,jsx,json}\"",
     "format:check": "pnpm exec prettier --check \"packages/**/*.{ts,tsx,js,jsx,json,md}\"",
