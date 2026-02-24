@@ -1,7 +1,7 @@
-import { Router, type Router as RouterType } from 'express'
+import { Router } from 'express'
 import gpxRoutes from './gpx.js'
 
-const router: RouterType = Router()
+const router: Router = Router()
 
 router.use('/gpx', gpxRoutes)
 
