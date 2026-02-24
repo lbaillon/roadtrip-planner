@@ -1,9 +1,9 @@
-import styles from './Header.module.css'
+import { faBars, faUser } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faUser, faBars } from '@fortawesome/free-solid-svg-icons'
 import type { MenuProps } from 'antd'
 import { Dropdown } from 'antd'
 import { Link } from 'react-router-dom'
+import styles from './Header.module.css'
 
 export function Header() {
   const userMenu: MenuProps['items'] = [
@@ -27,14 +27,10 @@ export function Header() {
   return (
     <div className={styles.header}>
       <Dropdown menu={{ items: barsMenu }} trigger={['click']}>
-        <a onClick={(e) => e.preventDefault()}>
-          <FontAwesomeIcon className={styles.headerIcon} icon={faBars} />
-        </a>
+        <FontAwesomeIcon className={styles.headerIcon} icon={faBars} />
       </Dropdown>
       <Dropdown menu={{ items: userMenu }} trigger={['click']}>
-        <a onClick={(e) => e.preventDefault()}>
-          <FontAwesomeIcon className={styles.headerIcon} icon={faUser} />
-        </a>
+        <FontAwesomeIcon className={styles.headerIcon} icon={faUser} />
       </Dropdown>
     </div>
   )

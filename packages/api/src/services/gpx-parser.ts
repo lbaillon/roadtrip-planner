@@ -3,7 +3,7 @@ import { ParsedGpxSchema, type ParsedGpx } from '@roadtrip/shared'
 import GpxParser from 'gpxparser'
 
 export function parseGpxFile(gpxContent: string): ParsedGpx {
-  // @ts-ignore
+  // @ts-expect-error Could not fix 'This expression is not constructable'
   const gpx = new GpxParser()
   gpx.parse(gpxContent)
 
