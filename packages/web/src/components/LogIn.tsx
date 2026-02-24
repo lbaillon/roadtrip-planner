@@ -13,7 +13,6 @@ export function LogIn() {
   const { mutate: postUser } = useLogin()
 
   const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
-    console.log('coucou')
     postUser(values)
   }
 
