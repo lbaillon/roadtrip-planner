@@ -4,7 +4,6 @@ import { useState } from 'react'
 import Map, { Layer, Marker, Popup, Source } from 'react-map-gl/maplibre'
 import styles from './MapView.module.css'
 
-
 interface MapViewProps {
   coordinates: GpxCoordinate[]
   weather: WeatherData[]
