@@ -1,4 +1,6 @@
 import react from '@vitejs/plugin-react'
+
+import path from 'node:path'
 import { defineConfig } from 'vite'
 
 // https://vite.dev/config/
@@ -10,6 +12,10 @@ export default defineConfig({
       },
     }),
   ],
+  resolve: {
+    alias: {
+      '#web': path.resolve(__dirname, 'src')
+    }},
   build: {
     chunkSizeWarningLimit: 1200,
     rollupOptions: {
