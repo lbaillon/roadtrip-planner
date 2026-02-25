@@ -1,7 +1,8 @@
 import styles from './SignUp-LogIn.module.css'
 import { Header } from './Header'
-import { Button, Form, Input, type FormProps } from 'antd'
+import { Button, Form, Input, type FormProps, Alert } from 'antd'
 import { useLogin } from '../hooks/useApi'
+import { useState } from 'react'
 
 type FieldType = {
   username: string
@@ -9,23 +10,40 @@ type FieldType = {
   email: string
 }
 
+type AlertState = {
+  type: 'success' | 'error'
+  message: string
+} | null
+
 export function LogIn() {
   const { mutate: postUser } = useLogin()
+  const [alert, setAlert] = useState<AlertState>(null)
 
   const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
-    postUser(values)
+    postUser(values, {
+      onSuccess: () =>
+        setAlert({ type: 'success', message: 'Login successful' }),
+      onError: (err) =>
+        setAlert({ type: 'error', message: `Login failed: ${err.message}` }),
+    })
   }
 
   const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (
     errorInfo
   ) => {
-    alert(`Failed: ${errorInfo}`)
+    setAlert({
+      type: 'error',
+      message: `Login failed: ${errorInfo.message}`,
+    })
   }
 
   return (
     <div className={styles.main}>
       <Header />
       <div className={styles.inputBox}>
+        {alert && (
+          <Alert description={alert.message} type={alert.type} showIcon />
+        )}
         <Form
           name="signup"
           labelCol={{ span: 8 }}
