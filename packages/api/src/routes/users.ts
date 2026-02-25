@@ -11,7 +11,8 @@ import {
 } from '@roadtrip/shared'
 import { users } from '../db/schema.js'
 import { comparePassword, hashPassword } from '../services/authentication.js'
-import { eq } from 'drizzle-orm'
+import { DrizzleQueryError, eq } from 'drizzle-orm'
+import { LibsqlError } from '@libsql/client'
 
 const router: RouterType = Router()
 
@@ -19,16 +20,27 @@ export async function createUser(
   body: CreateUserRequest
 ): Promise<CreateResponse> {
   const hashedPassword = await hashPassword(body.password)
-  const [user] = await db
-    .insert(users)
-    .values({
-      username: body.username,
-      email: body.email,
-      password: hashedPassword,
-    })
-    .returning()
-  return {
-    id: user.id,
+  try {
+    const [user] = await db
+      .insert(users)
+      .values({
+        username: body.username,
+        email: body.email,
+        password: hashedPassword,
+      })
+      .returning()
+    return {
+      id: user.id,
+    }
+  } catch (err) {
+    if (
+      err instanceof DrizzleQueryError &&
+      err.cause instanceof LibsqlError &&
+      err.cause?.extendedCode === 'SQLITE_CONSTRAINT_UNIQUE'
+    ) {
+      throw new Error('user already exists', { cause: err })
+    }
+    throw err
   }
 }
 
