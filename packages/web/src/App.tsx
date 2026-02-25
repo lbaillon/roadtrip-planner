@@ -1,16 +1,17 @@
-import { Routes, Route } from 'react-router-dom'
+import LogIn from '#web/components/LogIn'
+import SignUp from '#web/components/SignUp'
+import { Route, Routes } from 'react-router-dom'
+import MainLayout from './components/MainLayout'
 import Home from './pages/Home'
-import { LogIn } from '#web/components/LogIn'
-import { SignUp } from '#web/components/SignUp'
 
-function App() {
+export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<Home />}></Route>
-      <Route path="/login" element={<LogIn />}></Route>
-      <Route path="/signup" element={<SignUp />}></Route>
+      <Route element={<MainLayout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<LogIn />} />
+        <Route path="/signup" element={<SignUp />} />
+      </Route>
     </Routes>
   )
 }
-
-export default App
