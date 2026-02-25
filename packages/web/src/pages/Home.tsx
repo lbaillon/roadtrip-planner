@@ -1,11 +1,13 @@
-import { useState, lazy, Suspense } from 'react'
-import styles from './Home.module.css'
+import ConnectionIndicator from '#web/components/ConnectionIndicator'
 import { GpxUploader } from '#web/components/GpxUploader'
 import { Header } from '#web/components/Header'
 import { HumidityChart } from '#web/components/HumidityChart'
 import { TimeSelector } from '#web/components/TimeSelector'
 import { Title } from '#web/components/Title'
 import { useParseGpx } from '#web/hooks/useApi'
+import { lazy, Suspense, useState } from 'react'
+import styles from './Home.module.css'
+import Footer from '#web/components/Footer'
 const MapView = lazy(() => import('#web/components/MapView'))
 
 function Home() {
@@ -73,6 +75,9 @@ function Home() {
           />
         </div>
       )}
+      <Footer>
+        <ConnectionIndicator />
+      </Footer>
     </div>
   )
 }
