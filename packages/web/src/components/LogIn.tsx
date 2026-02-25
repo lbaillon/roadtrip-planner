@@ -42,11 +42,7 @@ export function LogIn() {
       <Header />
       <div className={styles.inputBox}>
         {alert && (
-          <Alert
-            description={alert.message}
-            type={alert.type}
-            showIcon
-          />
+          <Alert description={alert.message} type={alert.type} showIcon />
         )}
         <Form
           name="signup"
