@@ -1,9 +1,8 @@
-import styles from './SignUp-LogIn.module.css'
-import { Header } from './Header'
-import { Button, Input, Form, Alert } from 'antd'
 import type { FormProps } from 'antd'
-import { useCreateUser } from '../hooks/useApi'
+import { Alert, Button, Form, Input } from 'antd'
 import { useState } from 'react'
+import { useCreateUser } from '../hooks/useApi'
+import styles from './SignUp-LogIn.module.css'
 
 type FieldType = {
   username: string
@@ -17,7 +16,7 @@ type AlertState = {
   message: string
 } | null
 
-export function SignUp() {
+export default function SignUp() {
   const { mutate: postUser } = useCreateUser()
   const [alert, setAlert] = useState<AlertState>(null)
 
@@ -46,72 +45,69 @@ export function SignUp() {
   }
 
   return (
-    <div className={styles.main}>
-      <Header />
-      <div className={styles.inputBox}>
-        {alert && (
-          <Alert description={alert.message} type={alert.type} showIcon />
-        )}
-        <Form
-          name="signup"
-          labelCol={{ span: 8 }}
-          wrapperCol={{ span: 16 }}
-          style={{ maxWidth: 600 }}
-          initialValues={{ remember: true }}
-          onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
-          autoComplete="off"
+    <div className={styles.inputBox}>
+      {alert && (
+        <Alert description={alert.message} type={alert.type} showIcon />
+      )}
+      <Form
+        name="signup"
+        labelCol={{ span: 8 }}
+        wrapperCol={{ span: 16 }}
+        style={{ maxWidth: 600 }}
+        initialValues={{ remember: true }}
+        onFinish={onFinish}
+        onFinishFailed={onFinishFailed}
+        autoComplete="off"
+      >
+        <Form.Item<FieldType>
+          label="Username"
+          name="username"
+          rules={[{ required: true, message: 'Please input your username!' }]}
         >
-          <Form.Item<FieldType>
-            label="Username"
-            name="username"
-            rules={[{ required: true, message: 'Please input your username!' }]}
-          >
-            <Input />
-          </Form.Item>
+          <Input />
+        </Form.Item>
 
-          <Form.Item<FieldType>
-            label="Email"
-            name="email"
-            rules={[{ required: true, message: 'Please input your username!' }]}
-          >
-            <Input />
-          </Form.Item>
+        <Form.Item<FieldType>
+          label="Email"
+          name="email"
+          rules={[{ required: true, message: 'Please input your username!' }]}
+        >
+          <Input />
+        </Form.Item>
 
-          <Form.Item<FieldType>
-            label="Password"
-            name="password"
-            rules={[{ required: true, message: 'Please input your password!' }]}
-          >
-            <Input.Password />
-          </Form.Item>
+        <Form.Item<FieldType>
+          label="Password"
+          name="password"
+          rules={[{ required: true, message: 'Please input your password!' }]}
+        >
+          <Input.Password />
+        </Form.Item>
 
-          <Form.Item<FieldType>
-            label="Confirm password"
-            name="confirmPassword"
-            dependencies={['password']}
-            rules={[
-              { required: true, message: 'Please confirm your password!' },
-              ({ getFieldValue }) => ({
-                validator(_, value) {
-                  if (getFieldValue('password') === value) {
-                    return Promise.resolve()
-                  }
-                  return Promise.reject(new Error('Passwords do not match!'))
-                },
-              }),
-            ]}
-          >
-            <Input.Password />
-          </Form.Item>
+        <Form.Item<FieldType>
+          label="Confirm password"
+          name="confirmPassword"
+          dependencies={['password']}
+          rules={[
+            { required: true, message: 'Please confirm your password!' },
+            ({ getFieldValue }) => ({
+              validator(_, value) {
+                if (getFieldValue('password') === value) {
+                  return Promise.resolve()
+                }
+                return Promise.reject(new Error('Passwords do not match!'))
+              },
+            }),
+          ]}
+        >
+          <Input.Password />
+        </Form.Item>
 
-          <Form.Item label={null}>
-            <Button type="primary" htmlType="submit" className={styles.button}>
-              Submit
-            </Button>
-          </Form.Item>
-        </Form>
-      </div>
+        <Form.Item label={null}>
+          <Button type="primary" htmlType="submit" className={styles.button}>
+            Submit
+          </Button>
+        </Form.Item>
+      </Form>
     </div>
   )
 }
