@@ -1,5 +1,5 @@
 import styles from './UserTracks.module.css'
-import { faMotorcycle, faXmark} from '@fortawesome/free-solid-svg-icons'
+import { faMotorcycle, faXmark } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 export default function UserTracks() {

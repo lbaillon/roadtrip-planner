@@ -2,10 +2,13 @@ import { db } from '../db/client.js'
 import { Router, type Router as RouterType } from 'express'
 import { processPost } from '../utils/route-handler.js'
 import { tracks } from '../db/schema.js'
-import { CreateTrackRequest, CreateTrackRequestSchema, CreateTrackResponse } from '@roadtrip/shared'
+import {
+  CreateTrackRequest,
+  CreateTrackRequestSchema,
+  CreateTrackResponse,
+} from '@roadtrip/shared'
 import { parseGpxFile } from '#api/services/gpx-parser.js'
 import { v2 as cloudinary } from 'cloudinary'
-
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -15,7 +18,10 @@ cloudinary.config({
 
 const router: RouterType = Router()
 
-async function uploadGpxToCloudinary(gpxContent: string, trackName: string): Promise<string> {
+async function uploadGpxToCloudinary(
+  gpxContent: string,
+  trackName: string
+): Promise<string> {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
       {
@@ -30,7 +36,7 @@ async function uploadGpxToCloudinary(gpxContent: string, trackName: string): Pro
       }
     )
 
-        const buffer = Buffer.from(gpxContent, 'utf-8')
+    const buffer = Buffer.from(gpxContent, 'utf-8')
     uploadStream.end(buffer)
   })
 }
@@ -49,16 +55,15 @@ export async function createTrack(
     .values({
       userId: body.userId,
       name: trackName,
-      gpxFile : gpxUrl,
+      gpxFile: gpxUrl,
     })
     .returning()
 
   return {
-    id: track.id
+    id: track.id,
   }
 }
 
 router.post('/', processPost(CreateTrackRequestSchema, createTrack))
-
 
 export default router

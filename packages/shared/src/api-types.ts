@@ -20,7 +20,7 @@ export const LogInRequestSchema = z.object({
 export const CreateTrackRequestSchema = z.object({
   name: z.string().optional(),
   gpxContent: z.string().min(1, 'GPX content cannot be empty'),
-  userId: z.string()
+  userId: z.string(),
 })
 
 // Response schemas

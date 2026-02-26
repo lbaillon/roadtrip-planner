@@ -37,7 +37,7 @@ export default function NewTrackModal() {
 
   return (
     <>
-      <Button type="primary" onClick={showModal} className={styles.modalButton} >
+      <Button type="primary" onClick={showModal} className={styles.modalButton}>
         Upload new track
       </Button>
       <Modal
