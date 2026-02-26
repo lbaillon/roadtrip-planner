@@ -1,0 +1,22 @@
+.tracksBox{
+  grid-column: 2/12;
+  grid-row: 5/10;
+}
+
+.motoIcon{
+  margin-right: 10px;
+  opacity: 0.6;
+  color: #888;
+}
+
+.track{
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.deleteIcon{
+  font-size: 0.8em;       
+  cursor: pointer;
+  margin-left: auto;
+}

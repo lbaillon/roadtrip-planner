@@ -1,0 +1,5 @@
+.greet{
+  grid-column: 4/10;
+  grid-row: 2/3;
+  text-align: center;
+}
