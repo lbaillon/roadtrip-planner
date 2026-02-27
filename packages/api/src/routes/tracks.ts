@@ -67,14 +67,24 @@ export async function createTrack(
 
 router.post('/', processPost(CreateTrackRequestSchema, createTrack))
 
-
 export async function deleteTrack(id: string) {
   const [deletedTrack] = await db
     .delete(tracks)
     .where(eq(tracks.id, id))
     .returning()
 
-  return deletedTrack ?? null
+  if (!deletedTrack) return null
+
+  // Extraire le public_id depuis l'URL cloudinary
+  // L'URL ressemble à : https://res.cloudinary.com/.../gpx-tracks/1234567890-mon-track.gpx
+  const publicId = new URL(deletedTrack.gpxFile).pathname
+    .split('/upload/')[1]
+    .replace(/^v\d+\//, '')
+    .replace('.gpx', '')
+
+  await cloudinary.uploader.destroy(publicId, { resource_type: 'raw' })
+
+  return deletedTrack
 }
 
 router.delete('/:id', processDelete(deleteTrack))

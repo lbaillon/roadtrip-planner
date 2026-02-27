@@ -37,7 +37,6 @@ export const LogInResponseSchema = z.object({
   id: z.string(),
 })
 
-
 export type ParseGpxRequest = z.infer<typeof ParseGpxRequestSchema>
 export type ParseGpxResponse = z.infer<typeof ParseGpxResponseSchema>
 export type CreateUserRequest = z.infer<typeof CreateUserRequestSchema>
