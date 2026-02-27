@@ -8,6 +8,7 @@ const secret = new TextEncoder().encode(
 export interface JWTPayload {
   userId: string
   email: string
+  username: string
   role: string
 }
 

@@ -50,7 +50,7 @@ export async function createTrack(
 router.post(
   '/',
   authenticate,
-  authorize(['admin']),
+  authorize(['user']),
   processPost(CreateTrackRequestSchema, createTrack)
 )
 

@@ -22,7 +22,7 @@ export default function UserGreeting() {
   if (accessToken) {
     try {
       const payload = decodeJwtPayload(accessToken)
-      username = payload.email ?? 'Anonymous'
+      username = payload.username ?? 'Anonymous'
     } catch {
       username = 'Anonymous'
     }
