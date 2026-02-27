@@ -10,7 +10,7 @@ import { Router } from 'express'
 
 const router: Router = Router()
 
-export async function handleParseGpx(
+async function handleParseGpx(
   body: ParseGpxRequest
 ): Promise<ParseGpxResponse> {
   const parsed = parseGpxFile(body.gpxContent)
