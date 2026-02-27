@@ -16,7 +16,7 @@ app.use(
     origin: [
       isDev
         ? 'http://localhost:5173'
-        : 'https://roadtrip-planner-web.vercel.app/',
+        : 'https://roadtrip-planner-web.vercel.app',
     ],
     credentials: true,
   })
