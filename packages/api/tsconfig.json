@@ -9,6 +9,6 @@
       "#api/*": ["src/*"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "@types"],
   "references": [{ "path": "../shared" }]
 }

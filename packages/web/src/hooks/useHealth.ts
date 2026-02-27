@@ -4,7 +4,7 @@ import { fetchApi } from '../lib/api-client'
 export function useHealth() {
   return useQuery({
     queryKey: ['/health'],
-    queryFn: () => fetchApi<{ status: 'ok' }>('/health'),
+    queryFn: () => fetchApi<{ status: 'ok' }>('/api/health'),
     refetchInterval: (query) => {
       if (!navigator.onLine) return false
       const status = query.state.data?.status
