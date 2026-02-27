@@ -22,6 +22,10 @@ export default function Header() {
       label: <Link to="/">Home</Link>,
       key: 'home',
     },
+    {
+      label: <Link to="/tracks">My tracks</Link>,
+      key: 'tracks',
+    },
   ]
 
   return (

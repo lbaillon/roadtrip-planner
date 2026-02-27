@@ -5,6 +5,7 @@ import {
   type LogInResponse,
   type ParseGpxRequest,
   type ParseGpxResponse,
+  type CreateTrackRequest,
 } from '@roadtrip/shared'
 import { useMutation } from '@tanstack/react-query'
 import { ApiError, fetchApi } from '../lib/api-client'
@@ -70,4 +71,8 @@ export function useCreateUser() {
 
 export function useLogin() {
   return usePost<LogInRequest, LogInResponse>('/api/auth/login')
+}
+
+export function useCreateTrack() {
+  return usePost<CreateTrackRequest, CreateResponse>('/api/tracks')
 }

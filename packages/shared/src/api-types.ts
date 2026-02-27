@@ -17,6 +17,19 @@ export const LogInRequestSchema = z.object({
   password: z.string(),
 })
 
+export const CreateTrackRequestSchema = z.object({
+  name: z.string().optional(),
+  gpxContent: z.string().min(1, 'GPX content cannot be empty'),
+})
+
+export const UpdateTrackRequestSchema = z.object({
+  lat: z.number(),
+  lon: z.number(),
+  name: z.string(),
+})
+
+export const NoParamsRequestSchema = z.object({})
+
 // Response schemas
 export const ParseGpxResponseSchema = z.object({
   route: ParsedGpxSchema,
@@ -37,3 +50,6 @@ export type CreateUserRequest = z.infer<typeof CreateUserRequestSchema>
 export type CreateResponse = z.infer<typeof CreateResponseSchema>
 export type LogInRequest = z.infer<typeof LogInRequestSchema>
 export type LogInResponse = z.infer<typeof LogInResponseSchema>
+export type CreateTrackRequest = z.infer<typeof CreateTrackRequestSchema>
+export type UpdateTrackRequest = z.infer<typeof UpdateTrackRequestSchema>
+export type NoParamsRequest = z.infer<typeof NoParamsRequestSchema>
