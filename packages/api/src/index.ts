@@ -21,7 +21,7 @@ app.use(
     credentials: true,
   })
 )
-// app.set('trust proxy', 1) // for secure cookies to work correctly behind render.com proxy
+app.set('trust proxy', 1) // for secure cookies to work correctly behind render.com proxy
 app.use(express.json({ limit: '10mb' }))
 app.use(cookieParser())
 
