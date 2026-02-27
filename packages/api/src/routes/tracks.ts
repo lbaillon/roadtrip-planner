@@ -1,13 +1,19 @@
 import { db } from '../db/client.js'
 import { Router, type Router as RouterType } from 'express'
-import { processDelete, processPost } from '../utils/route-handler.js'
+import {
+  processDelete,
+  processPost,
+  processPut,
+} from '../utils/route-handler.js'
 import { tracks } from '../db/schema.js'
 import {
   CreateTrackRequest,
   CreateTrackRequestSchema,
   CreateResponse,
+  UpdateTrackRequest,
+  UpdateTrackRequestSchema,
 } from '@roadtrip/shared'
-import { parseGpxFile } from '#api/services/gpx-parser.js'
+import { addWaypointToGpx, parseGpxFile } from '#api/services/gpx-parser.js'
 import { v2 as cloudinary } from 'cloudinary'
 import { eq } from 'drizzle-orm'
 
@@ -88,5 +94,42 @@ export async function deleteTrack(id: string) {
 }
 
 router.delete('/:id', processDelete(deleteTrack))
+
+export async function addWaypoint(id: string, body: UpdateTrackRequest) {
+  const [track] = await db.select().from(tracks).where(eq(tracks.id, id))
+
+  if (!track) return null
+
+  const response = await fetch(track.gpxFile)
+  const gpxContent = await response.text()
+
+  const updatedGpx = addWaypointToGpx(gpxContent, body)
+
+  const publicId = new URL(track.gpxFile).pathname
+    .split('/upload/')[1]
+    .replace(/^v\d+\//, '')
+    .replace('.gpx', '')
+
+  await new Promise<void>((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        resource_type: 'raw',
+        public_id: publicId,
+        overwrite: true,
+        invalidate: true,
+        format: 'gpx',
+      },
+      (error, result) => {
+        if (error || !result) return reject(error ?? new Error('Upload failed'))
+        resolve()
+      }
+    )
+    uploadStream.end(Buffer.from(updatedGpx, 'utf-8'))
+  })
+
+  return track
+}
+
+router.put('/:id/waypoints', processPut(UpdateTrackRequestSchema, addWaypoint))
 
 export default router

@@ -23,6 +23,12 @@ export const CreateTrackRequestSchema = z.object({
   userId: z.string(),
 })
 
+export const UpdateTrackRequestSchema = z.object({
+  lat: z.number(),
+  lon: z.number(),
+  name: z.string(),
+})
+
 // Response schemas
 export const ParseGpxResponseSchema = z.object({
   route: ParsedGpxSchema,
@@ -44,3 +50,4 @@ export type CreateResponse = z.infer<typeof CreateResponseSchema>
 export type LogInRequest = z.infer<typeof LogInRequestSchema>
 export type LogInResponse = z.infer<typeof LogInResponseSchema>
 export type CreateTrackRequest = z.infer<typeof CreateTrackRequestSchema>
+export type UpdateTrackRequest = z.infer<typeof UpdateTrackRequestSchema>

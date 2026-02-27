@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { z } from 'zod'
+import { z, ZodSchema } from 'zod'
 
 type Handler<TInput, TOutput> = (body: TInput) => Promise<TOutput> | TOutput
 
@@ -65,6 +65,28 @@ export function processDelete(deleteFn: (id: string) => Promise<unknown>) {
     const { id } = req.params
 
     const result = await deleteFn(id)
+
+    if (!result) {
+      return res.status(404).json({ message: 'Not found' })
+    }
+
+    return res.status(200).json(result)
+  }
+}
+
+export function processPut<T>(
+  schema: ZodSchema<T>,
+  updateFn: (id: string, body: T) => Promise<unknown>
+) {
+  return async (req: Request, res: Response) => {
+    const parsed = schema.safeParse(req.body)
+
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error })
+    }
+
+    const { id } = req.params
+    const result = await updateFn(id, parsed.data)
 
     if (!result) {
       return res.status(404).json({ message: 'Not found' })
