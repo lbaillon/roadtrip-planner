@@ -87,7 +87,11 @@ export async function addWaypoint(id: string, body: UpdateTrackRequest) {
   return track
 }
 
-router.put('/:id/waypoints', authenticate, processPut(UpdateTrackRequestSchema, addWaypoint))
+router.put(
+  '/:id/waypoints',
+  authenticate,
+  processPut(UpdateTrackRequestSchema, addWaypoint)
+)
 
 export async function getUserTracks(id: string) {
   return await db.select().from(tracks).where(eq(tracks.userId, id))
