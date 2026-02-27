@@ -11,8 +11,7 @@ export default function NewTrackModal() {
   
   const {mutate: postTrack} = useCreateTrack()
 
-  //userId to test tracks endpoints (user = Rémi)
-  const userID = '5aeacaad-7116-4ad7-9fa2-0eb6b54c2cda'
+
 
   const showModal = () => {
     setIsModalOpen(true)
@@ -26,7 +25,6 @@ export default function NewTrackModal() {
     postTrack(
     {
       gpxContent,
-      userId: userID,
       ...(trackName && { name: trackName }),
     },
     {
@@ -39,7 +37,7 @@ export default function NewTrackModal() {
     }
   )
   }
-  
+
   const handleCancel = () => {
     setIsModalOpen(false)
     setGpxContent(null)

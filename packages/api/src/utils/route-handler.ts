@@ -1,7 +1,8 @@
+import { JWTPayload } from '#api/services/authentication.js'
 import { Request, Response } from 'express'
 import { z, ZodSchema } from 'zod'
 
-type Handler<TInput, TOutput> = (body: TInput) => Promise<TOutput> | TOutput
+type Handler<TInput, TOutput> = (body: TInput, user? : JWTPayload) => Promise<TOutput> | TOutput
 
 export function processPost<TInput, TOutput>(
   inputSchema: z.ZodSchema<TInput>,
@@ -10,7 +11,7 @@ export function processPost<TInput, TOutput>(
   return async (req: Request, res: Response) => {
     try {
       const validatedInput = inputSchema.parse(req.body) // validate input body using zod to parse with schema
-      const result = await handler(validatedInput)
+      const result = await handler(validatedInput, req.user)
       res.json(result)
     } catch (error) {
       console.error(

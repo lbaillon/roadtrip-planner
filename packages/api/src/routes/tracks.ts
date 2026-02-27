@@ -14,19 +14,22 @@ import {
   UpdateTrackRequestSchema,
 } from '@roadtrip/shared'
 import { addWaypointToGpx, parseGpxFile } from '#api/services/gpx-parser.js'
-import { v2 as cloudinary } from 'cloudinary'
 import { eq } from 'drizzle-orm'
 import { Uploader } from '#api/services/uploader.js'
+import { JWTPayload } from '#api/services/authentication.js'
+import { authenticate, authorize } from '#api/middlewares/auth.js'
 
 
 const router: RouterType = Router()
 
 
 export async function createTrack(
-  body: CreateTrackRequest
+  body: CreateTrackRequest, user?: JWTPayload
 ): Promise<CreateResponse> {
+  if(!user){
+    throw Error("Missing user")
+  }
   const parsed = parseGpxFile(body.gpxContent)
-
   const trackName = body.name ?? parsed.name ?? 'unknown-track'
 
   const gpxPublicId = await new Uploader().uploadGpx(trackName, body.gpxContent)
@@ -34,7 +37,7 @@ export async function createTrack(
   const [track] = await db
     .insert(tracks)
     .values({
-      userId: body.userId,
+      userId: user.userId,
       name: trackName,
       gpxFile: gpxPublicId,
     })
@@ -45,7 +48,7 @@ export async function createTrack(
   }
 }
 
-router.post('/', processPost(CreateTrackRequestSchema, createTrack))
+router.post('/', authenticate, authorize(['admin']), processPost(CreateTrackRequestSchema, createTrack))
 
 export async function deleteTrack(id: string) {
   const [deletedTrack] = await db
