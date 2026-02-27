@@ -16,7 +16,6 @@ export function useApi() {
     try {
       return await fetchApi(url, {
         ...options,
-        credentials: 'include',
         headers: {
           ...options?.headers,
           Authorization: accessToken ? `Bearer ${accessToken}` : '',
