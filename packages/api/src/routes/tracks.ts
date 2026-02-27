@@ -68,7 +68,7 @@ export async function deleteTrack(id: string) {
   return deletedTrack
 }
 
-router.delete('/:id', processDelete(deleteTrack))
+router.delete('/:id', authenticate, processDelete(deleteTrack))
 
 export async function addWaypoint(id: string, body: UpdateTrackRequest) {
   const [track] = await db.select().from(tracks).where(eq(tracks.id, id))
@@ -87,7 +87,7 @@ export async function addWaypoint(id: string, body: UpdateTrackRequest) {
   return track
 }
 
-router.put('/:id/waypoints', processPut(UpdateTrackRequestSchema, addWaypoint))
+router.put('/:id/waypoints', authenticate, processPut(UpdateTrackRequestSchema, addWaypoint))
 
 export async function getUserTracks(id: string) {
   return await db.select().from(tracks).where(eq(tracks.userId, id))
