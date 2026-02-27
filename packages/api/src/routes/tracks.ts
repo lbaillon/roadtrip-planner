@@ -39,7 +39,7 @@ async function uploadGpxToCloudinary(
       },
       (error, result) => {
         if (error || !result) return reject(error ?? new Error('Upload failed'))
-        resolve(result.secure_url)
+        resolve(result.public_id)
       }
     )
 
@@ -55,14 +55,14 @@ export async function createTrack(
 
   const trackName = body.name ?? parsed.name ?? 'unknown-track'
 
-  const gpxUrl = await uploadGpxToCloudinary(body.gpxContent, trackName)
+  const gpxPublicId = await uploadGpxToCloudinary(body.gpxContent, trackName)
 
   const [track] = await db
     .insert(tracks)
     .values({
       userId: body.userId,
       name: trackName,
-      gpxFile: gpxUrl,
+      gpxFile: gpxPublicId,
     })
     .returning()
 
@@ -81,13 +81,7 @@ export async function deleteTrack(id: string) {
 
   if (!deletedTrack) return null
 
-  // Extraire le public_id depuis l'URL cloudinary
-  // L'URL ressemble à : https://res.cloudinary.com/.../gpx-tracks/1234567890-mon-track.gpx
-  const publicId = new URL(deletedTrack.gpxFile).pathname
-    .split('/upload/')[1]
-    .replace(/^v\d+\//, '')
-    .replace('.gpx', '')
-
+  const publicId = deletedTrack.gpxFile
   await cloudinary.uploader.destroy(publicId, { resource_type: 'raw' })
 
   return deletedTrack
@@ -105,10 +99,8 @@ export async function addWaypoint(id: string, body: UpdateTrackRequest) {
 
   const updatedGpx = addWaypointToGpx(gpxContent, body)
 
-  const publicId = new URL(track.gpxFile).pathname
-    .split('/upload/')[1]
-    .replace(/^v\d+\//, '')
-    .replace('.gpx', '')
+  const publicId = track.gpxFile
+
 
   await new Promise<void>((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
