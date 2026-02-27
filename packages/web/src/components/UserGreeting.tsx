@@ -17,20 +17,16 @@ function decodeJwtPayload(token: string) {
 export default function UserGreeting() {
   const { accessToken } = useAuth()
 
-  let username = "Anonymous"
+  let username = 'Anonymous'
 
   if (accessToken) {
     try {
       const payload = decodeJwtPayload(accessToken)
-      username = payload.email ?? "Anonymous"
+      username = payload.email ?? 'Anonymous'
     } catch {
-      username = "Anonymous"
+      username = 'Anonymous'
     }
   }
 
-  return (
-    <h2 className={styles.greet}>
-      Hello {username} !
-    </h2>
-  )
+  return <h2 className={styles.greet}>Hello {username} !</h2>
 }

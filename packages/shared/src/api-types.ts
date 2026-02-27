@@ -28,6 +28,8 @@ export const UpdateTrackRequestSchema = z.object({
   name: z.string(),
 })
 
+export const NoParamsRequestSchema = z.object({})
+
 // Response schemas
 export const ParseGpxResponseSchema = z.object({
   route: ParsedGpxSchema,
@@ -50,3 +52,4 @@ export type LogInRequest = z.infer<typeof LogInRequestSchema>
 export type LogInResponse = z.infer<typeof LogInResponseSchema>
 export type CreateTrackRequest = z.infer<typeof CreateTrackRequestSchema>
 export type UpdateTrackRequest = z.infer<typeof UpdateTrackRequestSchema>
+export type NoParamsRequest = z.infer<typeof NoParamsRequestSchema>

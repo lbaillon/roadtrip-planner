@@ -8,7 +8,7 @@ export class Uploader {
       api_secret: process.env.CLOUDINARY_API_SECRET,
     })
   }
-  async uploadGpx(trackName: string, gpxContent: string) : Promise <string> {
+  async uploadGpx(trackName: string, gpxContent: string): Promise<string> {
     return new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
@@ -29,30 +29,27 @@ export class Uploader {
     })
   }
 
-  async overwriteGpx(publicId:string, gpxContent:string) : Promise<void> {
+  async overwriteGpx(publicId: string, gpxContent: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-    const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        resource_type: 'raw',
-        public_id: publicId,
-        overwrite: true,
-        invalidate: true,
-        format: 'gpx',
-      },
-      (error, result) => {
-        if (error || !result) return reject(error ?? new Error('Upload failed'))
-        resolve()
-      }
-    )
-    uploadStream.end(Buffer.from(gpxContent, 'utf-8'))
-  })
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          resource_type: 'raw',
+          public_id: publicId,
+          overwrite: true,
+          invalidate: true,
+          format: 'gpx',
+        },
+        (error, result) => {
+          if (error || !result)
+            return reject(error ?? new Error('Upload failed'))
+          resolve()
+        }
+      )
+      uploadStream.end(Buffer.from(gpxContent, 'utf-8'))
+    })
   }
 
-  async deleteGpx(publicId: string) : Promise<void> {
+  async deleteGpx(publicId: string): Promise<void> {
     return cloudinary.uploader.destroy(publicId, { resource_type: 'raw' })
-
   }
-
 }
-
-

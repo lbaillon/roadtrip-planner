@@ -1,33 +1,32 @@
-import { db } from '../db/client.js'
+import { authenticate, authorize } from '#api/middlewares/auth.js'
+import { JWTPayload } from '#api/services/authentication.js'
+import { addWaypointToGpx, parseGpxFile } from '#api/services/gpx-parser.js'
+import { Uploader } from '#api/services/uploader.js'
+import {
+  CreateResponse,
+  CreateTrackRequest,
+  CreateTrackRequestSchema,
+  UpdateTrackRequest,
+  UpdateTrackRequestSchema,
+} from '@roadtrip/shared'
+import { eq } from 'drizzle-orm'
 import { Router, type Router as RouterType } from 'express'
+import { db } from '../db/client.js'
+import { tracks } from '../db/schema.js'
 import {
   processDelete,
   processPost,
   processPut,
 } from '../utils/route-handler.js'
-import { tracks } from '../db/schema.js'
-import {
-  CreateTrackRequest,
-  CreateTrackRequestSchema,
-  CreateResponse,
-  UpdateTrackRequest,
-  UpdateTrackRequestSchema,
-} from '@roadtrip/shared'
-import { addWaypointToGpx, parseGpxFile } from '#api/services/gpx-parser.js'
-import { eq } from 'drizzle-orm'
-import { Uploader } from '#api/services/uploader.js'
-import { JWTPayload } from '#api/services/authentication.js'
-import { authenticate, authorize } from '#api/middlewares/auth.js'
-
 
 const router: RouterType = Router()
 
-
 export async function createTrack(
-  body: CreateTrackRequest, user?: JWTPayload
+  body: CreateTrackRequest,
+  user?: JWTPayload
 ): Promise<CreateResponse> {
-  if(!user){
-    throw Error("Missing user")
+  if (!user) {
+    throw Error('Missing user')
   }
   const parsed = parseGpxFile(body.gpxContent)
   const trackName = body.name ?? parsed.name ?? 'unknown-track'
@@ -48,7 +47,12 @@ export async function createTrack(
   }
 }
 
-router.post('/', authenticate, authorize(['admin']), processPost(CreateTrackRequestSchema, createTrack))
+router.post(
+  '/',
+  authenticate,
+  authorize(['admin']),
+  processPost(CreateTrackRequestSchema, createTrack)
+)
 
 export async function deleteTrack(id: string) {
   const [deletedTrack] = await db
@@ -78,12 +82,20 @@ export async function addWaypoint(id: string, body: UpdateTrackRequest) {
 
   const publicId = track.gpxFile
 
-
   await new Uploader().overwriteGpx(publicId, updatedGpx)
 
   return track
 }
 
 router.put('/:id/waypoints', processPut(UpdateTrackRequestSchema, addWaypoint))
+
+export async function getUserTracks(id: string) {
+  return await db.select().from(tracks).where(eq(tracks.userId, id))
+}
+
+router.get('/', authenticate, async (req, res) => {
+  const tracks = await getUserTracks(req.user?.userId ?? '')
+  res.json(tracks)
+})
 
 export default router
