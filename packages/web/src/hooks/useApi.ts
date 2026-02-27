@@ -10,9 +10,11 @@ import {
 import { useMutation } from '@tanstack/react-query'
 import { ApiError, fetchApi } from '../lib/api-client'
 import { useAuth } from './useAuth'
+import { useNavigate } from 'react-router-dom'
 
 export function useApi() {
   const { accessToken, setAccessToken, logout } = useAuth()
+  const navigate = useNavigate()
   return async <T>(url: string, options: RequestInit = {}): Promise<T> => {
     try {
       return await fetchApi(url, {
@@ -35,7 +37,7 @@ export function useApi() {
           setAccessToken(accessToken)
         } catch {
           logout()
-          throw new Error('Session expired', { cause: error })
+          navigate('/login')
         }
         return await fetchApi(url, {
           ...options,

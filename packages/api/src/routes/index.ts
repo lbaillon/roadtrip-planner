@@ -13,7 +13,7 @@ router.use('/tracks', tracksRoutes)
 router.use('/auth', authRoutes)
 
 // TODO: to delete, this is a test
-router.get('/testauth', authenticate, authorize(['admin']), (req, res) => {
+router.get('/testauth', authenticate, authorize(['user']), (req, res) => {
   res.json({
     message: `Protected data for user ${JSON.stringify(req.user, Object.getOwnPropertyNames(req.user), 2)}}`,
   })

@@ -14,7 +14,7 @@ const isDev = process.env.NODE_ENV !== 'production'
 
 const router: Router = Router()
 
-async function login(body: LogInRequest): Promise<{ id: string }> {
+async function login(body: LogInRequest) {
   const [user] = await db
     .select()
     .from(users)
@@ -22,18 +22,19 @@ async function login(body: LogInRequest): Promise<{ id: string }> {
   if (!user || !(await comparePassword(body.password, user.password))) {
     throw new Error('INVALID_CREDENTIALS')
   }
-  return { id: user.id }
+  return user
 }
 
 router.post('/login', async (req, res) => {
   try {
     const validatedInput = LogInRequestSchema.parse(req.body)
-    const { id } = await login(validatedInput)
+    const { id, username, email } = await login(validatedInput)
 
     const payload = {
       userId: id,
-      email: validatedInput.username,
-      role: 'admin',
+      email,
+      username,
+      role: 'user',
     }
 
     const accessToken = await signAccessToken(payload)
