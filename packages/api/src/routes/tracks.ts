@@ -1,14 +1,15 @@
 import { db } from '../db/client.js'
 import { Router, type Router as RouterType } from 'express'
-import { processPost } from '../utils/route-handler.js'
+import { processDelete, processPost } from '../utils/route-handler.js'
 import { tracks } from '../db/schema.js'
 import {
   CreateTrackRequest,
   CreateTrackRequestSchema,
-  CreateTrackResponse,
+  CreateResponse,
 } from '@roadtrip/shared'
 import { parseGpxFile } from '#api/services/gpx-parser.js'
 import { v2 as cloudinary } from 'cloudinary'
+import { eq } from 'drizzle-orm'
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -43,7 +44,7 @@ async function uploadGpxToCloudinary(
 
 export async function createTrack(
   body: CreateTrackRequest
-): Promise<CreateTrackResponse> {
+): Promise<CreateResponse> {
   const parsed = parseGpxFile(body.gpxContent)
 
   const trackName = body.name ?? parsed.name ?? 'unknown-track'
@@ -65,5 +66,17 @@ export async function createTrack(
 }
 
 router.post('/', processPost(CreateTrackRequestSchema, createTrack))
+
+
+export async function deleteTrack(id: string) {
+  const [deletedTrack] = await db
+    .delete(tracks)
+    .where(eq(tracks.id, id))
+    .returning()
+
+  return deletedTrack ?? null
+}
+
+router.delete('/:id', processDelete(deleteTrack))
 
 export default router

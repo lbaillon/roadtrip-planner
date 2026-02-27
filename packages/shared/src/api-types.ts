@@ -37,9 +37,6 @@ export const LogInResponseSchema = z.object({
   id: z.string(),
 })
 
-export const CreateTrackResponseSchema = z.object({
-  id: z.string(),
-})
 
 export type ParseGpxRequest = z.infer<typeof ParseGpxRequestSchema>
 export type ParseGpxResponse = z.infer<typeof ParseGpxResponseSchema>
@@ -48,4 +45,3 @@ export type CreateResponse = z.infer<typeof CreateResponseSchema>
 export type LogInRequest = z.infer<typeof LogInRequestSchema>
 export type LogInResponse = z.infer<typeof LogInResponseSchema>
 export type CreateTrackRequest = z.infer<typeof CreateTrackRequestSchema>
-export type CreateTrackResponse = z.infer<typeof CreateTrackResponseSchema>

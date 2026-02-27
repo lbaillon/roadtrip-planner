@@ -59,3 +59,17 @@ export function processGet<TQuery, TOutput>(
     }
   }
 }
+
+export function processDelete(deleteFn: (id: string) => Promise<unknown>) {
+  return async (req: Request, res: Response) => {
+    const { id } = req.params
+    
+    const result = await deleteFn(id)
+    
+    if (!result) {
+      return res.status(404).json({ message: 'Not found' })
+    }
+    
+    return res.status(200).json(result)
+  }
+}
