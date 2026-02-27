@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router-dom'
 
 export function useApi() {
   const { accessToken, setAccessToken, logout } = useAuth()
-  const navigate= useNavigate();
+  const navigate = useNavigate()
   return async <T>(url: string, options: RequestInit = {}): Promise<T> => {
     try {
       return await fetchApi(url, {
@@ -37,7 +37,7 @@ export function useApi() {
           setAccessToken(accessToken)
         } catch {
           logout()
-          navigate("/login")
+          navigate('/login')
         }
         return await fetchApi(url, {
           ...options,
