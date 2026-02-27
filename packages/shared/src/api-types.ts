@@ -28,7 +28,7 @@ export const CreateResponseSchema = z.object({
 })
 
 export const LogInResponseSchema = z.object({
-  id: z.string(),
+  accessToken: z.string(),
 })
 
 export type ParseGpxRequest = z.infer<typeof ParseGpxRequestSchema>

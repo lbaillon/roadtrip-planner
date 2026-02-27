@@ -2,13 +2,21 @@ import { GpxUploader } from '#web/components/GpxUploader'
 import { HumidityChart } from '#web/components/HumidityChart'
 import { TimeSelector } from '#web/components/TimeSelector'
 import { Title } from '#web/components/Title'
-import { useParseGpx } from '#web/hooks/useApi'
+import { useApi, useParseGpx } from '#web/hooks/useApi'
+import { useQuery } from '@tanstack/react-query'
 import { lazy, Suspense, useState } from 'react'
 import styles from './Home.module.css'
 const MapView = lazy(() => import('#web/components/MapView'))
 
 export default function Home() {
   const [timepointIndex, setTimepointIndex] = useState(0)
+
+  const fetch = useApi()
+  const { data: testAuth } = useQuery({
+    queryKey: ['testauth'],
+    queryFn: () => fetch<{ message: string }>('/api/testauth'),
+    refetchInterval: 5000,
+  })
 
   const {
     mutate: uploadGpx,
@@ -27,6 +35,7 @@ export default function Home() {
   return (
     <>
       <Title />
+      <p>{testAuth?.message ?? 'Not authenticated'}</p>
       <div className={styles.uploadBox}>
         <GpxUploader onFileSelect={handleFileSelect} />
       </div>

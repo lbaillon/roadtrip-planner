@@ -2,6 +2,7 @@ import { Alert, Button, Form, Input, type FormProps } from 'antd'
 import { useState } from 'react'
 import { useLogin } from '../hooks/useApi'
 import styles from './SignUp-LogIn.module.css'
+import { useAuth } from '#web/hooks/useAuth'
 
 type FieldType = {
   username: string
@@ -15,13 +16,16 @@ type AlertState = {
 } | null
 
 export default function LogIn() {
-  const { mutate: postUser } = useLogin()
+  const { mutate: login } = useLogin()
   const [alert, setAlert] = useState<AlertState>(null)
+  const { setAccessToken } = useAuth()
 
   const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
-    postUser(values, {
-      onSuccess: () =>
-        setAlert({ type: 'success', message: 'Login successful' }),
+    login(values, {
+      onSuccess: (data) => {
+        setAccessToken(data.accessToken)
+        setAlert({ type: 'success', message: 'Login successful' })
+      },
       onError: (err) =>
         setAlert({ type: 'error', message: `Login failed: ${err.message}` }),
     })
