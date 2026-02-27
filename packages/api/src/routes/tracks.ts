@@ -16,37 +16,11 @@ import {
 import { addWaypointToGpx, parseGpxFile } from '#api/services/gpx-parser.js'
 import { v2 as cloudinary } from 'cloudinary'
 import { eq } from 'drizzle-orm'
+import { Uploader } from '#api/services/uploader.js'
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-})
 
 const router: RouterType = Router()
 
-async function uploadGpxToCloudinary(
-  gpxContent: string,
-  trackName: string
-): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        resource_type: 'raw',
-        folder: 'gpx-tracks',
-        public_id: `${Date.now()}-${trackName.replace(/\s+/g, '-')}`,
-        format: 'gpx',
-      },
-      (error, result) => {
-        if (error || !result) return reject(error ?? new Error('Upload failed'))
-        resolve(result.public_id)
-      }
-    )
-
-    const buffer = Buffer.from(gpxContent, 'utf-8')
-    uploadStream.end(buffer)
-  })
-}
 
 export async function createTrack(
   body: CreateTrackRequest
@@ -55,7 +29,7 @@ export async function createTrack(
 
   const trackName = body.name ?? parsed.name ?? 'unknown-track'
 
-  const gpxPublicId = await uploadGpxToCloudinary(body.gpxContent, trackName)
+  const gpxPublicId = await new Uploader().uploadGpx(trackName, body.gpxContent)
 
   const [track] = await db
     .insert(tracks)
@@ -82,7 +56,7 @@ export async function deleteTrack(id: string) {
   if (!deletedTrack) return null
 
   const publicId = deletedTrack.gpxFile
-  await cloudinary.uploader.destroy(publicId, { resource_type: 'raw' })
+  await new Uploader().deleteGpx(publicId)
 
   return deletedTrack
 }
@@ -102,22 +76,7 @@ export async function addWaypoint(id: string, body: UpdateTrackRequest) {
   const publicId = track.gpxFile
 
 
-  await new Promise<void>((resolve, reject) => {
-    const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        resource_type: 'raw',
-        public_id: publicId,
-        overwrite: true,
-        invalidate: true,
-        format: 'gpx',
-      },
-      (error, result) => {
-        if (error || !result) return reject(error ?? new Error('Upload failed'))
-        resolve()
-      }
-    )
-    uploadStream.end(Buffer.from(updatedGpx, 'utf-8'))
-  })
+  await new Uploader().overwriteGpx(publicId, updatedGpx)
 
   return track
 }
