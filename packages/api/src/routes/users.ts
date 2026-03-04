@@ -8,14 +8,14 @@ import {
 } from '@roadtrip/shared'
 import { DrizzleQueryError, eq } from 'drizzle-orm'
 import { Router, type Router as RouterType } from 'express'
-import { db } from '../db/client.js'
-import { users } from '../db/schema.js'
-import { hashPassword } from '../services/authentication.js'
+import { db } from '#api/db/client.js'
+import { NewUser, users } from '#api/db/schema.js'
+import { hashPassword, JWTPayload } from '#api/services/authentication.js'
 import {
   processDelete,
   processPost,
   processPut,
-} from '../utils/route-handler.js'
+} from '#api/utils/route-handler.js'
 import { authenticate } from '#api/middlewares/auth.js'
 
 const router: RouterType = Router()
@@ -31,9 +31,7 @@ async function createUser(body: CreateUserRequest): Promise<CreateResponse> {
         password: hashedPassword,
       })
       .returning()
-    return {
-      id: user.id,
-    }
+    return { id: user.id }
   } catch (err) {
     if (
       err instanceof DrizzleQueryError &&
@@ -48,42 +46,45 @@ async function createUser(body: CreateUserRequest): Promise<CreateResponse> {
 
 router.post('/', processPost(CreateUserRequestSchema, createUser))
 
-async function deleteUser(id: string) {
+async function deleteUser(id: string, user?: JWTPayload) {
+  if (!user || user.role != 'admin' || user.userId != id) {
+    throw new Error('')
+  }
   const [deletedUser] = await db
     .delete(users)
     .where(eq(users.id, id))
     .returning()
-
-  if (!deletedUser) return null
-
-  return deleteUser
+  if (!deletedUser) {
+    throw new Error('user not found')
+  }
 }
 
 router.delete('/:id', authenticate, processDelete(deleteUser))
 
 async function updateUser(
   id: string,
-  body: UpdateUserRequest
-): Promise<CreateResponse> {
-  const updateData: Partial<typeof users.$inferInsert> = {
+  body: UpdateUserRequest,
+  user?: JWTPayload
+) {
+  if (!user || user.role != 'admin' || user.userId != id) {
+    throw new Error('')
+  }
+  const updateData: Partial<NewUser> = {
     username: body.username,
     email: body.email,
   }
-
   if (body.password) {
     updateData.password = await hashPassword(body.password)
   }
-
   try {
     const [updatedUser] = await db
       .update(users)
       .set(updateData)
       .where(eq(users.id, id))
       .returning()
-
-    if (!updatedUser) throw new Error('user not found')
-
-    return { id: updatedUser.id }
+    if (!updatedUser) {
+      throw new Error('user not found')
+    }
   } catch (err) {
     if (
       err instanceof DrizzleQueryError &&
@@ -96,10 +97,6 @@ async function updateUser(
   }
 }
 
-router.put(
-  '/:id',
-  authenticate,
-  processPut(UpdateUserRequestSchema, updateUser)
-)
+router.put(  '/:id',  authenticate,  processPut(UpdateUserRequestSchema, updateUser))
 
 export default router
