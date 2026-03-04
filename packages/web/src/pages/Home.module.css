@@ -18,3 +18,22 @@
 .humidityPlot {
   margin-top: 10%;
 }
+
+
+.contentBox {
+  width: 100vw;
+  min-height: 100%;
+  position: relative;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    var(--secondary-grey) 30%
+  );
+}
+
+.uploadBox {
+  grid-column: 1/13;
+  padding: 40px;
+  position: relative;
+  z-index: 2;
+}
