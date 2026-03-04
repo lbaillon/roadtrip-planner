@@ -21,7 +21,7 @@ import {
 
 const router: RouterType = Router()
 
-export async function createTrack(
+async function createTrack(
   body: CreateTrackRequest,
   user?: JWTPayload
 ): Promise<CreateResponse> {
@@ -54,7 +54,7 @@ router.post(
   processPost(CreateTrackRequestSchema, createTrack)
 )
 
-export async function deleteTrack(id: string) {
+async function deleteTrack(id: string) {
   const [deletedTrack] = await db
     .delete(tracks)
     .where(eq(tracks.id, id))
@@ -70,7 +70,7 @@ export async function deleteTrack(id: string) {
 
 router.delete('/:id', authenticate, processDelete(deleteTrack))
 
-export async function addWaypoint(id: string, body: UpdateTrackRequest) {
+async function addWaypoint(id: string, body: UpdateTrackRequest) {
   const [track] = await db.select().from(tracks).where(eq(tracks.id, id))
 
   if (!track) return null
@@ -93,7 +93,7 @@ router.put(
   processPut(UpdateTrackRequestSchema, addWaypoint)
 )
 
-export async function getUserTracks(id: string) {
+async function getUserTracks(id: string) {
   return await db.select().from(tracks).where(eq(tracks.userId, id))
 }
 

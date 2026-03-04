@@ -4,12 +4,13 @@ import {
   CreateUserRequest,
   CreateUserRequestSchema,
 } from '@roadtrip/shared'
-import { DrizzleQueryError } from 'drizzle-orm'
+import { DrizzleQueryError, eq } from 'drizzle-orm'
 import { Router, type Router as RouterType } from 'express'
 import { db } from '../db/client.js'
 import { users } from '../db/schema.js'
 import { hashPassword } from '../services/authentication.js'
-import { processPost } from '../utils/route-handler.js'
+import { processDelete, processPost } from '../utils/route-handler.js'
+import { authenticate } from '#api/middlewares/auth.js'
 
 const router: RouterType = Router()
 
@@ -40,5 +41,18 @@ async function createUser(body: CreateUserRequest): Promise<CreateResponse> {
 }
 
 router.post('/', processPost(CreateUserRequestSchema, createUser))
+
+async function deleteUser(id: string) {
+  const [deletedUser] = await db
+    .delete(users)
+    .where(eq(users.id, id))
+    .returning()
+
+  if (!deletedUser) return null
+
+  return deleteUser
+}
+
+router.delete('/:id', authenticate, processDelete(deleteUser))
 
 export default router
