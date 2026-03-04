@@ -28,6 +28,12 @@ export const UpdateTrackRequestSchema = z.object({
   name: z.string(),
 })
 
+export const UpdateUserRequestSchema = z.object({
+  email: z.string().optional(),
+  username: z.string().optional(),
+  password: z.string().optional(),
+})
+
 export const NoParamsRequestSchema = z.object({})
 
 // Response schemas
@@ -53,3 +59,4 @@ export type LogInResponse = z.infer<typeof LogInResponseSchema>
 export type CreateTrackRequest = z.infer<typeof CreateTrackRequestSchema>
 export type UpdateTrackRequest = z.infer<typeof UpdateTrackRequestSchema>
 export type NoParamsRequest = z.infer<typeof NoParamsRequestSchema>
+export type UpdateUserRequest = z.infer<typeof UpdateUserRequestSchema>
