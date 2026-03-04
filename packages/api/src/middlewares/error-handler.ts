@@ -1,9 +1,14 @@
 import { env } from '#api/env.js'
 import { AppError } from '#api/errors/app-errors.js'
-import { Request, Response } from 'express'
+import { Request, Response, NextFunction } from 'express'
 import { ZodError } from 'zod'
 
-export function errorHandler(error: Error, req: Request, res: Response) {
+export function errorHandler(
+  error: Error,
+  req: Request,
+  res: Response,
+  next: NextFunction // eslint-disable-line @typescript-eslint/no-unused-vars
+) {
   console.error(
     'Error:',
     JSON.stringify(error, Object.getOwnPropertyNames(error), 2)
