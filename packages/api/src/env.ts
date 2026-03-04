@@ -5,6 +5,7 @@ dotenv.config()
 export const env = {
   NODE_ENV: process.env.NODE_ENV || 'development',
   isDev: process.env.NODE_ENV !== 'production',
+  JWT_SECRET: process.env.JWT_SECRET || 'super_secret',
   DATABASE_URL: process.env.DATABASE_URL,
   TURSO_AUTH_TOKEN: process.env.TURSO_AUTH_TOKEN,
   OPENWEATHER_API_KEY: process.env.OPENWEATHER_API_KEY,
