@@ -1,6 +1,8 @@
 import { db } from '#api/db/client.js'
 import { users } from '#api/db/schema.js'
 import { env } from '#api/env.js'
+import { UnauthorizedError } from '#api/errors/app-errors.js'
+import { codes } from '#api/errors/error-codes.js'
 import {
   comparePassword,
   signAccessToken,
@@ -19,7 +21,7 @@ async function login(body: LogInRequest) {
     .from(users)
     .where(eq(users.username, body.username))
   if (!user || !(await comparePassword(body.password, user.password))) {
-    throw new Error('INVALID_CREDENTIALS')
+    throw new UnauthorizedError('Invalid credentials', codes.WRONG_LOGIN)
   }
   return user
 }

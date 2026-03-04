@@ -2,6 +2,8 @@ import { ParsedGpxSchema, type ParsedGpx } from '@roadtrip/shared'
 
 import GpxParser from 'gpxparser'
 import { XMLParser, XMLBuilder } from 'fast-xml-parser'
+import { BadRequestError } from '#api/errors/app-errors.js'
+import { codes } from '#api/errors/error-codes.js'
 
 const xmlParser = new XMLParser({
   ignoreAttributes: false,
@@ -21,7 +23,7 @@ export function parseGpxFile(gpxContent: string): ParsedGpx {
   gpx.parse(gpxContent)
 
   if (!gpx.tracks || gpx.tracks.length === 0) {
-    throw new Error('No tracks found in GPX file')
+    throw new BadRequestError('No tracks found in GPX file', codes.WRONG_GPX)
   }
 
   const track = gpx.tracks[0]
@@ -70,7 +72,10 @@ export function addWaypointToGpx(
   } else if (parsed.gpx.wpt) {
     parsed.gpx.wpt.push(newPoint)
   } else {
-    throw new Error('Format GPX non supporté : aucun rtept ou wpt trouvé')
+    throw new BadRequestError(
+      'Format GPX non supporté : aucun rtept ou wpt trouvé',
+      codes.WRONG_GPX
+    )
   }
 
   return xmlBuilder.build(parsed)
