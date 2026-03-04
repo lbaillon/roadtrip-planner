@@ -97,6 +97,10 @@ async function updateUser(
   }
 }
 
-router.put(  '/:id',  authenticate,  processPut(UpdateUserRequestSchema, updateUser))
+router.put(
+  '/:id',
+  authenticate,
+  processPut(UpdateUserRequestSchema, updateUser)
+)
 
 export default router
