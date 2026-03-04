@@ -5,11 +5,28 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   line-height: 1.6;
   color: #333;
+  background-image: url('https://res.cloudinary.com/djvbcdtwl/image/upload/v1772637448/background2_krlt4t.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  overflow-x: hidden;
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   margin-bottom: 15px;
+}
+
+:root {
+  --header-height: 60px;
+  --primary-green: #184c45;
+  --secondary-green: #4f7a67;
+  --primary-grey: #aebcc2;
+  --secondary-grey: #f2f4f3;
 }

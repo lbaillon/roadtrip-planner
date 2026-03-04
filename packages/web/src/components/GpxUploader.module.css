@@ -1,10 +1,13 @@
 .upload{
-  border: 2px dashed #ccc;
-  border-radius: 8px;
-  padding: 40px;
+  border-radius: 50px;
   text-align: center;
-  background-color: #fafafa;
+  background-color: var(--primary-green);
   cursor: pointer;
+  color: var(--secondary-grey);
+  padding-top: 10px;
+  padding-bottom: 10px;
+    position: relative;
+  z-index: 2; 
 }
 
 .label{
@@ -15,3 +18,4 @@
   font-size: 18px;
   margin-bottom: 8px;
 }
+

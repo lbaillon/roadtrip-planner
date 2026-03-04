@@ -1,6 +1,23 @@
 .title{
   grid-column: 1/13;
   text-align: center;
-  margin-top: 30px;
+  margin-top: 75px;
   margin-bottom: 30px;
+  font-size: 40px;
+  line-height: 1.1;
+  display: inline-block;
+  color: var(--primary-green);
+}
+
+.title::after {
+  content: "";
+  display: block;
+
+  width: 25%;
+  height: 4px;
+
+  margin: 16px auto 0;
+
+  background-color: var(--secondary-green);
+  border-radius: 2px;
 }
