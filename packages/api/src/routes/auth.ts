@@ -1,5 +1,6 @@
 import { db } from '#api/db/client.js'
 import { users } from '#api/db/schema.js'
+import { env } from '#api/env.js'
 import {
   comparePassword,
   signAccessToken,
@@ -10,7 +11,7 @@ import { LogInRequest, LogInRequestSchema } from '@roadtrip/shared'
 import { eq } from 'drizzle-orm'
 import { Router } from 'express'
 
-const isDev = process.env.NODE_ENV !== 'production'
+const isDev = env.NODE_ENV !== 'production'
 
 const router: Router = Router()
 

@@ -1,15 +1,13 @@
-import cors from 'cors'
-import dotenv from 'dotenv'
-import express from 'express'
 import routes from '#api/routes/index.js'
 import cookieParser from 'cookie-parser'
-
-dotenv.config()
+import cors from 'cors'
+import express from 'express'
+import { env } from './env.js'
 
 const app = express()
-const PORT = process.env.PORT || 3000
+const PORT = env.PORT
 
-const isDev = process.env.NODE_ENV !== 'production'
+const isDev = env.isDev
 
 app.use(
   cors({

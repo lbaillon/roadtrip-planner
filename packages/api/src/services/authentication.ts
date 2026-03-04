@@ -1,9 +1,8 @@
+import { env } from '#api/env.js'
 import bcrypt from 'bcrypt'
 import { SignJWT, jwtVerify } from 'jose'
 
-const secret = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'super_secret'
-)
+const secret = new TextEncoder().encode(env.JWT_SECRET || 'super_secret')
 
 export interface JWTPayload {
   userId: string
