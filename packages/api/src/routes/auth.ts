@@ -1,5 +1,6 @@
 import { db } from '#api/db/client.js'
 import { users } from '#api/db/schema.js'
+import { env } from '#api/env.js'
 import {
   comparePassword,
   signAccessToken,
@@ -9,8 +10,6 @@ import {
 import { LogInRequest, LogInRequestSchema } from '@roadtrip/shared'
 import { eq } from 'drizzle-orm'
 import { Router } from 'express'
-
-const isDev = process.env.NODE_ENV !== 'production'
 
 const router: Router = Router()
 
@@ -42,8 +41,8 @@ router.post('/login', async (req, res) => {
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: !isDev,
-      sameSite: isDev ? 'lax' : 'none',
+      secure: !env.isDev,
+      sameSite: env.isDev ? 'lax' : 'none',
       path: '/api/auth/refresh',
     })
 

@@ -1,20 +1,16 @@
-import cors from 'cors'
-import dotenv from 'dotenv'
-import express from 'express'
 import routes from '#api/routes/index.js'
 import cookieParser from 'cookie-parser'
-
-dotenv.config()
+import cors from 'cors'
+import express from 'express'
+import { env } from './env.js'
 
 const app = express()
-const PORT = process.env.PORT || 3000
-
-const isDev = process.env.NODE_ENV !== 'production'
+const PORT = env.PORT
 
 app.use(
   cors({
     origin: [
-      isDev
+      env.isDev
         ? 'http://localhost:5173'
         : 'https://roadtrip-planner-web.vercel.app',
     ],
