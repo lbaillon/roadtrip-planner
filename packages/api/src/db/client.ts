@@ -5,8 +5,6 @@ import { drizzle as drizzleSqlite } from 'drizzle-orm/libsql'
 import * as schema from './schema.js'
 import { env } from '#api/env.js'
 
-const isDev = env.NODE_ENV !== 'production'
-
 // PostgreSQL connection (production)
 // function createPgClient() {
 //   const connectionString = env.DATABASE_URL
@@ -20,8 +18,8 @@ const isDev = env.NODE_ENV !== 'production'
 // SQLite connection (local development)
 function createSqliteClient() {
   const client = createClient({
-    url: isDev ? 'file:dev.db' : env.DATABASE_URL!,
-    authToken: isDev ? undefined : env.TURSO_AUTH_TOKEN!,
+    url: env.isDev ? 'file:dev.db' : env.DATABASE_URL!,
+    authToken: env.isDev ? undefined : env.TURSO_AUTH_TOKEN!,
   })
   return drizzleSqlite(client, { schema })
 }

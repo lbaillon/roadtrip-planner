@@ -11,8 +11,6 @@ import { LogInRequest, LogInRequestSchema } from '@roadtrip/shared'
 import { eq } from 'drizzle-orm'
 import { Router } from 'express'
 
-const isDev = env.NODE_ENV !== 'production'
-
 const router: Router = Router()
 
 async function login(body: LogInRequest) {
@@ -43,8 +41,8 @@ router.post('/login', async (req, res) => {
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: !isDev,
-      sameSite: isDev ? 'lax' : 'none',
+      secure: !env.isDev,
+      sameSite: env.isDev ? 'lax' : 'none',
       path: '/api/auth/refresh',
     })
 

@@ -18,3 +18,6 @@ export const env = {
 if (!env.isDev && !env.DATABASE_URL) {
   throw new Error('DATABASE_URL is required in production')
 }
+if (!env.OPENWEATHER_API_KEY) {
+  throw new Error('API key undefined')
+}

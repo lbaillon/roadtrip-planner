@@ -6,9 +6,6 @@ export async function fetchWeatherForPoint(
   lon: number
 ): Promise<WeatherData> {
   const OPENWEATHER_API_KEY = env.OPENWEATHER_API_KEY
-  if (!OPENWEATHER_API_KEY) {
-    throw new Error('API key undefined')
-  }
 
   //for current weather
   // const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${OPENWEATHER_API_KEY}&units=metric`

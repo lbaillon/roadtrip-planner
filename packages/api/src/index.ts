@@ -7,12 +7,10 @@ import { env } from './env.js'
 const app = express()
 const PORT = env.PORT
 
-const isDev = env.isDev
-
 app.use(
   cors({
     origin: [
-      isDev
+      env.isDev
         ? 'http://localhost:5173'
         : 'https://roadtrip-planner-web.vercel.app',
     ],
