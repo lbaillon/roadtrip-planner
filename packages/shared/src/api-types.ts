@@ -2,6 +2,8 @@ import { z } from 'zod'
 import { ParsedGpxSchema, WeatherDataSchema } from './validators.js'
 
 // Request schemas
+export const EmptyRequestSchema = z.object({}).strict()
+
 export const ParseGpxRequestSchema = z.object({
   gpxContent: z.string().min(1, 'GPX content cannot be empty'),
 })
@@ -28,6 +30,12 @@ export const UpdateTrackRequestSchema = z.object({
   name: z.string(),
 })
 
+export const UpdateUserRequestSchema = z.object({
+  email: z.string().optional(),
+  username: z.string().optional(),
+  password: z.string().optional(),
+})
+
 export const NoParamsRequestSchema = z.object({})
 
 // Response schemas
@@ -44,6 +52,7 @@ export const LogInResponseSchema = z.object({
   accessToken: z.string(),
 })
 
+export type EmptyRequest = z.infer<typeof EmptyRequestSchema>
 export type ParseGpxRequest = z.infer<typeof ParseGpxRequestSchema>
 export type ParseGpxResponse = z.infer<typeof ParseGpxResponseSchema>
 export type CreateUserRequest = z.infer<typeof CreateUserRequestSchema>
@@ -53,3 +62,4 @@ export type LogInResponse = z.infer<typeof LogInResponseSchema>
 export type CreateTrackRequest = z.infer<typeof CreateTrackRequestSchema>
 export type UpdateTrackRequest = z.infer<typeof UpdateTrackRequestSchema>
 export type NoParamsRequest = z.infer<typeof NoParamsRequestSchema>
+export type UpdateUserRequest = z.infer<typeof UpdateUserRequestSchema>
