@@ -11,7 +11,11 @@ import { Router, type Router as RouterType } from 'express'
 import { db } from '../db/client.js'
 import { users } from '../db/schema.js'
 import { hashPassword } from '../services/authentication.js'
-import { processDelete, processPost, processPut } from '../utils/route-handler.js'
+import {
+  processDelete,
+  processPost,
+  processPut,
+} from '../utils/route-handler.js'
 import { authenticate } from '#api/middlewares/auth.js'
 
 const router: RouterType = Router()
@@ -57,7 +61,10 @@ async function deleteUser(id: string) {
 
 router.delete('/:id', authenticate, processDelete(deleteUser))
 
-async function updateUser(id: string, body: UpdateUserRequest): Promise<CreateResponse> {
+async function updateUser(
+  id: string,
+  body: UpdateUserRequest
+): Promise<CreateResponse> {
   const updateData: Partial<typeof users.$inferInsert> = {
     username: body.username,
     email: body.email,
@@ -89,6 +96,10 @@ async function updateUser(id: string, body: UpdateUserRequest): Promise<CreateRe
   }
 }
 
-router.put('/:id', authenticate, processPut(UpdateUserRequestSchema, updateUser))
+router.put(
+  '/:id',
+  authenticate,
+  processPut(UpdateUserRequestSchema, updateUser)
+)
 
 export default router
