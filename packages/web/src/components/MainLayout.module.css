@@ -3,5 +3,4 @@
   grid-template-columns: repeat(12, 1fr);
   min-height: calc(100vh - var(--header-height) - 3rem);
   width: 100vw;
-  overflow: hidden;
 }
