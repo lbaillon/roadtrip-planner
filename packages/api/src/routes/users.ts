@@ -1,3 +1,18 @@
+import { db } from '#api/db/client.js'
+import { NewUser, users } from '#api/db/schema.js'
+import {
+  ConflictError,
+  ForbiddenError,
+  NotFoundError,
+} from '#api/errors/app-errors.js'
+import { codes } from '#api/errors/error-codes.js'
+import { authenticate } from '#api/middlewares/auth.js'
+import { hashPassword, JWTPayload } from '#api/services/authentication.js'
+import {
+  processDelete,
+  processPost,
+  processPut,
+} from '#api/utils/route-handler.js'
 import { LibsqlError } from '@libsql/client'
 import {
   CreateResponse,
@@ -8,15 +23,6 @@ import {
 } from '@roadtrip/shared'
 import { DrizzleQueryError, eq } from 'drizzle-orm'
 import { Router, type Router as RouterType } from 'express'
-import { db } from '#api/db/client.js'
-import { NewUser, users } from '#api/db/schema.js'
-import { hashPassword, JWTPayload } from '#api/services/authentication.js'
-import {
-  processDelete,
-  processPost,
-  processPut,
-} from '#api/utils/route-handler.js'
-import { authenticate } from '#api/middlewares/auth.js'
 
 const router: RouterType = Router()
 
@@ -38,7 +44,9 @@ async function createUser(body: CreateUserRequest): Promise<CreateResponse> {
       err.cause instanceof LibsqlError &&
       err.cause?.extendedCode === 'SQLITE_CONSTRAINT_UNIQUE'
     ) {
-      throw new Error('user already exists', { cause: err })
+      throw new ConflictError('user already exists', codes.USER_CONFLICT, {
+        cause: err,
+      })
     }
     throw err
   }
@@ -48,14 +56,14 @@ router.post('/', processPost(CreateUserRequestSchema, createUser))
 
 async function deleteUser(id: string, user?: JWTPayload) {
   if (!user || user.role != 'admin' || user.userId != id) {
-    throw new Error('')
+    throw new ForbiddenError('Action is forbidden', codes.FORBIDDEN)
   }
   const [deletedUser] = await db
     .delete(users)
     .where(eq(users.id, id))
     .returning()
   if (!deletedUser) {
-    throw new Error('user not found')
+    throw new NotFoundError('user not found', codes.MISSING_USER)
   }
 }
 
@@ -67,7 +75,7 @@ async function updateUser(
   user?: JWTPayload
 ) {
   if (!user || user.role != 'admin' || user.userId != id) {
-    throw new Error('')
+    throw new ForbiddenError('Action is forbidden', codes.FORBIDDEN)
   }
   const updateData: Partial<NewUser> = {
     username: body.username,
@@ -83,7 +91,7 @@ async function updateUser(
       .where(eq(users.id, id))
       .returning()
     if (!updatedUser) {
-      throw new Error('user not found')
+      throw new NotFoundError('user not found', codes.MISSING_USER)
     }
   } catch (err) {
     if (
@@ -91,7 +99,11 @@ async function updateUser(
       err.cause instanceof LibsqlError &&
       err.cause?.extendedCode === 'SQLITE_CONSTRAINT_UNIQUE'
     ) {
-      throw new Error('username or email already exists', { cause: err })
+      throw new ConflictError(
+        'username or email already exists',
+        codes.USER_CONFLICT,
+        { cause: err }
+      )
     }
     throw err
   }

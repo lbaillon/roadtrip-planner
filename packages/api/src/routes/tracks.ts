@@ -1,7 +1,17 @@
+import { db } from '#api/db/client.js'
+import { tracks } from '#api/db/schema.js'
+import { NotFoundError, UnauthorizedError } from '#api/errors/app-errors.js'
+import { codes } from '#api/errors/error-codes.js'
 import { authenticate, authorize } from '#api/middlewares/auth.js'
 import { JWTPayload } from '#api/services/authentication.js'
 import { addWaypointToGpx, parseGpxFile } from '#api/services/gpx-parser.js'
 import { Uploader } from '#api/services/uploader.js'
+import {
+  processDelete,
+  processGet,
+  processPost,
+  processPut,
+} from '#api/utils/route-handler.js'
 import {
   CreateResponse,
   CreateTrackRequest,
@@ -13,16 +23,9 @@ import {
 } from '@roadtrip/shared'
 import { and, eq } from 'drizzle-orm'
 import { Router, type Router as RouterType } from 'express'
-import { db } from '#api/db/client.js'
-import { tracks } from '#api/db/schema.js'
-import {
-  processDelete,
-  processGet,
-  processPost,
-  processPut,
-} from '#api/utils/route-handler.js'
 
 const router: RouterType = Router()
+router.use(authenticate)
 
 async function createTrack(
   body: CreateTrackRequest,
@@ -49,27 +52,26 @@ async function createTrack(
 
 router.post(
   '/',
-  authenticate,
   authorize(['user']),
   processPost(CreateTrackRequestSchema, createTrack)
 )
 
 async function deleteTrack(id: string, user?: JWTPayload) {
   if (!user) {
-    throw Error('Missing user')
+    throw new UnauthorizedError('Missing user', codes.MISSING_USER)
   }
   const [track] = await db
     .delete(tracks)
     .where(and(eq(tracks.id, id), eq(tracks.userId, user.userId)))
     .returning()
   if (!track) {
-    throw new Error('track not found')
+    throw new NotFoundError('track not found', codes.MISSING_TRACK)
   }
   const publicId = track.gpxFile
   await new Uploader().deleteGpx(publicId)
 }
 
-router.delete('/:id', authenticate, processDelete(deleteTrack))
+router.delete('/:id', processDelete(deleteTrack))
 
 async function addWaypoint(
   id: string,
@@ -77,14 +79,14 @@ async function addWaypoint(
   user?: JWTPayload
 ) {
   if (!user) {
-    throw Error('Missing user')
+    throw new UnauthorizedError('Missing user', codes.MISSING_USER)
   }
   const [track] = await db
     .select()
     .from(tracks)
     .where(and(eq(tracks.id, id), eq(tracks.userId, user.userId)))
   if (!track) {
-    throw new Error('track not found')
+    throw new NotFoundError('track not found', codes.MISSING_TRACK)
   }
   const response = await fetch(track.gpxFile)
   const gpxContent = await response.text()
@@ -96,11 +98,7 @@ async function addWaypoint(
   await new Uploader().overwriteGpx(publicId, updatedGpx)
 }
 
-router.put(
-  '/:id/waypoints',
-  authenticate,
-  processPut(UpdateTrackRequestSchema, addWaypoint)
-)
+router.put('/:id/waypoints', processPut(UpdateTrackRequestSchema, addWaypoint))
 
 async function getUserTracks(query: EmptyRequest, user?: JWTPayload) {
   return await db
@@ -109,6 +107,6 @@ async function getUserTracks(query: EmptyRequest, user?: JWTPayload) {
     .where(eq(tracks.userId, user?.userId ?? ''))
 }
 
-router.get('/', authenticate, processGet(EmptyRequestSchema, getUserTracks))
+router.get('/', processGet(EmptyRequestSchema, getUserTracks))
 
 export default router
