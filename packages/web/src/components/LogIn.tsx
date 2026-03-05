@@ -33,6 +33,7 @@ export default function LogIn() {
       onSuccess: (data) => {
         setAccessToken(data.accessToken)
         setAlert({ type: 'success', message: 'Login successful' })
+        setTimeout(() => navigate('/'), 1500)
       },
       onError: (err) =>
         setAlert({ type: 'error', message: `Login failed: ${err.message}` }),

@@ -17,10 +17,10 @@ export default function Header() {
   const { accessToken, logout } = useAuth()
 
   useEffect(() => {
-  if (!alert) return
-  const timer = setTimeout(() => setAlert(null), 2000)
-  return () => clearTimeout(timer)
-}, [alert])
+    if (!alert) return
+    const timer = setTimeout(() => setAlert(null), 2000)
+    return () => clearTimeout(timer)
+  }, [alert])
 
   let userMenu: MenuProps['items'] = [
     {
@@ -33,7 +33,6 @@ export default function Header() {
     },
   ]
 
-  
   let barsMenu: MenuProps['items'] = [
     {
       label: <Link to="/">Home</Link>,
@@ -46,31 +45,36 @@ export default function Header() {
     setAlert({ type: 'success', message: 'Logout successful' })
   }
 
-  if(accessToken){
+  if (accessToken) {
     userMenu = [
       {
-        label : <Link to="/login" onClick={onLogout}>Log out</Link>,
-        key:'logout'
-      }
+        label: (
+          <Link to="/login" onClick={onLogout}>
+            Log out
+          </Link>
+        ),
+        key: 'logout',
+      },
     ]
 
-    barsMenu=[
-    {
-      label: <Link to="/">Home</Link>,
-      key: 'home',
-    },
-    {
-      label: <Link to="/tracks">My tracks</Link>,
-      key: 'tracks',
-    },
-  ]
+    barsMenu = [
+      {
+        label: <Link to="/">Home</Link>,
+        key: 'home',
+      },
+      {
+        label: <Link to="/tracks">My tracks</Link>,
+        key: 'tracks',
+      },
+    ]
+  }
 
   return (
     <div className={styles.header}>
       <Dropdown menu={{ items: barsMenu }} trigger={['click']}>
         <FontAwesomeIcon className={styles.headerIcon} icon={faBars} />
       </Dropdown>
-            {alert && (
+      {alert && (
         <Alert description={alert.message} type={alert.type} showIcon />
       )}
       <Dropdown menu={{ items: userMenu }} trigger={['click']}>
