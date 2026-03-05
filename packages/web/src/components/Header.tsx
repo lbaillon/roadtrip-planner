@@ -32,7 +32,7 @@ export default function Header() {
   if(accessToken){
     userMenu = [
       {
-        label : <p onClick={logout}>Log out</p>,
+        label : <Link to="/login" onClick={logout}>Log out</Link>,
         key:'logout'
       }
     ]
