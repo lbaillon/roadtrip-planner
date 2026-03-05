@@ -22,9 +22,9 @@ import {
   UpdateUserRequestSchema,
 } from '@roadtrip/shared'
 import { DrizzleQueryError, eq } from 'drizzle-orm'
-import { Router, type Router as RouterType } from 'express'
+import { Router } from 'express'
 
-const router: RouterType = Router()
+const router: Router = Router()
 
 async function createUser(body: CreateUserRequest): Promise<CreateResponse> {
   const hashedPassword = await hashPassword(body.password)

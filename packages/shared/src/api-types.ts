@@ -9,14 +9,14 @@ export const ParseGpxRequestSchema = z.object({
 })
 
 export const CreateUserRequestSchema = z.object({
-  email: z.string(),
-  username: z.string(),
-  password: z.string(),
+  email: z.string().min(1, 'Cannot be empty'),
+  username: z.string().min(1, 'Cannot be empty'),
+  password: z.string().min(1, 'Cannot be empty'),
 })
 
 export const LogInRequestSchema = z.object({
-  username: z.string(),
-  password: z.string(),
+  username: z.string().min(1, 'Cannot be empty'),
+  password: z.string().min(1, 'Cannot be empty'),
 })
 
 export const CreateTrackRequestSchema = z.object({
@@ -31,9 +31,16 @@ export const UpdateTrackRequestSchema = z.object({
 })
 
 export const UpdateUserRequestSchema = z.object({
-  email: z.string().optional(),
-  username: z.string().optional(),
-  password: z.string().optional(),
+  email: z.string().min(1, 'Cannot be empty').optional(),
+  password: z.string().min(1, 'Cannot be empty').optional(),
+  username: z.string().min(1, 'Cannot be empty').optional(),
+})
+
+export const CreateTripRequestSchema = z.object({
+  name: z.string().min(1, 'Cannot be empty'),
+  description: z.string().optional(),
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
 })
 
 export const NoParamsRequestSchema = z.object({})
@@ -63,3 +70,4 @@ export type CreateTrackRequest = z.infer<typeof CreateTrackRequestSchema>
 export type UpdateTrackRequest = z.infer<typeof UpdateTrackRequestSchema>
 export type NoParamsRequest = z.infer<typeof NoParamsRequestSchema>
 export type UpdateUserRequest = z.infer<typeof UpdateUserRequestSchema>
+export type CreateTripRequest = z.infer<typeof CreateTripRequestSchema>

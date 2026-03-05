@@ -22,9 +22,9 @@ import {
   UpdateTrackRequestSchema,
 } from '@roadtrip/shared'
 import { and, eq } from 'drizzle-orm'
-import { Router, type Router as RouterType } from 'express'
+import { Router } from 'express'
 
-const router: RouterType = Router()
+const router: Router = Router()
 router.use(authenticate)
 
 async function createTrack(
@@ -52,7 +52,7 @@ async function createTrack(
 
 router.post(
   '/',
-  authorize(['user']),
+  authorize(['user', 'admin']),
   processPost(CreateTrackRequestSchema, createTrack)
 )
 
