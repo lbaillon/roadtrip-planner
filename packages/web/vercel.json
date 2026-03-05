@@ -1,5 +1,12 @@
 {
   "buildCommand": "cd ../.. && pnpm --filter @roadtrip/shared build && pnpm --filter @roadtrip/web build",
   "outputDirectory": "dist",
-  "installCommand": "cd ../.. && pnpm install --frozen-lockfile"
+  "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }
