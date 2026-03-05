@@ -4,9 +4,13 @@ import type { MenuProps } from 'antd'
 import { Dropdown } from 'antd'
 import { Link } from 'react-router-dom'
 import styles from './Header.module.css'
+import { useAuth } from '#web/hooks/useAuth'
 
 export default function Header() {
-  const userMenu: MenuProps['items'] = [
+
+  const { accessToken, logout } = useAuth()
+
+  let userMenu: MenuProps['items'] = [
     {
       label: <Link to="/login">Log in</Link>,
       key: 'login',
@@ -17,7 +21,23 @@ export default function Header() {
     },
   ]
 
-  const barsMenu: MenuProps['items'] = [
+  
+  let barsMenu: MenuProps['items'] = [
+    {
+      label: <Link to="/">Home</Link>,
+      key: 'home',
+    },
+  ]
+
+  if(accessToken){
+    userMenu = [
+      {
+        label : <p onClick={logout}>Log out</p>,
+        key:'logout'
+      }
+    ]
+
+    barsMenu=[
     {
       label: <Link to="/">Home</Link>,
       key: 'home',
@@ -27,7 +47,8 @@ export default function Header() {
       key: 'tracks',
     },
   ]
-
+  }
+  
   return (
     <div className={styles.header}>
       <Dropdown menu={{ items: barsMenu }} trigger={['click']}>
