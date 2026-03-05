@@ -13,9 +13,11 @@
 
 .routeName {
   text-align: center;
+  color: var(--primary-green);
 }
 
 .humidityPlot {
+  color: var(--primary-green);
   margin-top: 10%;
 }
 
