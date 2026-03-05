@@ -24,7 +24,7 @@ export default function UserTracks() {
 
   return (
     <div className={styles.tracksBox}>
-      <h3>My tracks</h3>
+      <h3 className={styles.tracksTitle}>My tracks</h3>
       {(tracks ?? []).map((track) => (
         <p className={styles.track} key={track.id}>
           <FontAwesomeIcon icon={faMotorcycle} className={styles.motoIcon} />

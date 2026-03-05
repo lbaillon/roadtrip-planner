@@ -29,4 +29,5 @@ h3 {
   --secondary-green: #4f7a67;
   --primary-grey: #aebcc2;
   --secondary-grey: #f2f4f3;
+  --error-red: rgb(129, 9, 9);
 }

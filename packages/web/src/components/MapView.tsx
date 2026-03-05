@@ -46,7 +46,7 @@ export default function MapView({
       <Map
         initialViewState={initialViewState}
         style={{ width: '100%', height: '100%' }}
-        mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
+        mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
       >
         {/* Route line */}
         <Source id="route" type="geojson" data={routeGeoJSON}>
@@ -54,7 +54,7 @@ export default function MapView({
             id="route-line"
             type="line"
             paint={{
-              'line-color': '#2563eb',
+              'line-color': '#239182',
               'line-width': 4,
               'line-opacity': 0.8,
             }}

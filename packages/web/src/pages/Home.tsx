@@ -46,7 +46,9 @@ export default function Home() {
           <div className={styles.mapBox}>
             <h2 className={styles.routeName}>{routeData.route.name}</h2>
             {routeData.route.distance && (
-              <p>Distance: {(routeData.route.distance / 1000).toFixed(2)} km</p>
+              <p className={styles.routeName}>
+                Distance: {(routeData.route.distance / 1000).toFixed(2)} km
+              </p>
             )}
 
             <Suspense fallback={<div>Loading map...</div>}>
