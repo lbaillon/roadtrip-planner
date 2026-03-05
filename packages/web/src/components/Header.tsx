@@ -17,7 +17,23 @@ export default function Header() {
     },
   ]
 
-  const barsMenu: MenuProps['items'] = [
+  
+  let barsMenu: MenuProps['items'] = [
+    {
+      label: <Link to="/">Home</Link>,
+      key: 'home',
+    },
+  ]
+
+  if(accessToken){
+    userMenu = [
+      {
+        label : <Link to="/login" onClick={logout}>Log out</Link>,
+        key:'logout'
+      }
+    ]
+
+    barsMenu=[
     {
       label: <Link to="/">Home</Link>,
       key: 'home',
