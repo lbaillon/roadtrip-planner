@@ -1,4 +1,5 @@
 import { useDeleteTrack, useGetTracks } from '#web/hooks/useApi'
+import styles from './UserTracks.module.css'
 import { faMotorcycle, faXmark } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Link } from 'react-router-dom'
