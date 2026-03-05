@@ -4,9 +4,25 @@ import type { MenuProps } from 'antd'
 import { Alert, Dropdown } from 'antd'
 import { Link } from 'react-router-dom'
 import styles from './Header.module.css'
+import { useAuth } from '#web/hooks/useAuth'
+import { useEffect, useState } from 'react'
+
+type AlertState = {
+  type: 'success' | 'error'
+  message: string
+} | null
 
 export default function Header() {
-  const userMenu: MenuProps['items'] = [
+  const [alert, setAlert] = useState<AlertState>(null)
+  const { accessToken, logout } = useAuth()
+
+  useEffect(() => {
+  if (!alert) return
+  const timer = setTimeout(() => setAlert(null), 2000)
+  return () => clearTimeout(timer)
+}, [alert])
+
+  let userMenu: MenuProps['items'] = [
     {
       label: <Link to="/login">Log in</Link>,
       key: 'login',
@@ -25,10 +41,15 @@ export default function Header() {
     },
   ]
 
+  const onLogout = () => {
+    logout()
+    setAlert({ type: 'success', message: 'Logout successful' })
+  }
+
   if(accessToken){
     userMenu = [
       {
-        label : <Link to="/login" onClick={logout}>Log out</Link>,
+        label : <Link to="/login" onClick={onLogout}>Log out</Link>,
         key:'logout'
       }
     ]
@@ -49,7 +70,7 @@ export default function Header() {
       <Dropdown menu={{ items: barsMenu }} trigger={['click']}>
         <FontAwesomeIcon className={styles.headerIcon} icon={faBars} />
       </Dropdown>
-      {alert && (
+            {alert && (
         <Alert description={alert.message} type={alert.type} showIcon />
       )}
       <Dropdown menu={{ items: userMenu }} trigger={['click']}>
