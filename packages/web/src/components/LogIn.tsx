@@ -1,5 +1,5 @@
 import { Alert, Button, Form, Input, type FormProps } from 'antd'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLogin } from '../hooks/useApi'
 import styles from './SignUp-LogIn.module.css'
 import { useAuth } from '#web/hooks/useAuth'
@@ -22,12 +22,17 @@ export default function LogIn() {
   const { setAccessToken } = useAuth()
   const navigate = useNavigate()
 
+  useEffect(() => {
+    if (alert?.type !== 'success') return
+    const timer = setTimeout(() => navigate('/'), 1500)
+    return () => clearTimeout(timer)
+  }, [alert])
+
   const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
     login(values, {
       onSuccess: (data) => {
         setAccessToken(data.accessToken)
         setAlert({ type: 'success', message: 'Login successful' })
-        setTimeout(() => navigate('/'), 1500)
       },
       onError: (err) =>
         setAlert({ type: 'error', message: `Login failed: ${err.message}` }),
