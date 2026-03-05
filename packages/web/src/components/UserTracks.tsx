@@ -1,26 +1,12 @@
-import { useApi } from '#web/hooks/useApi'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useDeleteTrack, useGetTracks } from '#web/hooks/useApi'
 import styles from './UserTracks.module.css'
 import { faMotorcycle, faXmark } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 export default function UserTracks() {
-  const queryClient = useQueryClient()
-  const fetch = useApi()
-  const { data: tracks } = useQuery({
-    queryKey: ['tracks'],
-    queryFn: () => fetch<{ id: string; name: string }[]>('/api/tracks'),
-  })
+  const { data: tracks } = useGetTracks()
 
-  const { mutate: deleteTrack } = useMutation({
-    mutationFn: (id: string) =>
-      fetch<void>(`/api/tracks/${id}`, {
-        method: 'DELETE',
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tracks'] })
-    },
-  })
+  const { mutate: deleteTrack } = useDeleteTrack()
 
   return (
     <div className={styles.tracksBox}>
