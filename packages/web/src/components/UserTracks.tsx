@@ -1,5 +1,4 @@
 import { useDeleteTrack, useGetTracks } from '#web/hooks/useApi'
-import styles from './UserTracks.module.css'
 import { faMotorcycle, faXmark } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Link } from 'react-router-dom'
@@ -16,9 +15,7 @@ export default function UserTracks() {
       {(tracks ?? []).map((track) => (
         <p className={styles.track} key={track.id}>
           <FontAwesomeIcon icon={faMotorcycle} className={styles.motoIcon} />
-          <Link to={`/tracks/${track.id}`} className={styles.trackName}>
-            {track.name}
-          </Link>
+          <Link to={`/tracks/${track.id}`}>{track.name}</Link>
           <FontAwesomeIcon
             icon={faXmark}
             className={styles.deleteIcon}
