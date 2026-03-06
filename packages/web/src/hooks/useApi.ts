@@ -6,6 +6,7 @@ import {
   type ParseGpxRequest,
   type ParseGpxResponse,
   type CreateTrackRequest,
+  type GetTrackResponse,
 } from '@roadtrip/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ApiError, fetchApi } from '../lib/api-client'
@@ -101,11 +102,11 @@ export function useGetTracks() {
   })
 }
 
-export function useGetTrack(id: string) {
+export function useGetTrack(id: string|undefined) {
   const api = useApi()
   return useQuery({
     queryKey: ['tracks', id],
-    queryFn: () => api<{ id: string; name: string }>(`/api/tracks/${id}`),
+    queryFn: () => api<GetTrackResponse>(`/api/tracks/${id}`),
     enabled: !!id,
   })
 }

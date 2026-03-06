@@ -53,4 +53,14 @@ export class Uploader {
   async deleteGpx(publicId: string): Promise<void> {
     return cloudinary.uploader.destroy(publicId, { resource_type: 'raw' })
   }
+
+  async getGpxFile(publicId: string): Promise<string> {
+  const url = cloudinary.url(publicId, {
+    resource_type: 'raw',
+  })
+  
+  const response = await fetch(url)
+  const gpxContent = await response.text()
+  return gpxContent
+}
 }

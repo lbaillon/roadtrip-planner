@@ -52,6 +52,12 @@ export const LogInResponseSchema = z.object({
   accessToken: z.string(),
 })
 
+export const GetTrackResponseSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  gpxContent: z.string(),
+})
+
 export type EmptyRequest = z.infer<typeof EmptyRequestSchema>
 export type ParseGpxRequest = z.infer<typeof ParseGpxRequestSchema>
 export type ParseGpxResponse = z.infer<typeof ParseGpxResponseSchema>
@@ -63,3 +69,4 @@ export type CreateTrackRequest = z.infer<typeof CreateTrackRequestSchema>
 export type UpdateTrackRequest = z.infer<typeof UpdateTrackRequestSchema>
 export type NoParamsRequest = z.infer<typeof NoParamsRequestSchema>
 export type UpdateUserRequest = z.infer<typeof UpdateUserRequestSchema>
+export type GetTrackResponse = z.infer<typeof GetTrackResponseSchema>

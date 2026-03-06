@@ -19,6 +19,7 @@ import {
   CreateTrackRequestSchema,
   EmptyRequest,
   EmptyRequestSchema,
+  GetTrackResponse,
   UpdateTrackRequest,
   UpdateTrackRequestSchema,
 } from '@roadtrip/shared'
@@ -89,8 +90,7 @@ async function addWaypoint(
   if (!track) {
     throw new NotFoundError('track not found', codes.MISSING_TRACK)
   }
-  const response = await fetch(track.gpxFile)
-  const gpxContent = await response.text()
+  const gpxContent = await new Uploader().getGpxFile(track.gpxFile)
 
   const updatedGpx = addWaypointToGpx(gpxContent, body)
 
@@ -110,11 +110,20 @@ async function getUserTracks(query: EmptyRequest, user?: JWTPayload) {
 
 router.get('/', processGet(EmptyRequestSchema, getUserTracks))
 
-async function getTrack(id: string, user?: JWTPayload) {
-  return await db
+async function getTrack(id: string, user?: JWTPayload) : Promise <GetTrackResponse> {
+  if (!user) {
+    throw new UnauthorizedError('Missing user', codes.MISSING_USER)
+  }
+  const [track] = await db
     .select()
     .from(tracks)
-    .where(eq(tracks.id, id))
+    .where(and(eq(tracks.id, id), eq(tracks.userId, user.userId)))
+  if (!track) {
+    throw new NotFoundError('track not found', codes.MISSING_TRACK)
+  }
+  const gpxContent = await new Uploader().getGpxFile(track.gpxFile)
+
+  return {id: track.id, name:track.name, gpxContent}
 }
 
 router.get('/:id', processGetOne(getTrack))
