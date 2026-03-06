@@ -30,5 +30,8 @@ export async function fetchApi<TResponse>(
       error.details
     )
   }
+  if (response.status === 204) {
+    return null as TResponse
+  }
   return response.json()
 }
