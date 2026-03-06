@@ -4,6 +4,7 @@ import { Route, Routes } from 'react-router-dom'
 import MainLayout from './components/MainLayout'
 import Home from './pages/Home'
 import Tracks from './pages/Tracks'
+import TrackDetail from './pages/TrackDetail'
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
         <Route path="/login" element={<LogIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/tracks" element={<Tracks />} />
+        <Route path="/tracks/:id" element={<TrackDetail />} />
       </Route>
     </Routes>
   )

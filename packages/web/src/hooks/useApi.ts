@@ -100,3 +100,12 @@ export function useGetTracks() {
     queryFn: () => api<{ id: string; name: string }[]>('/api/tracks'),
   })
 }
+
+export function useGetTrack(id: string) {
+  const api = useApi()
+  return useQuery({
+    queryKey: ['tracks', id],
+    queryFn: () => api<{ id: string; name: string }>(`/api/tracks/${id}`),
+    enabled: !!id,
+  })
+}

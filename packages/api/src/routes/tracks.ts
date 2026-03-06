@@ -9,6 +9,7 @@ import { Uploader } from '#api/services/uploader.js'
 import {
   processDelete,
   processGet,
+  processGetOne,
   processPost,
   processPut,
 } from '#api/utils/route-handler.js'
@@ -108,5 +109,14 @@ async function getUserTracks(query: EmptyRequest, user?: JWTPayload) {
 }
 
 router.get('/', processGet(EmptyRequestSchema, getUserTracks))
+
+async function getTrack(id: string, user?: JWTPayload) {
+  return await db
+    .select()
+    .from(tracks)
+    .where(eq(tracks.id, id))
+}
+
+router.get('/:id', processGetOne(getTrack))
 
 export default router
