@@ -17,6 +17,7 @@ import {
   CreateTrackRequest,
   CreateTrackRequestSchema,
   GetTrackResponse,
+  IdParamsSchema,
   UpdateTrackRequest,
   UpdateTrackRequestSchema,
 } from '@roadtrip/shared'
@@ -52,7 +53,10 @@ async function createTrack(
 router.post(
   '/',
   authorize(['user', 'admin']),
-  processPost(CreateTrackRequestSchema, createTrack)
+  processPost({
+    bodySchema: CreateTrackRequestSchema,
+    handler: ({ body, user }) => createTrack(body, user),
+  })
 )
 
 async function deleteTrack(id: string, user?: JWTPayload) {
@@ -70,7 +74,13 @@ async function deleteTrack(id: string, user?: JWTPayload) {
   await new Uploader().deleteGpx(publicId)
 }
 
-router.delete('/:id', processDelete(deleteTrack))
+router.delete(
+  '/:id',
+  processDelete({
+    paramsSchema: IdParamsSchema,
+    handler: ({ params, user }) => deleteTrack(params.id, user),
+  })
+)
 
 async function addWaypoint(
   id: string,
@@ -96,16 +106,23 @@ async function addWaypoint(
   await new Uploader().overwriteGpx(publicId, updatedGpx)
 }
 
-router.put('/:id/waypoints', processPut(UpdateTrackRequestSchema, addWaypoint))
+router.put(
+  '/:id/waypoints',
+  processPut({
+    paramsSchema: IdParamsSchema,
+    bodySchema: UpdateTrackRequestSchema,
+    handler: ({ params, body, user }) => addWaypoint(params.id, body, user),
+  })
+)
 
-async function getUserTracks( user?: JWTPayload) {
+async function getUserTracks(user?: JWTPayload) {
   return await db
     .select()
     .from(tracks)
     .where(eq(tracks.userId, user?.userId ?? ''))
 }
 
-router.get('/', processGet({handler: ({user})=>getUserTracks(user)}))
+router.get('/', processGet({ handler: ({ user }) => getUserTracks(user) }))
 
 async function getTrack(
   id: string,
@@ -126,6 +143,12 @@ async function getTrack(
   return { id: track.id, name: track.name, gpxContent }
 }
 
-router.get('/:id', processGetOne(getTrack))
+router.get(
+  '/:id',
+  processGet({
+    paramsSchema: IdParamsSchema,
+    handler: ({ params, user }) => getTrack(params.id, user),
+  })
+)
 
 export default router
