@@ -21,7 +21,10 @@ export default function UserTracks() {
           <FontAwesomeIcon
             icon={faXmark}
             className={styles.deleteIcon}
-            onClick={() => deleteTrack(track.id)}
+            onClick={(e) => {
+              e.stopPropagation()
+              deleteTrack(track.id)
+            }}
           />
         </p>
       ))}
