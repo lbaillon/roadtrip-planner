@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { ParsedGpxSchema, WeatherDataSchema } from './validators.js'
 
 // Request schemas
-export const EmptyRequestSchema = z.object({}).strict()
+export const IdRequestSchema = z.object({id: z.string()}).strict()
 
 export const ParseGpxRequestSchema = z.object({
   gpxContent: z.string().min(1, 'GPX content cannot be empty'),
@@ -59,7 +59,7 @@ export const LogInResponseSchema = z.object({
   accessToken: z.string(),
 })
 
-export type EmptyRequest = z.infer<typeof EmptyRequestSchema>
+export type IdRequest = z.infer<typeof IdRequestSchema>
 export type ParseGpxRequest = z.infer<typeof ParseGpxRequestSchema>
 export type ParseGpxResponse = z.infer<typeof ParseGpxResponseSchema>
 export type CreateUserRequest = z.infer<typeof CreateUserRequestSchema>

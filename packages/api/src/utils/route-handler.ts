@@ -17,28 +17,34 @@ export function processPost<TInput, TOutput>(
   }
 }
 
-export function processGet<TQuery, TOutput>(
-  querySchema: z.ZodSchema<TQuery>,
-  handler: (body: TQuery, user?: JWTPayload) => Promise<TOutput>
-) {
+type HandlerArgs<TQuery, TParams> = (TQuery extends void
+  ? Record<string, never>
+  : { query: TQuery }) &
+  (TParams extends void ? Record<string, never> : { params: TParams }) & {
+    user?: JWTPayload
+  }
+export function processGet<TQuery = void, TParams = void, TOutput = unknown>({
+  querySchema = z.void() as unknown as z.ZodSchema<TQuery>,
+  paramsSchema = z.void() as unknown as z.ZodSchema<TParams>,
+  handler,
+}: {
+  querySchema?: z.ZodSchema<TQuery>
+  paramsSchema?: z.ZodSchema<TParams>
+  handler: (args: HandlerArgs<TQuery, TParams>) => Promise<TOutput>
+}) {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const validatedQuery = querySchema.parse(req.query)
-      const result = await handler(validatedQuery, req.user)
-      res.status(200).json(result)
-    } catch (error) {
-      next(error)
-    }
-  }
-}
+      const validatedParams = paramsSchema.parse(req.params)
 
-export function processGetOne<TOutput>(
-  handler: (id: string, user?: JWTPayload) => Promise<TOutput>
-) {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { id } = req.params
-      const result = await handler(id, req.user)
+      const args = {
+        ...(validatedQuery !== undefined && { query: validatedQuery }),
+        ...(validatedParams !== undefined && { params: validatedParams }),
+        user: req.user,
+      } as HandlerArgs<TQuery, TParams>
+
+      const result = await handler(args)
+
       res.status(200).json(result)
     } catch (error) {
       next(error)

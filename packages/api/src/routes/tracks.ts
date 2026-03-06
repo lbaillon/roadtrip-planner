@@ -16,8 +16,6 @@ import {
   CreateResponse,
   CreateTrackRequest,
   CreateTrackRequestSchema,
-  EmptyRequest,
-  EmptyRequestSchema,
   UpdateTrackRequest,
   UpdateTrackRequestSchema,
 } from '@roadtrip/shared'
@@ -100,13 +98,13 @@ async function addWaypoint(
 
 router.put('/:id/waypoints', processPut(UpdateTrackRequestSchema, addWaypoint))
 
-async function getUserTracks(query: EmptyRequest, user?: JWTPayload) {
+async function getUserTracks( user?: JWTPayload) {
   return await db
     .select()
     .from(tracks)
     .where(eq(tracks.userId, user?.userId ?? ''))
 }
 
-router.get('/', processGet(EmptyRequestSchema, getUserTracks))
+router.get('/', processGet({handler: ({user})=>getUserTracks(user)}))
 
 export default router
