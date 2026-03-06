@@ -152,7 +152,6 @@ router.get(
   })
 )
 
-
 async function getTrack(
   id: string,
   user?: JWTPayload
