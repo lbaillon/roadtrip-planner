@@ -61,7 +61,7 @@ router.post('/login', async (req, res) => {
 router.post('/refresh', async (req, res) => {
   const refreshToken = req.cookies?.refreshToken
   if (!refreshToken) {
-    return res.status(401).json({ message: 'Missing refresh token' })
+    res.status(401).json({ message: 'Missing refresh token' })
   }
   try {
     const payload = await verifyToken(refreshToken)
@@ -70,6 +70,11 @@ router.post('/refresh', async (req, res) => {
   } catch {
     res.status(401).json({ message: 'Invalid refresh token' })
   }
+})
+
+router.post('/logout', async (req, res)=> {
+  res.clearCookie('refreshToken')
+  res.status(200).json({ message: 'Logged out successfully' })
 })
 
 export default router
