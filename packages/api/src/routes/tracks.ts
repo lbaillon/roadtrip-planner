@@ -110,7 +110,10 @@ async function getUserTracks(query: EmptyRequest, user?: JWTPayload) {
 
 router.get('/', processGet(EmptyRequestSchema, getUserTracks))
 
-async function getTrack(id: string, user?: JWTPayload) : Promise <GetTrackResponse> {
+async function getTrack(
+  id: string,
+  user?: JWTPayload
+): Promise<GetTrackResponse> {
   if (!user) {
     throw new UnauthorizedError('Missing user', codes.MISSING_USER)
   }
@@ -123,7 +126,7 @@ async function getTrack(id: string, user?: JWTPayload) : Promise <GetTrackRespon
   }
   const gpxContent = await new Uploader().getGpxFile(track.gpxFile)
 
-  return {id: track.id, name:track.name, gpxContent}
+  return { id: track.id, name: track.name, gpxContent }
 }
 
 router.get('/:id', processGetOne(getTrack))

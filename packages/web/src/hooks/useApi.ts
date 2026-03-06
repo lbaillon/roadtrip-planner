@@ -102,7 +102,7 @@ export function useGetTracks() {
   })
 }
 
-export function useGetTrack(id: string|undefined) {
+export function useGetTrack(id: string | undefined) {
   const api = useApi()
   return useQuery({
     queryKey: ['tracks', id],
