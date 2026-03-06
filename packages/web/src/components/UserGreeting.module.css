@@ -1,9 +1,11 @@
 .greet{
-  grid-column: 4/10;
+  grid-column: 1/13;
   grid-row: 2/3;
   text-align: center;
   color: var(--primary-green);
   font-size: 28px;
+  display: inline-block;
+  justify-self: center;
 }
 
 .greet::after {
