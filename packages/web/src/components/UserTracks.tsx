@@ -15,7 +15,7 @@ export default function UserTracks() {
       {(tracks ?? []).map((track) => (
         <p className={styles.track} key={track.id}>
           <FontAwesomeIcon icon={faMotorcycle} className={styles.motoIcon} />
-          <Link to={`/tracks/${track.id}`}>{track.name}</Link>
+          <Link to={`/tracks/${track.id}`} className={styles.trackName}>{track.name}</Link>
           <FontAwesomeIcon
             icon={faXmark}
             className={styles.deleteIcon}
