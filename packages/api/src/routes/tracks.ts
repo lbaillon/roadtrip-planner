@@ -9,7 +9,6 @@ import { Uploader } from '#api/services/uploader.js'
 import {
   processDelete,
   processGet,
-  processGetOne,
   processPost,
   processPut,
 } from '#api/utils/route-handler.js'
@@ -151,26 +150,5 @@ router.get(
     handler: ({ params, user }) => getTrack(params.id, user),
   })
 )
-
-async function getTrack(
-  id: string,
-  user?: JWTPayload
-): Promise<GetTrackResponse> {
-  if (!user) {
-    throw new UnauthorizedError('Missing user', codes.MISSING_USER)
-  }
-  const [track] = await db
-    .select()
-    .from(tracks)
-    .where(and(eq(tracks.id, id), eq(tracks.userId, user.userId)))
-  if (!track) {
-    throw new NotFoundError('track not found', codes.MISSING_TRACK)
-  }
-  const gpxContent = await new Uploader().getGpxFile(track.gpxFile)
-
-  return { id: track.id, name: track.name, gpxContent }
-}
-
-router.get('/:id', processGetOne(getTrack))
 
 export default router
