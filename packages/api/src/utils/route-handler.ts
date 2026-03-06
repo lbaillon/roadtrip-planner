@@ -53,7 +53,7 @@ export function processDelete(
     try {
       const { id } = req.params
       await handler(id, req.user)
-      return res.status(204)
+      return res.status(204).send()
     } catch (error) {
       next(error)
     }
@@ -69,7 +69,7 @@ export function processPut<TInput>(
       const { id } = req.params
       const validatedInput = inputSchema.parse(req.body) // validate input body using zod to parse with schema
       await handler(id, validatedInput, req.user)
-      res.status(204)
+      res.status(204).send()
     } catch (error) {
       next(error)
     }
