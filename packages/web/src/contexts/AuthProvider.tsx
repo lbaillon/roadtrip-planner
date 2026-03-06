@@ -7,7 +7,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [accessToken, setAccessToken] = useState<string | null>(null)
   const queryClient = useQueryClient()
 
-  const {mutate:logout} = useMutation({
+  const { mutate: logout } = useMutation({
     mutationFn: () =>
       fetchApi(`/api/auth/logout`, {
         method: 'POST',
@@ -17,8 +17,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       queryClient.clear()
     },
   })
-
-
 
   return (
     <AuthContext.Provider value={{ accessToken, setAccessToken, logout }}>
