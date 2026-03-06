@@ -152,13 +152,5 @@ router.get(
   })
 )
 
-async function getTrack(id: string, user?: JWTPayload) {
-  return await db
-    .select()
-    .from(tracks)
-    .where(eq(tracks.id, id))
-}
-
-router.get('/:id', processGetOne(getTrack))
 
 export default router
