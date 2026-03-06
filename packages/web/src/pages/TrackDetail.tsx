@@ -2,7 +2,7 @@ import MapView from '#web/components/MapView'
 import { useGetTrack, useParseGpx } from '#web/hooks/useApi'
 import { Suspense, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import styles from './Home.module.css'
+import styles from './TrackDetails.module.css'
 import { TimeSelector } from '#web/components/TimeSelector'
 import { HumidityChart } from '#web/components/HumidityChart'
 
@@ -31,7 +31,7 @@ export default function TrackDetail() {
     },[track, uploadGpx])
 
   return (
-    <>
+    <div className={styles.contentBox}>
               {loading && (
           <div style={{ textAlign: 'center', marginTop: '20px' }}>
             <p>Loading route and weather data...</p>
@@ -75,6 +75,6 @@ export default function TrackDetail() {
             />
           </div>
         )}
-    </>
+    </div>
   )
 }
