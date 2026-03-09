@@ -26,6 +26,12 @@ async function handleParseGpx(
   }
 }
 
-router.post('/', processPost(ParseGpxRequestSchema, handleParseGpx))
+router.post(
+  '/',
+  processPost({
+    bodySchema: ParseGpxRequestSchema,
+    handler: ({ body }) => handleParseGpx(body),
+  })
+)
 
 export default router

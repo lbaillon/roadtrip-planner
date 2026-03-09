@@ -18,13 +18,14 @@ import {
   CreateResponse,
   CreateUserRequest,
   CreateUserRequestSchema,
+  IdParamsSchema,
   UpdateUserRequest,
   UpdateUserRequestSchema,
 } from '@roadtrip/shared'
 import { DrizzleQueryError, eq } from 'drizzle-orm'
-import { Router, type Router as RouterType } from 'express'
+import { Router } from 'express'
 
-const router: RouterType = Router()
+const router: Router = Router()
 
 async function createUser(body: CreateUserRequest): Promise<CreateResponse> {
   const hashedPassword = await hashPassword(body.password)
@@ -52,7 +53,13 @@ async function createUser(body: CreateUserRequest): Promise<CreateResponse> {
   }
 }
 
-router.post('/', processPost(CreateUserRequestSchema, createUser))
+router.post(
+  '/',
+  processPost({
+    bodySchema: CreateUserRequestSchema,
+    handler: ({ body }) => createUser(body),
+  })
+)
 
 async function deleteUser(id: string, user?: JWTPayload) {
   if (!user || user.role != 'admin' || user.userId != id) {
@@ -67,7 +74,14 @@ async function deleteUser(id: string, user?: JWTPayload) {
   }
 }
 
-router.delete('/:id', authenticate, processDelete(deleteUser))
+router.delete(
+  '/:id',
+  authenticate,
+  processDelete({
+    paramsSchema: IdParamsSchema,
+    handler: ({ params, user }) => deleteUser(params.id, user),
+  })
+)
 
 async function updateUser(
   id: string,
@@ -112,7 +126,11 @@ async function updateUser(
 router.put(
   '/:id',
   authenticate,
-  processPut(UpdateUserRequestSchema, updateUser)
+  processPut({
+    paramsSchema: IdParamsSchema,
+    bodySchema: UpdateUserRequestSchema,
+    handler: ({ params, body, user }) => updateUser(params.id, body, user),
+  })
 )
 
 export default router

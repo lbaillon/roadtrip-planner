@@ -26,7 +26,7 @@ export default function LogIn() {
     if (alert?.type !== 'success') return
     const timer = setTimeout(() => navigate('/'), 1500)
     return () => clearTimeout(timer)
-  }, [alert])
+  }, [alert, navigate])
 
   const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
     login(values, {

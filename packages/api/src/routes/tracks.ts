@@ -9,7 +9,6 @@ import { Uploader } from '#api/services/uploader.js'
 import {
   processDelete,
   processGet,
-  processGetOne,
   processPost,
   processPut,
 } from '#api/utils/route-handler.js'
@@ -17,16 +16,15 @@ import {
   CreateResponse,
   CreateTrackRequest,
   CreateTrackRequestSchema,
-  EmptyRequest,
-  EmptyRequestSchema,
   GetTrackResponse,
+  IdParamsSchema,
   UpdateTrackRequest,
   UpdateTrackRequestSchema,
 } from '@roadtrip/shared'
 import { and, eq } from 'drizzle-orm'
-import { Router, type Router as RouterType } from 'express'
+import { Router } from 'express'
 
-const router: RouterType = Router()
+const router: Router = Router()
 router.use(authenticate)
 
 async function createTrack(
@@ -54,8 +52,11 @@ async function createTrack(
 
 router.post(
   '/',
-  authorize(['user']),
-  processPost(CreateTrackRequestSchema, createTrack)
+  authorize(['user', 'admin']),
+  processPost({
+    bodySchema: CreateTrackRequestSchema,
+    handler: ({ body, user }) => createTrack(body, user),
+  })
 )
 
 async function deleteTrack(id: string, user?: JWTPayload) {
@@ -73,7 +74,13 @@ async function deleteTrack(id: string, user?: JWTPayload) {
   await new Uploader().deleteGpx(publicId)
 }
 
-router.delete('/:id', processDelete(deleteTrack))
+router.delete(
+  '/:id',
+  processDelete({
+    paramsSchema: IdParamsSchema,
+    handler: ({ params, user }) => deleteTrack(params.id, user),
+  })
+)
 
 async function addWaypoint(
   id: string,
@@ -99,16 +106,23 @@ async function addWaypoint(
   await new Uploader().overwriteGpx(publicId, updatedGpx)
 }
 
-router.put('/:id/waypoints', processPut(UpdateTrackRequestSchema, addWaypoint))
+router.put(
+  '/:id/waypoints',
+  processPut({
+    paramsSchema: IdParamsSchema,
+    bodySchema: UpdateTrackRequestSchema,
+    handler: ({ params, body, user }) => addWaypoint(params.id, body, user),
+  })
+)
 
-async function getUserTracks(query: EmptyRequest, user?: JWTPayload) {
+async function getUserTracks(user?: JWTPayload) {
   return await db
     .select()
     .from(tracks)
     .where(eq(tracks.userId, user?.userId ?? ''))
 }
 
-router.get('/', processGet(EmptyRequestSchema, getUserTracks))
+router.get('/', processGet({ handler: ({ user }) => getUserTracks(user) }))
 
 async function getTrack(
   id: string,
@@ -129,6 +143,12 @@ async function getTrack(
   return { id: track.id, name: track.name, gpxContent }
 }
 
-router.get('/:id', processGetOne(getTrack))
+router.get(
+  '/:id',
+  processGet({
+    paramsSchema: IdParamsSchema,
+    handler: ({ params, user }) => getTrack(params.id, user),
+  })
+)
 
 export default router

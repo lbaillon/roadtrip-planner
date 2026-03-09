@@ -2,14 +2,33 @@ import { JWTPayload } from '#api/services/authentication.js'
 import { NextFunction, Request, Response } from 'express'
 import { z } from 'zod'
 
-export function processPost<TInput, TOutput>(
-  inputSchema: z.ZodSchema<TInput>,
-  handler: (body: TInput, user?: JWTPayload) => Promise<TOutput>
-) {
+type HandlerArgs<TQuery, TParams, TBody> = (TQuery extends void
+  ? Record<string, never>
+  : { query: TQuery }) &
+  (TParams extends void ? Record<string, never> : { params: TParams }) &
+  (TBody extends void ? Record<string, never> : { body: TBody }) & {
+    user?: JWTPayload
+  }
+
+export function processPost<TBody = void, TParams = void, TOutput = unknown>({
+  bodySchema,
+  paramsSchema = z.void() as unknown as z.ZodSchema<TParams>,
+  handler,
+}: {
+  bodySchema: z.ZodSchema<TBody>
+  paramsSchema?: z.ZodSchema<TParams>
+  handler: (args: HandlerArgs<void, TParams, TBody>) => Promise<TOutput>
+}) {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const validatedInput = inputSchema.parse(req.body) // validate input body using zod to parse with schema
-      const result = await handler(validatedInput, req.user)
+      const validatedBody = bodySchema.parse(req.body) // validate input body using zod to parse with schema
+      const validatedParams = paramsSchema.parse(req.params)
+      const args = {
+        ...(validatedBody !== undefined && { body: validatedBody }),
+        ...(validatedParams !== undefined && { params: validatedParams }),
+        user: req.user,
+      } as HandlerArgs<void, TParams, TBody>
+      const result = await handler(args)
       res.status(201).json(result)
     } catch (error) {
       next(error)
@@ -17,14 +36,25 @@ export function processPost<TInput, TOutput>(
   }
 }
 
-export function processGet<TQuery, TOutput>(
-  querySchema: z.ZodSchema<TQuery>,
-  handler: (body: TQuery, user?: JWTPayload) => Promise<TOutput>
-) {
+export function processGet<TQuery = void, TParams = void, TOutput = unknown>({
+  querySchema = z.void() as unknown as z.ZodSchema<TQuery>,
+  paramsSchema = z.void() as unknown as z.ZodSchema<TParams>,
+  handler,
+}: {
+  querySchema?: z.ZodSchema<TQuery>
+  paramsSchema?: z.ZodSchema<TParams>
+  handler: (args: HandlerArgs<TQuery, TParams, void>) => Promise<TOutput>
+}) {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const validatedQuery = querySchema.parse(req.query)
-      const result = await handler(validatedQuery, req.user)
+      const validatedParams = paramsSchema.parse(req.params)
+      const args = {
+        ...(validatedQuery !== undefined && { query: validatedQuery }),
+        ...(validatedParams !== undefined && { params: validatedParams }),
+        user: req.user,
+      } as HandlerArgs<TQuery, TParams, void>
+      const result = await handler(args)
       res.status(200).json(result)
     } catch (error) {
       next(error)
@@ -32,27 +62,21 @@ export function processGet<TQuery, TOutput>(
   }
 }
 
-export function processGetOne<TOutput>(
-  handler: (id: string, user?: JWTPayload) => Promise<TOutput>
-) {
+export function processDelete<TParams>({
+  paramsSchema,
+  handler,
+}: {
+  paramsSchema: z.ZodSchema<TParams>
+  handler: (args: HandlerArgs<void, TParams, void>) => Promise<void>
+}) {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { id } = req.params
-      const result = await handler(id, req.user)
-      res.status(200).json(result)
-    } catch (error) {
-      next(error)
-    }
-  }
-}
-
-export function processDelete(
-  handler: (id: string, user?: JWTPayload) => Promise<void>
-) {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { id } = req.params
-      await handler(id, req.user)
+      const validatedParams = paramsSchema.parse(req.params)
+      const args = {
+        ...(validatedParams !== undefined && { params: validatedParams }),
+        user: req.user,
+      } as HandlerArgs<void, TParams, void>
+      await handler(args)
       return res.status(204).send()
     } catch (error) {
       next(error)
@@ -60,15 +84,25 @@ export function processDelete(
   }
 }
 
-export function processPut<TInput>(
-  inputSchema: z.ZodSchema<TInput>,
-  handler: (id: string, body: TInput, user?: JWTPayload) => Promise<void>
-) {
+export function processPut<TBody = void, TParams = void>({
+  bodySchema,
+  paramsSchema = z.void() as unknown as z.ZodSchema<TParams>,
+  handler,
+}: {
+  bodySchema: z.ZodSchema<TBody>
+  paramsSchema?: z.ZodSchema<TParams>
+  handler: (args: HandlerArgs<void, TParams, TBody>) => Promise<void>
+}) {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { id } = req.params
-      const validatedInput = inputSchema.parse(req.body) // validate input body using zod to parse with schema
-      await handler(id, validatedInput, req.user)
+      const validatedBody = bodySchema.parse(req.query)
+      const validatedParams = paramsSchema.parse(req.params)
+      const args = {
+        ...(validatedBody !== undefined && { query: validatedBody }),
+        ...(validatedParams !== undefined && { params: validatedParams }),
+        user: req.user,
+      } as HandlerArgs<void, TParams, TBody>
+      await handler(args)
       res.status(204).send()
     } catch (error) {
       next(error)

@@ -1,22 +1,30 @@
 import { z } from 'zod'
 import { ParsedGpxSchema, WeatherDataSchema } from './validators.js'
 
+// Params schemas
+
+export const IdParamsSchema = z.object({ id: z.string() }).strict()
+
+export const TrackOfTripParamsSchema = z.object({
+  tripId: z.string().min(1, 'Cannot be empty'),
+  trackId: z.string().min(1, 'Cannot be empty'),
+})
+
 // Request schemas
-export const EmptyRequestSchema = z.object({}).strict()
 
 export const ParseGpxRequestSchema = z.object({
   gpxContent: z.string().min(1, 'GPX content cannot be empty'),
 })
 
 export const CreateUserRequestSchema = z.object({
-  email: z.string(),
-  username: z.string(),
-  password: z.string(),
+  email: z.string().min(1, 'Cannot be empty'),
+  username: z.string().min(1, 'Cannot be empty'),
+  password: z.string().min(1, 'Cannot be empty'),
 })
 
 export const LogInRequestSchema = z.object({
-  username: z.string(),
-  password: z.string(),
+  username: z.string().min(1, 'Cannot be empty'),
+  password: z.string().min(1, 'Cannot be empty'),
 })
 
 export const CreateTrackRequestSchema = z.object({
@@ -31,14 +39,30 @@ export const UpdateTrackRequestSchema = z.object({
 })
 
 export const UpdateUserRequestSchema = z.object({
-  email: z.string().optional(),
-  username: z.string().optional(),
-  password: z.string().optional(),
+  email: z.string().min(1, 'Cannot be empty').optional(),
+  password: z.string().min(1, 'Cannot be empty').optional(),
+  username: z.string().min(1, 'Cannot be empty').optional(),
 })
 
-export const NoParamsRequestSchema = z.object({})
+export const CreateTripRequestSchema = z.object({
+  name: z.string().min(1, 'Cannot be empty'),
+  description: z.string().optional(),
+  startDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
+  endDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
+})
+
+export const AddTrackToTripRequestSchema = z.object({
+  order: z.number(),
+})
 
 // Response schemas
+
 export const ParseGpxResponseSchema = z.object({
   route: ParsedGpxSchema,
   weather: z.array(WeatherDataSchema),
@@ -58,7 +82,8 @@ export const GetTrackResponseSchema = z.object({
   gpxContent: z.string(),
 })
 
-export type EmptyRequest = z.infer<typeof EmptyRequestSchema>
+export type IdParams = z.infer<typeof IdParamsSchema>
+export type TrackOfTripParams = z.infer<typeof TrackOfTripParamsSchema>
 export type ParseGpxRequest = z.infer<typeof ParseGpxRequestSchema>
 export type ParseGpxResponse = z.infer<typeof ParseGpxResponseSchema>
 export type CreateUserRequest = z.infer<typeof CreateUserRequestSchema>
@@ -67,6 +92,7 @@ export type LogInRequest = z.infer<typeof LogInRequestSchema>
 export type LogInResponse = z.infer<typeof LogInResponseSchema>
 export type CreateTrackRequest = z.infer<typeof CreateTrackRequestSchema>
 export type UpdateTrackRequest = z.infer<typeof UpdateTrackRequestSchema>
-export type NoParamsRequest = z.infer<typeof NoParamsRequestSchema>
 export type UpdateUserRequest = z.infer<typeof UpdateUserRequestSchema>
+export type CreateTripRequest = z.infer<typeof CreateTripRequestSchema>
 export type GetTrackResponse = z.infer<typeof GetTrackResponseSchema>
+export type AddTrackToTripRequest = z.infer<typeof AddTrackToTripRequestSchema>
