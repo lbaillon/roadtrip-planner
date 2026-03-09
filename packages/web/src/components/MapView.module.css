@@ -1,4 +1,5 @@
 .mapMain {
+  position: relative;
   height: 400px;
   width: 90%;
   border-radius: 8px;
@@ -11,4 +12,111 @@
   height: 50px;
   background-color:  color-mix(in srgb, var(--primary-grey) 30%, transparent);
   border-radius: 25px;
+}
+
+/* Toggle géolocalisation */
+.locationToggle {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toggleButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: white;
+  border: none;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.toggleButton:hover {
+  background: #f0f0f0;
+}
+
+.toggleIcon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.toggleTrack {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  background: #ccc;
+  border-radius: 10px;
+  transition: background 0.25s;
+}
+
+.toggleActive .toggleTrack {
+  background: #239182;
+}
+
+.toggleThumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.25s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.toggleActive .toggleThumb {
+  transform: translateX(16px);
+}
+
+.locationError {
+  background: #fff3cd;
+  color: #856404;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  white-space: nowrap;
+}
+
+/* Marqueur position utilisateur */
+.userMarker {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.userMarkerDot {
+  width: 14px;
+  height: 14px;
+  background: #1a73e8;
+  border: 2px solid white;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(26, 115, 232, 0.5);
+  position: relative;
+  z-index: 1;
+}
+
+.userMarkerPulse {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  background: rgba(26, 115, 232, 0.2);
+  border-radius: 50%;
+  animation: pulse 2s ease-out infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.5); opacity: 1; }
+  100% { transform: scale(1.5); opacity: 0; }
 }
