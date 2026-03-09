@@ -5,6 +5,7 @@ import MainLayout from './components/MainLayout'
 import Home from './pages/Home'
 import Tracks from './pages/Tracks'
 import TrackDetail from './pages/TrackDetail'
+import Trips from './pages/Trips'
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/tracks" element={<Tracks />} />
         <Route path="/tracks/:id" element={<TrackDetail />} />
+        <Route path="/trips" element={<Trips />} />
       </Route>
     </Routes>
   )
