@@ -26,6 +26,13 @@ async function login(body: LogInRequest) {
   return user
 }
 
+const refreshTokenCookieParameters = {
+  httpOnly: true,
+  secure: !env.isDev,
+  sameSite: env.isDev ? 'lax' : 'none',
+  path: '/api/auth/refresh',
+} as const
+
 router.post('/login', async (req, res) => {
   try {
     const validatedInput = LogInRequestSchema.parse(req.body)
@@ -41,12 +48,7 @@ router.post('/login', async (req, res) => {
     const accessToken = await signAccessToken(payload)
     const refreshToken = await signRefreshToken(payload)
 
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: !env.isDev,
-      sameSite: env.isDev ? 'lax' : 'none',
-      path: '/api/auth/refresh',
-    })
+    res.cookie('refreshToken', refreshToken, refreshTokenCookieParameters)
 
     res.json({ accessToken })
   } catch (error) {
@@ -73,7 +75,7 @@ router.post('/refresh', async (req, res) => {
 })
 
 router.post('/logout', async (req, res) => {
-  res.clearCookie('refreshToken')
+  res.clearCookie('refreshToken', refreshTokenCookieParameters)
   res.status(200).json({ message: 'Logged out successfully' })
 })
 
