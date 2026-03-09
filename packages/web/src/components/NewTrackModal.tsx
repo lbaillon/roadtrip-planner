@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Button, Modal, Input } from 'antd'
-import { useCreateTrack } from '#web/hooks/useApi'
+import { useCreateTrack } from '#web/hooks/useTracks'
 import { GpxUploader } from './GpxUploader'
 import styles from './NewTrackModal.module.css'
 import { useQueryClient } from '@tanstack/react-query'
