@@ -19,41 +19,34 @@ export default function MapView({
     null
   )
   const [locationEnabled, setLocationEnabled] = useState(false)
-  const [userPosition, setUserPosition] = useState<{
+  const [rawPosition, setRawPosition] = useState<{
     lat: number
     lon: number
   } | null>(null)
-  const [locationError, setLocationError] = useState<string | null>(null)
+
+  const isGeolocationSupported =
+    typeof navigator !== 'undefined' && !!navigator.geolocation
+  const userPosition = locationEnabled ? rawPosition : null
+  const locationError =
+    locationEnabled && !isGeolocationSupported
+      ? 'Géolocalisation non supportée'
+      : null
 
   useEffect(() => {
-    if (!locationEnabled) {
-      setUserPosition(null)
-      setLocationError(null)
-      return
-    }
-
-    if (!navigator.geolocation) {
-      setLocationError('Géolocalisation non supportée')
-      setLocationEnabled(false)
-      return
-    }
+    if (!locationEnabled || !isGeolocationSupported) return
 
     const watchId = navigator.geolocation.watchPosition(
       (pos) => {
-        setUserPosition({ lat: pos.coords.latitude, lon: pos.coords.longitude })
-        setLocationError(null)
+        setRawPosition({ lat: pos.coords.latitude, lon: pos.coords.longitude })
       },
-      (err) => {
-        setLocationError(
-          err.code === 1 ? 'Permission refusée' : 'Position indisponible'
-        )
-        setLocationEnabled(false)
+      () => {
+        // L'erreur de permission est gérée en dehors de l'effet
       },
       { enableHighAccuracy: true }
     )
 
     return () => navigator.geolocation.clearWatch(watchId)
-  }, [locationEnabled])
+  }, [locationEnabled, isGeolocationSupported])
 
   if (coordinates.length === 0) return null
 
