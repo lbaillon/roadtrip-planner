@@ -10,7 +10,7 @@ type HandlerArgs<TQuery, TParams, TBody> = (TQuery extends void
     user?: JWTPayload
   }
 
-const emptyObjectSchema = z.object({}).strict();
+const emptyObjectSchema = z.object({}).strict()
 
 export function processPost<TBody = void, TParams = void, TOutput = unknown>({
   bodySchema,
