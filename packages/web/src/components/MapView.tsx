@@ -39,9 +39,7 @@ export default function MapView({
       (pos) => {
         setRawPosition({ lat: pos.coords.latitude, lon: pos.coords.longitude })
       },
-      () => {
-        // L'erreur de permission est gérée en dehors de l'effet
-      },
+      () => {},
       { enableHighAccuracy: true }
     )
 
