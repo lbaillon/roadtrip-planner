@@ -1,6 +1,6 @@
 import type { GpxCoordinate, WeatherData } from '@roadtrip/shared'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Map, { Layer, Marker, Popup, Source } from 'react-map-gl/maplibre'
 import styles from './MapView.module.css'
 
@@ -18,10 +18,45 @@ export default function MapView({
   const [selectedWeather, setSelectedWeather] = useState<WeatherData | null>(
     null
   )
+  const [locationEnabled, setLocationEnabled] = useState(false)
+  const [userPosition, setUserPosition] = useState<{
+    lat: number
+    lon: number
+  } | null>(null)
+  const [locationError, setLocationError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!locationEnabled) {
+      setUserPosition(null)
+      setLocationError(null)
+      return
+    }
+
+    if (!navigator.geolocation) {
+      setLocationError('Géolocalisation non supportée')
+      setLocationEnabled(false)
+      return
+    }
+
+    const watchId = navigator.geolocation.watchPosition(
+      (pos) => {
+        setUserPosition({ lat: pos.coords.latitude, lon: pos.coords.longitude })
+        setLocationError(null)
+      },
+      (err) => {
+        setLocationError(
+          err.code === 1 ? 'Permission refusée' : 'Position indisponible'
+        )
+        setLocationEnabled(false)
+      },
+      { enableHighAccuracy: true }
+    )
+
+    return () => navigator.geolocation.clearWatch(watchId)
+  }, [locationEnabled])
 
   if (coordinates.length === 0) return null
 
-  // Calculate bounds
   const latitudes = coordinates.map((c) => c.lat)
   const longitudes = coordinates.map((c) => c.lon)
 
@@ -31,7 +66,6 @@ export default function MapView({
     zoom: 8,
   }
 
-  // Create GeoJSON LineString from coordinates
   const routeGeoJSON = {
     type: 'Feature' as const,
     properties: {},
@@ -43,6 +77,30 @@ export default function MapView({
 
   return (
     <div className={styles.mapMain}>
+      {/* Toggle géolocalisation */}
+      <div className={styles.locationToggle}>
+        <button
+          className={`${styles.toggleButton} ${locationEnabled ? styles.toggleActive : ''}`}
+          onClick={() => setLocationEnabled((prev) => !prev)}
+          title={
+            locationEnabled ? 'Désactiver ma position' : 'Afficher ma position'
+          }
+          aria-label={
+            locationEnabled
+              ? 'Désactiver la géolocalisation'
+              : 'Activer la géolocalisation'
+          }
+        >
+          <span className={styles.toggleIcon}>📍</span>
+          <span className={styles.toggleTrack}>
+            <span className={styles.toggleThumb} />
+          </span>
+        </button>
+        {locationError && (
+          <span className={styles.locationError}>{locationError}</span>
+        )}
+      </div>
+
       <Map
         initialViewState={initialViewState}
         style={{ width: '100%', height: '100%' }}
@@ -80,6 +138,20 @@ export default function MapView({
             />
           </Marker>
         ))}
+
+        {/* User position marker */}
+        {locationEnabled && userPosition && (
+          <Marker
+            longitude={userPosition.lon}
+            latitude={userPosition.lat}
+            anchor="center"
+          >
+            <div className={styles.userMarker}>
+              <div className={styles.userMarkerPulse} />
+              <div className={styles.userMarkerDot} />
+            </div>
+          </Marker>
+        )}
 
         {/* Weather popup */}
         {selectedWeather && (
