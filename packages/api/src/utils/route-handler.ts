@@ -10,9 +10,11 @@ type HandlerArgs<TQuery, TParams, TBody> = (TQuery extends void
     user?: JWTPayload
   }
 
+const emptyObjectSchema = z.object({}).strict()
+
 export function processPost<TBody = void, TParams = void, TOutput = unknown>({
   bodySchema,
-  paramsSchema = z.void() as unknown as z.ZodSchema<TParams>,
+  paramsSchema = emptyObjectSchema as unknown as z.ZodSchema<TParams>,
   handler,
 }: {
   bodySchema: z.ZodSchema<TBody>
@@ -37,8 +39,8 @@ export function processPost<TBody = void, TParams = void, TOutput = unknown>({
 }
 
 export function processGet<TQuery = void, TParams = void, TOutput = unknown>({
-  querySchema = z.void() as unknown as z.ZodSchema<TQuery>,
-  paramsSchema = z.void() as unknown as z.ZodSchema<TParams>,
+  querySchema = emptyObjectSchema as unknown as z.ZodSchema<TQuery>,
+  paramsSchema = emptyObjectSchema as unknown as z.ZodSchema<TParams>,
   handler,
 }: {
   querySchema?: z.ZodSchema<TQuery>
@@ -86,7 +88,7 @@ export function processDelete<TParams>({
 
 export function processPut<TBody = void, TParams = void>({
   bodySchema,
-  paramsSchema = z.void() as unknown as z.ZodSchema<TParams>,
+  paramsSchema = emptyObjectSchema as unknown as z.ZodSchema<TParams>,
   handler,
 }: {
   bodySchema: z.ZodSchema<TBody>
