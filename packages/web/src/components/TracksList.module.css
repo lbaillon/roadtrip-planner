@@ -1,0 +1,26 @@
+.itemIcon {
+  margin-right: 10px;
+  opacity: 0.6;
+  color: var(--secondary-green);
+}
+
+.track {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  color: var(--primary-green) ;
+  font-size: 17px;
+}
+
+.deleteIcon {
+  font-size: 0.8em;
+  cursor: pointer;
+  margin-left: auto;
+  padding: 10px;
+  touch-action: manipulation;
+}
+
+.trackName{
+  color: var(--primary-green);
+  text-decoration: none;
+}

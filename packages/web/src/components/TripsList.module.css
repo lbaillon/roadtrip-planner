@@ -1,26 +1,10 @@
-.tracksBox {
-  grid-column: 2/12;
-  grid-row: 5/10;
-  background: linear-gradient(
-    to bottom,
-    transparent -10%,
-    var(--secondary-grey) 30%
-  );
-  border-radius: 20px;
-  padding: 10%;
-}
-.tracksTitle{
-  color: var(--primary-green);
-  font-size: 25px;
-}
-
-.motoIcon {
+.itemIcon {
   margin-right: 10px;
   opacity: 0.6;
   color: var(--secondary-green);
 }
 
-.track {
+.trip {
   margin-top: 10px;
   display: flex;
   align-items: center;
@@ -36,7 +20,7 @@
   touch-action: manipulation;
 }
 
-.trackName{
+.tripName{
   color: var(--primary-green);
   text-decoration: none;
 }
