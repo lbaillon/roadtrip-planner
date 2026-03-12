@@ -4,9 +4,6 @@ import NewTrackModal from '#web/components/NewTrackModal'
 import TracksList from '#web/components/TracksList'
 import UserGreeting from '#web/components/UserGreeting'
 import { useDeleteTrack, useGetTracks } from '#web/hooks/useTracks'
-import { faMotorcycle, faXmark } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Link } from 'react-router-dom'
 
 export default function Tracks() {
   const { data: tracks } = useGetTracks()

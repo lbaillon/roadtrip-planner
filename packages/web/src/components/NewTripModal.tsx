@@ -14,7 +14,7 @@ export default function NewTripModal() {
 
   return (
     <>
-      <Button type="primary" onClick={() => setOpen(true)}  className={styles.modalButton}>
+      <Button type="primary" onClick={() => setOpen(true)} className={styles.modalButton}>
         Create Trip
       </Button>
       <Modal
@@ -24,24 +24,24 @@ export default function NewTripModal() {
           setOpen(false)
           form.resetFields()
         }}
-        onOk={() => {
-          form.submit()
-          setOpen(false)
-          form.resetFields()
-        }}
+        onOk={() => form.submit()}
         confirmLoading={isPending}
       >
         <Form
           form={form}
           layout="vertical"
-          onFinish={(values:CreateTripInput)=>createTrip(values)}
+          onFinish={(values: CreateTripInput) => {
+            createTrip(values)
+            setOpen(false)
+            form.resetFields()
+          }}
         >
           <Form.Item
             label="Trip name"
             name="name"
             rules={[{ required: true, message: "Please enter a trip name" }]}
           >
-            <Input placeholder="Roadtrip in Italy" className={styles.inputModal}/>
+            <Input placeholder="Roadtrip in Italy" className={styles.inputModal} />
           </Form.Item>
           <Form.Item
             label="Description"

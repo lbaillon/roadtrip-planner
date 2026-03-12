@@ -82,6 +82,25 @@ async function getUserTrips(user?: JWTPayload) {
 
 router.get('/', processGet({ handler: ({ user }) => getUserTrips(user) }))
 
+async function getTrip(id: string, user?: JWTPayload) {
+  if (!user) {
+    throw new UnauthorizedError('Missing user', codes.MISSING_USER)
+  }
+  const [trip] = await db
+    .select()
+    .from(trips)
+    .where(and(eq(trips.id, id), eq(trips.userId, user.userId)))
+  return { id: trip.id, name: trip.name }
+}
+
+router.get(
+  '/:id',
+  processGet({
+    paramsSchema: IdParamsSchema,
+    handler: ({ params, user }) => getTrip(params.id, user),
+  })
+)
+
 async function getTripTracks(tripId: string, user?: JWTPayload) {
   if (!user) {
     throw new UnauthorizedError('Missing user', codes.MISSING_USER)

@@ -7,7 +7,7 @@ import { Suspense, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import styles from './TrackDetails.module.css'
 
-export default function TrackDetail() {
+export default function TrackDetails() {
   const [timepointIndex, setTimepointIndex] = useState(0)
   const { id } = useParams()
   const { data: track } = useGetTrack(id)

@@ -33,5 +33,6 @@ export async function fetchApi<TResponse>(
   if (response.status === 204) {
     return null as TResponse
   }
-  return response.json()
+  const text = await response.text()
+  return text ? JSON.parse(text) : (null as TResponse)
 }
