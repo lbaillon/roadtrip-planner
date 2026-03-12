@@ -66,6 +66,10 @@ export default function Header() {
         label: <Link to="/tracks">My tracks</Link>,
         key: 'tracks',
       },
+      {
+        label: <Link to="/trips">My trips</Link>,
+        key: 'trips',
+      },
     ]
   }
 

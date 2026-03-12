@@ -1,12 +1,13 @@
+import { HumidityChart } from '#web/components/HumidityChart'
 import MapView from '#web/components/MapView'
-import { useGetTrack, useParseGpx } from '#web/hooks/useApi'
+import { TimeSelector } from '#web/components/TimeSelector'
+import { useParseGpx } from '#web/hooks/useApi'
+import { useGetTrack } from '#web/hooks/useTracks'
 import { Suspense, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import styles from './TrackDetails.module.css'
-import { TimeSelector } from '#web/components/TimeSelector'
-import { HumidityChart } from '#web/components/HumidityChart'
 
-export default function TrackDetail() {
+export default function TrackDetails() {
   const [timepointIndex, setTimepointIndex] = useState(0)
   const { id } = useParams()
   const { data: track } = useGetTrack(id)

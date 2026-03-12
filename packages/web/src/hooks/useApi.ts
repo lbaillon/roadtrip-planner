@@ -5,13 +5,11 @@ import {
   type LogInResponse,
   type ParseGpxRequest,
   type ParseGpxResponse,
-  type CreateTrackRequest,
-  type GetTrackResponse,
 } from '@roadtrip/shared'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
+import { useNavigate } from 'react-router-dom'
 import { ApiError, fetchApi } from '../lib/api-client'
 import { useAuth } from './useAuth'
-import { useNavigate } from 'react-router-dom'
 
 export function useApi() {
   const { accessToken, setAccessToken, logout } = useAuth()
@@ -52,7 +50,10 @@ export function useApi() {
     }
   }
 }
-function usePost<TRequest, TResponse>(endpoint: string, options?: RequestInit) {
+export function usePost<TRequest, TResponse>(
+  endpoint: string,
+  options?: RequestInit
+) {
   const fetch = useApi()
   return useMutation({
     mutationFn: (request: TRequest) =>
@@ -74,39 +75,4 @@ export function useCreateUser() {
 
 export function useLogin() {
   return usePost<LogInRequest, LogInResponse>('/api/auth/login')
-}
-
-export function useCreateTrack() {
-  return usePost<CreateTrackRequest, CreateResponse>('/api/tracks')
-}
-
-export function useDeleteTrack() {
-  const queryClient = useQueryClient()
-  const api = useApi()
-  return useMutation({
-    mutationFn: (id: string) =>
-      api<void>(`/api/tracks/${id}`, {
-        method: 'DELETE',
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tracks'] })
-    },
-  })
-}
-
-export function useGetTracks() {
-  const api = useApi()
-  return useQuery({
-    queryKey: ['tracks'],
-    queryFn: () => api<{ id: string; name: string }[]>('/api/tracks'),
-  })
-}
-
-export function useGetTrack(id: string | undefined) {
-  const api = useApi()
-  return useQuery({
-    queryKey: ['tracks', id],
-    queryFn: () => api<GetTrackResponse>(`/api/tracks/${id}`),
-    enabled: !!id,
-  })
 }

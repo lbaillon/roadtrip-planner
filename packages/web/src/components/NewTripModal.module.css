@@ -1,0 +1,11 @@
+.modalButton{
+  grid-column: 4/10;
+  grid-row: 3/4;
+  margin-top: 10px;
+  border-radius: 50px;
+}
+
+.inputModal{
+  margin-top: 5px;
+  margin-bottom: 10px;
+}

@@ -1,0 +1,11 @@
+.box {
+  grid-column: 2/12;
+  grid-row: 5/10;
+  background: linear-gradient(
+    to bottom,
+    transparent -10%,
+    var(--secondary-grey) 30%
+  );
+  border-radius: 20px;
+  padding: 10%;
+}
