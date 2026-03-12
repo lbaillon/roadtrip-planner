@@ -86,7 +86,6 @@
   white-space: nowrap;
 }
 
-/* Marqueur position utilisateur */
 .userMarker {
   position: relative;
   width: 20px;
@@ -130,4 +129,44 @@
 
 .waypointMarker:hover {
   transform: scale(1.2);
+}
+
+.layersControl {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.layersButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: white;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.layersButton:hover {
+  border-color: #239182;
+  color: #239182;
+}
+
+.layersLabel {
+  font-size: 13px;
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  min-width: 160px;
 }
