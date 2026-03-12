@@ -7,18 +7,18 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useApi } from './useApi'
 
 export function useCreateTrack() {
-    const queryClient = useQueryClient()
-    const api = useApi()
-    return useMutation({
-      mutationFn: (request: CreateTrackRequest) =>
-        api<CreateResponse>('/api/tracks', {
-          method: 'POST',
-          body: JSON.stringify(request),
-        }),
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['tracks'] })
-      },
-    })
+  const queryClient = useQueryClient()
+  const api = useApi()
+  return useMutation({
+    mutationFn: (request: CreateTrackRequest) =>
+      api<CreateResponse>('/api/tracks', {
+        method: 'POST',
+        body: JSON.stringify(request),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tracks'] })
+    },
+  })
 }
 
 export function useDeleteTrack() {
