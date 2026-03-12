@@ -57,6 +57,7 @@ export default function TrackDetails() {
               coordinates={routeData.route.coordinates}
               weather={routeData.weather}
               timepointIndex={timepointIndex}
+              waypoints={routeData.route.waypoints}
             />
           </Suspense>
 

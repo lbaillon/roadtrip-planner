@@ -1,4 +1,6 @@
 import type { GpxCoordinate, GpxWaypoint, WeatherData } from '@roadtrip/shared'
+import { Dropdown, Switch } from 'antd'
+import type { MenuProps } from 'antd'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { useEffect, useState } from 'react'
 import Map, { Layer, Marker, Popup, Source } from 'react-map-gl/maplibre'
@@ -69,72 +71,90 @@ export default function MapView({
     },
   }
 
+  const dropdownItems: MenuProps['items'] = [
+    {
+      key: 'location',
+      label: (
+        <div
+          className={styles.dropdownItem}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <span>📍 Ma position</span>
+          <Switch
+            size="small"
+            checked={locationEnabled}
+            onChange={(checked) => {
+              setLocationEnabled(checked)
+              if (!checked) setRawPosition(null)
+            }}
+          />
+        </div>
+      ),
+    },
+    ...(waypoints.length > 0
+      ? [
+          {
+            key: 'waypoints',
+            label: (
+              <div
+                className={styles.dropdownItem}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <span>🗺️ Waypoints</span>
+                <Switch
+                  size="small"
+                  checked={waypointsEnabled}
+                  onChange={(checked) => {
+                    setWaypointsEnabled(checked)
+                    if (!checked) setSelectedWaypoint(null)
+                  }}
+                />
+              </div>
+            ),
+          },
+        ]
+      : []),
+    ...(weather.length > 0
+      ? [
+          {
+            key: 'weather',
+            label: (
+              <div
+                className={styles.dropdownItem}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <span>🌤️ Météo</span>
+                <Switch
+                  size="small"
+                  checked={weatherEnabled}
+                  onChange={(checked) => {
+                    setWeatherEnabled(checked)
+                    if (!checked) setSelectedWeather(null)
+                  }}
+                />
+              </div>
+            ),
+          },
+        ]
+      : []),
+  ]
+
   return (
     <div className={styles.mapMain}>
-      <div className={styles.locationToggle}>
-        {/* Toggle géolocalisation */}
-        <button
-          className={`${styles.toggleButton} ${locationEnabled ? styles.toggleActive : ''}`}
-          onClick={() => setLocationEnabled((prev) => !prev)}
-          title={
-            locationEnabled ? 'Désactiver ma position' : 'Afficher ma position'
-          }
-          aria-label={
-            locationEnabled
-              ? 'Désactiver la géolocalisation'
-              : 'Activer la géolocalisation'
-          }
+      <div className={styles.layersControl}>
+        <Dropdown
+          menu={{ items: dropdownItems }}
+          trigger={['click']}
+          placement="bottomRight"
         >
-          <span className={styles.toggleIcon}>📍</span>
-          <span className={styles.toggleTrack}>
-            <span className={styles.toggleThumb} />
-          </span>
-        </button>
-
-        {/* Toggle waypoints */}
-        {waypoints.length > 0 && (
           <button
-            className={`${styles.toggleButton} ${waypointsEnabled ? styles.toggleActive : ''}`}
-            onClick={() => {
-              setWaypointsEnabled((prev) => !prev)
-              setSelectedWaypoint(null)
-            }}
-            title={
-              waypointsEnabled ? 'Masquer les points' : 'Afficher les points'
-            }
-            aria-label={
-              waypointsEnabled
-                ? 'Masquer les waypoints'
-                : 'Afficher les waypoints'
-            }
+            className={styles.layersButton}
+            aria-label="Contrôle des calques"
           >
-            <span className={styles.toggleIcon}>🗺️</span>
-            <span className={styles.toggleTrack}>
-              <span className={styles.toggleThumb} />
-            </span>
+            <span>🗂️</span>
+            <span className={styles.layersLabel}>Calques</span>
           </button>
-        )}
-
-        {/* Toggle météo */}
-        {weather.length > 0 && (
-          <button
-            className={`${styles.toggleButton} ${weatherEnabled ? styles.toggleActive : ''}`}
-            onClick={() => {
-              setWeatherEnabled((prev) => !prev)
-              setSelectedWeather(null)
-            }}
-            title={weatherEnabled ? 'Masquer la météo' : 'Afficher la météo'}
-            aria-label={
-              weatherEnabled ? 'Masquer la météo' : 'Afficher la météo'
-            }
-          >
-            <span className={styles.toggleIcon}>🌤️</span>
-            <span className={styles.toggleTrack}>
-              <span className={styles.toggleThumb} />
-            </span>
-          </button>
-        )}
-
+        </Dropdown>
         {locationError && (
           <span className={styles.locationError}>{locationError}</span>
         )}
