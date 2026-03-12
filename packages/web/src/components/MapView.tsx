@@ -1,4 +1,4 @@
-import type { GpxCoordinate, WeatherData } from '@roadtrip/shared'
+import type { GpxCoordinate, GpxWaypoint, WeatherData } from '@roadtrip/shared'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { useEffect, useState } from 'react'
 import Map, { Layer, Marker, Popup, Source } from 'react-map-gl/maplibre'
@@ -6,19 +6,26 @@ import styles from './MapView.module.css'
 
 interface MapViewProps {
   coordinates: GpxCoordinate[]
+  waypoints?: GpxWaypoint[]
   weather: WeatherData[]
   timepointIndex: number
 }
 
 export default function MapView({
   coordinates,
+  waypoints = [],
   weather,
   timepointIndex,
 }: MapViewProps) {
   const [selectedWeather, setSelectedWeather] = useState<WeatherData | null>(
     null
   )
+  const [selectedWaypoint, setSelectedWaypoint] = useState<GpxWaypoint | null>(
+    null
+  )
   const [locationEnabled, setLocationEnabled] = useState(false)
+  const [waypointsEnabled, setWaypointsEnabled] = useState(true)
+  const [weatherEnabled, setWeatherEnabled] = useState(true)
   const [rawPosition, setRawPosition] = useState<{
     lat: number
     lon: number
@@ -34,15 +41,12 @@ export default function MapView({
 
   useEffect(() => {
     if (!locationEnabled || !isGeolocationSupported) return
-
     const watchId = navigator.geolocation.watchPosition(
-      (pos) => {
-        setRawPosition({ lat: pos.coords.latitude, lon: pos.coords.longitude })
-      },
+      (pos) =>
+        setRawPosition({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
       () => {},
       { enableHighAccuracy: true }
     )
-
     return () => navigator.geolocation.clearWatch(watchId)
   }, [locationEnabled, isGeolocationSupported])
 
@@ -50,7 +54,6 @@ export default function MapView({
 
   const latitudes = coordinates.map((c) => c.lat)
   const longitudes = coordinates.map((c) => c.lon)
-
   const initialViewState = {
     longitude: (Math.max(...longitudes) + Math.min(...longitudes)) / 2,
     latitude: (Math.max(...latitudes) + Math.min(...latitudes)) / 2,
@@ -68,8 +71,8 @@ export default function MapView({
 
   return (
     <div className={styles.mapMain}>
-      {/* Toggle géolocalisation */}
       <div className={styles.locationToggle}>
+        {/* Toggle géolocalisation */}
         <button
           className={`${styles.toggleButton} ${locationEnabled ? styles.toggleActive : ''}`}
           onClick={() => setLocationEnabled((prev) => !prev)}
@@ -87,6 +90,51 @@ export default function MapView({
             <span className={styles.toggleThumb} />
           </span>
         </button>
+
+        {/* Toggle waypoints */}
+        {waypoints.length > 0 && (
+          <button
+            className={`${styles.toggleButton} ${waypointsEnabled ? styles.toggleActive : ''}`}
+            onClick={() => {
+              setWaypointsEnabled((prev) => !prev)
+              setSelectedWaypoint(null)
+            }}
+            title={
+              waypointsEnabled ? 'Masquer les points' : 'Afficher les points'
+            }
+            aria-label={
+              waypointsEnabled
+                ? 'Masquer les waypoints'
+                : 'Afficher les waypoints'
+            }
+          >
+            <span className={styles.toggleIcon}>🗺️</span>
+            <span className={styles.toggleTrack}>
+              <span className={styles.toggleThumb} />
+            </span>
+          </button>
+        )}
+
+        {/* Toggle météo */}
+        {weather.length > 0 && (
+          <button
+            className={`${styles.toggleButton} ${weatherEnabled ? styles.toggleActive : ''}`}
+            onClick={() => {
+              setWeatherEnabled((prev) => !prev)
+              setSelectedWeather(null)
+            }}
+            title={weatherEnabled ? 'Masquer la météo' : 'Afficher la météo'}
+            aria-label={
+              weatherEnabled ? 'Masquer la météo' : 'Afficher la météo'
+            }
+          >
+            <span className={styles.toggleIcon}>🌤️</span>
+            <span className={styles.toggleTrack}>
+              <span className={styles.toggleThumb} />
+            </span>
+          </button>
+        )}
+
         {locationError && (
           <span className={styles.locationError}>{locationError}</span>
         )}
@@ -110,25 +158,77 @@ export default function MapView({
           />
         </Source>
 
-        {/* Weather markers */}
-        {weather.map((w, idx) => (
-          <Marker
-            key={idx}
-            longitude={w.lon}
-            latitude={w.lat}
-            anchor="bottom"
-            onClick={(e) => {
-              e.originalEvent.stopPropagation()
-              setSelectedWeather(w)
-            }}
+        {/* Waypoints markers */}
+        {waypointsEnabled &&
+          waypoints.map((wp, idx) => (
+            <Marker
+              key={`wp-${idx}`}
+              longitude={wp.lon}
+              latitude={wp.lat}
+              anchor="bottom"
+              onClick={(e) => {
+                e.originalEvent.stopPropagation()
+                setSelectedWaypoint(wp)
+                setSelectedWeather(null)
+              }}
+            >
+              <div
+                className={styles.waypointMarker}
+                title={wp.name ?? 'Waypoint'}
+              >
+                📌
+              </div>
+            </Marker>
+          ))}
+
+        {/* Waypoint popup */}
+        {selectedWaypoint && (
+          <Popup
+            longitude={selectedWaypoint.lon}
+            latitude={selectedWaypoint.lat}
+            anchor="top"
+            onClose={() => setSelectedWaypoint(null)}
+            closeOnClick={false}
           >
-            <img
-              src={`https://openweathermap.org/img/wn/${w.timepoints[timepointIndex].icon}@2x.png`}
-              alt={w.timepoints[timepointIndex].description}
-              className={styles.weatherIcons}
-            />
-          </Marker>
-        ))}
+            <div style={{ padding: '8px', minWidth: '120px' }}>
+              <strong>{selectedWaypoint.name ?? 'Point'}</strong>
+              {selectedWaypoint.desc && (
+                <>
+                  <br />
+                  <span>{selectedWaypoint.desc}</span>
+                </>
+              )}
+              {selectedWaypoint.ele != null && (
+                <>
+                  <br />
+                  ⛰️ {selectedWaypoint.ele.toFixed(0)} m
+                </>
+              )}
+            </div>
+          </Popup>
+        )}
+
+        {/* Weather markers */}
+        {weatherEnabled &&
+          weather.map((w, idx) => (
+            <Marker
+              key={idx}
+              longitude={w.lon}
+              latitude={w.lat}
+              anchor="bottom"
+              onClick={(e) => {
+                e.originalEvent.stopPropagation()
+                setSelectedWeather(w)
+                setSelectedWaypoint(null)
+              }}
+            >
+              <img
+                src={`https://openweathermap.org/img/wn/${w.timepoints[timepointIndex].icon}@2x.png`}
+                alt={w.timepoints[timepointIndex].description}
+                className={styles.weatherIcons}
+              />
+            </Marker>
+          ))}
 
         {/* User position marker */}
         {locationEnabled && userPosition && (
@@ -145,7 +245,7 @@ export default function MapView({
         )}
 
         {/* Weather popup */}
-        {selectedWeather && (
+        {weatherEnabled && selectedWeather && (
           <Popup
             longitude={selectedWeather.lon}
             latitude={selectedWeather.lat}

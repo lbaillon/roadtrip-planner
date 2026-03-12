@@ -1,4 +1,8 @@
-import { ParsedGpxSchema, type ParsedGpx } from '@roadtrip/shared'
+import {
+  ParsedGpxSchema,
+  type ParsedGpx,
+  type GpxWaypoint,
+} from '@roadtrip/shared'
 
 import GpxParser from 'gpxparser'
 import { XMLParser, XMLBuilder } from 'fast-xml-parser'
@@ -8,7 +12,7 @@ import { codes } from '#api/errors/error-codes.js'
 const xmlParser = new XMLParser({
   ignoreAttributes: false,
   attributeNamePrefix: '@_',
-  isArray: (name) => name === 'rtept' || name === 'wpt',
+  isArray: (name) => name === 'rtept' || name === 'wpt' || name === 'rte', // 'rte' ajouté pour supporter plusieurs routes
 })
 
 const xmlBuilder = new XMLBuilder({
@@ -35,11 +39,64 @@ export function parseGpxFile(gpxContent: string): ParsedGpx {
     })
   )
 
+  const waypoints = extractWaypoints(gpxContent)
   return ParsedGpxSchema.parse({
-    name: track.name || 'Unnamed Route',
+    name: track.name || gpx.metadata?.name || 'Unnamed Route',
     coordinates,
     distance: track.distance?.total,
+    waypoints,
   })
+}
+
+// Extrait <wpt> et <rtept> via fast-xml-parser
+// Gère la balise <n> non-standard de Liberty Rider en plus de <name>
+function extractWaypoints(gpxContent: string): GpxWaypoint[] {
+  const parsed = xmlParser.parse(gpxContent)
+  const gpxData = parsed?.gpx
+  if (!gpxData) return []
+
+  const results: GpxWaypoint[] = []
+
+  const toWaypoint = (
+    el: Record<string, unknown>,
+    type: 'wpt' | 'rtept'
+  ): GpxWaypoint => ({
+    lat: parseFloat(String(el['@_lat'])),
+    lon: parseFloat(String(el['@_lon'])),
+    name: (el['name'] ?? el['n'] ?? undefined) as string | undefined, // fallback <n> Liberty Rider
+    desc: el['desc'] as string | undefined,
+    ele: el['ele'] != null ? parseFloat(String(el['ele'])) : undefined,
+    type,
+  })
+
+  // <wpt> standalone
+  const wpts: unknown[] = Array.isArray(gpxData.wpt)
+    ? gpxData.wpt
+    : gpxData.wpt
+      ? [gpxData.wpt]
+      : []
+  wpts.forEach((w) =>
+    results.push(toWaypoint(w as Record<string, unknown>, 'wpt'))
+  )
+
+  // <rtept> dans <rte> (isArray: 'rte' garanti un tableau même si une seule route)
+  const rtes = Array.isArray(gpxData.rte)
+    ? gpxData.rte
+    : gpxData.rte
+      ? [gpxData.rte]
+      : []
+  rtes.forEach((rte: Record<string, unknown>) => {
+    const rtepts: unknown[] = Array.isArray(rte.rtept)
+      ? rte.rtept
+      : rte.rtept
+        ? [rte.rtept]
+        : []
+    rtepts.forEach((pt) =>
+      results.push(toWaypoint(pt as Record<string, unknown>, 'rtept'))
+    )
+  })
+
+  return results
 }
 
 // Sample points along route (e.g., every 50km)

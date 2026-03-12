@@ -21,10 +21,20 @@ export const WeatherDataSchema = z.object({
   timepoints: z.array(WeatherTimepointSchema),
 })
 
+export const GpxWaypointSchema = z.object({
+  lat: z.number(),
+  lon: z.number(),
+  name: z.string().optional(),
+  desc: z.string().optional(),
+  ele: z.number().optional(),
+  type: z.enum(['wpt', 'rtept']),
+})
+
 export const ParsedGpxSchema = z.object({
   name: z.string().optional(),
   coordinates: z.array(GpxCoordinateSchema),
   distance: z.number().optional(),
+  waypoints: z.array(GpxWaypointSchema).default([]),
 })
 
 export const UserSchema = z.object({
@@ -40,3 +50,4 @@ export type GpxCoordinate = z.infer<typeof GpxCoordinateSchema>
 export type WeatherData = z.infer<typeof WeatherDataSchema>
 export type ParsedGpx = z.infer<typeof ParsedGpxSchema>
 export type User = z.infer<typeof UserSchema>
+export type GpxWaypoint = z.infer<typeof GpxWaypointSchema>
