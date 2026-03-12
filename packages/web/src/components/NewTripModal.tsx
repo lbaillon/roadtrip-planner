@@ -50,10 +50,7 @@ export default function NewTripModal() {
               className={styles.inputModal}
             />
           </Form.Item>
-          <Form.Item<CreateTripInput>
-            label="Description" 
-            name="description"
-            >
+          <Form.Item<CreateTripInput> label="Description" name="description">
             <Input.TextArea
               rows={4}
               placeholder="Describe your trip"
