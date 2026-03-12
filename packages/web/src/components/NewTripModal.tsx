@@ -20,8 +20,15 @@ export default function NewTripModal() {
       <Modal
         title="Create a new trip"
         open={open}
-        onCancel={() => setOpen(false)}
-        onOk={() => form.submit()}
+        onCancel={() => {
+          setOpen(false)
+          form.resetFields()
+        }}
+        onOk={() => {
+          form.submit()
+          setOpen(false)
+          form.resetFields()
+        }}
         confirmLoading={isPending}
       >
         <Form
