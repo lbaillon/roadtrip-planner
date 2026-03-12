@@ -76,4 +76,3 @@ export function useCreateUser() {
 export function useLogin() {
   return usePost<LogInRequest, LogInResponse>('/api/auth/login')
 }
-

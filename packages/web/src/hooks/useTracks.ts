@@ -1,11 +1,10 @@
 import {
   type CreateResponse,
   type CreateTrackRequest,
-  type GetTrackResponse
+  type GetTrackResponse,
 } from '@roadtrip/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useApi, usePost } from './useApi'
-
 
 export function useCreateTrack() {
   return usePost<CreateTrackRequest, CreateResponse>('/api/tracks')

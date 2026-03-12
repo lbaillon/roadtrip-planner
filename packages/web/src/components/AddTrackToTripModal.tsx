@@ -20,7 +20,12 @@ export default function AddTrackToTripModal({ tripId }: Props) {
 
   return (
     <>
-      <Button type="primary" onClick={() => setOpen(true)} disabled={!tripId} className={styles.modalButton}>
+      <Button
+        type="primary"
+        onClick={() => setOpen(true)}
+        disabled={!tripId}
+        className={styles.modalButton}
+      >
         Add track to trip
       </Button>
       <Modal
@@ -48,17 +53,22 @@ export default function AddTrackToTripModal({ tripId }: Props) {
           <Form.Item
             label="Track"
             name="trackId"
-            rules={[{ required: true, message: "Please select a track" }]}
+            rules={[{ required: true, message: 'Please select a track' }]}
           >
             <Select
               style={{ width: 120 }}
-              options={tracks?.filter(track => !tripTracks?.find(tripTrack => tripTrack.id === track.id))?.map(track => ({ value: track.id, label: track.name }))}
+              options={tracks
+                ?.filter(
+                  (track) =>
+                    !tripTracks?.find((tripTrack) => tripTrack.id === track.id)
+                )
+                ?.map((track) => ({ value: track.id, label: track.name }))}
             />
           </Form.Item>
           <Form.Item
             label="Order"
             name="order"
-            rules={[{ required: true, message: "Please define track order" }]}
+            rules={[{ required: true, message: 'Please define track order' }]}
           >
             <InputNumber min={1} max={(tripTracks?.length ?? 0) + 1} />
           </Form.Item>
