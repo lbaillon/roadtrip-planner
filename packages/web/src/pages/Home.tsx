@@ -56,6 +56,7 @@ export default function Home() {
                 coordinates={routeData.route.coordinates}
                 weather={routeData.weather}
                 timepointIndex={timepointIndex}
+                waypoints={routeData.route.waypoints}
               />
             </Suspense>
 
