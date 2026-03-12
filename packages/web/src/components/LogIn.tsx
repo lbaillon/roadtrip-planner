@@ -53,7 +53,7 @@ export default function LogIn() {
       {alert && (
         <Alert description={alert.message} type={alert.type} showIcon />
       )}
-      <Form
+      <Form<FieldType>
         name="signup"
         labelCol={{ span: 8 }}
         wrapperCol={{ span: 16 }}
@@ -79,7 +79,7 @@ export default function LogIn() {
           <Input.Password />
         </Form.Item>
 
-        <Form.Item label={null}>
+        <Form.Item<FieldType> label={null}>
           <Button type="primary" htmlType="submit" className={styles.button}>
             Submit
           </Button>

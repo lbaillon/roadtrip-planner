@@ -38,7 +38,7 @@ export default function AddTrackToTripModal({ tripId }: Props) {
         onOk={() => form.submit()}
         confirmLoading={isPending}
       >
-        <Form
+        <Form<AddTrackInput>
           form={form}
           layout="vertical"
           initialValues={{
@@ -50,7 +50,7 @@ export default function AddTrackToTripModal({ tripId }: Props) {
             form.resetFields()
           }}
         >
-          <Form.Item
+          <Form.Item<AddTrackInput>
             label="Track"
             name="trackId"
             rules={[{ required: true, message: 'Please select a track' }]}
@@ -65,7 +65,7 @@ export default function AddTrackToTripModal({ tripId }: Props) {
                 ?.map((track) => ({ value: track.id, label: track.name }))}
             />
           </Form.Item>
-          <Form.Item
+          <Form.Item<AddTrackInput>
             label="Order"
             name="order"
             rules={[{ required: true, message: 'Please define track order' }]}
