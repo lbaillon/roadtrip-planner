@@ -1,12 +1,10 @@
-import { useState } from 'react'
-import { Button, Modal, Input } from 'antd'
 import { useCreateTrack } from '#web/hooks/useTracks'
+import { Button, Input, Modal } from 'antd'
+import { useState } from 'react'
 import { GpxUploader } from './GpxUploader'
 import styles from './NewTrackModal.module.css'
-import { useQueryClient } from '@tanstack/react-query'
 
 export default function NewTrackModal() {
-  const queryClient = useQueryClient()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [gpxContent, setGpxContent] = useState<string | null>(null)
   const [trackName, setTrackName] = useState<string | null>(null)
@@ -32,7 +30,6 @@ export default function NewTrackModal() {
           setIsModalOpen(false)
           setGpxContent(null)
           setTrackName(null)
-          queryClient.invalidateQueries({ queryKey: ['tracks'] })
         },
         onError: (error) => alert(`Error: ${error.message}`),
       }

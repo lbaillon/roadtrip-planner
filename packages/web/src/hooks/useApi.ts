@@ -50,29 +50,36 @@ export function useApi() {
     }
   }
 }
-export function usePost<TRequest, TResponse>(
-  endpoint: string,
-  options?: RequestInit
-) {
-  const fetch = useApi()
+
+export function useParseGpx() {
+  const api = useApi()
   return useMutation({
-    mutationFn: (request: TRequest) =>
-      fetch<TResponse>(endpoint, {
-        ...options,
+    mutationFn: (request: ParseGpxRequest) =>
+      api<ParseGpxResponse>('/api/gpx', {
         method: 'POST',
         body: JSON.stringify(request),
       }),
   })
 }
 
-export function useParseGpx() {
-  return usePost<ParseGpxRequest, ParseGpxResponse>('/api/gpx')
-}
-
 export function useCreateUser() {
-  return usePost<CreateUserRequest, CreateResponse>('/api/users')
+  const api = useApi()
+  return useMutation({
+    mutationFn: (request: CreateUserRequest) =>
+      api<CreateResponse>('/api/users', {
+        method: 'POST',
+        body: JSON.stringify(request),
+      }),
+  })
 }
 
 export function useLogin() {
-  return usePost<LogInRequest, LogInResponse>('/api/auth/login')
+  const api = useApi()
+  return useMutation({
+    mutationFn: (request: LogInRequest) =>
+      api<LogInResponse>('/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify(request),
+      }),
+  })
 }
