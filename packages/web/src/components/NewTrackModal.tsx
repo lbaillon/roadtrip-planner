@@ -1,77 +1,97 @@
-import { useState } from 'react'
-import { Button, Modal, Input } from 'antd'
 import { useCreateTrack } from '#web/hooks/useTracks'
-import { GpxUploader } from './GpxUploader'
+import {
+  Button,
+  Form,
+  Input,
+  message,
+  Modal,
+  Upload,
+  type UploadFile,
+} from 'antd'
+import { useState } from 'react'
 import styles from './NewTrackModal.module.css'
-import { useQueryClient } from '@tanstack/react-query'
 
+type FormValues = {
+  name?: string
+  file: UploadFile[]
+}
 export default function NewTrackModal() {
-  const queryClient = useQueryClient()
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [gpxContent, setGpxContent] = useState<string | null>(null)
-  const [trackName, setTrackName] = useState<string | null>(null)
+  const [form] = Form.useForm<FormValues>()
+  const [open, setOpen] = useState(false)
+  const { mutate: createTrack, isPending } = useCreateTrack()
+  const [messageApi, contextHolder] = message.useMessage()
 
-  const { mutate: postTrack } = useCreateTrack()
+  const handleSubmit = async (values: FormValues) => {
+    const file = values.file?.[0]?.originFileObj
 
-  const showModal = () => {
-    setIsModalOpen(true)
-  }
-
-  const handleOk = () => {
-    if (!gpxContent) {
-      return
+    if (!file) return
+    const gpxContent = await file.text()
+    if (file.size > 500_000) {
+      messageApi.error('File too large (max 500KB)')
+      return Upload.LIST_IGNORE
     }
-
-    postTrack(
+    createTrack(
       {
+        ...(values.name && { name: values.name }),
         gpxContent,
-        ...(trackName && { name: trackName }),
       },
       {
         onSuccess: () => {
-          setIsModalOpen(false)
-          setGpxContent(null)
-          setTrackName(null)
-          queryClient.invalidateQueries({ queryKey: ['tracks'] })
+          setOpen(false)
+          form.resetFields()
         },
-        onError: (error) => alert(`Error: ${error.message}`),
+        onError: (error) => messageApi.error(`Error: ${error.message}`),
       }
     )
   }
-
-  const handleCancel = () => {
-    setIsModalOpen(false)
-    setGpxContent(null)
-  }
-
-  const handleFileSelect = (content: string) => {
-    setGpxContent(content)
-  }
-
   return (
     <>
-      <Button type="primary" onClick={showModal} className={styles.modalButton}>
+      {contextHolder}
+      <Button
+        type="primary"
+        onClick={() => setOpen(true)}
+        className={styles.modalButton}
+      >
         Upload new track
       </Button>
       <Modal
         title="New track"
-        closable={{ 'aria-label': 'Custom Close Button' }}
-        open={isModalOpen}
-        onOk={handleOk}
-        onCancel={handleCancel}
-        okButtonProps={{ disabled: gpxContent === null }}
+        open={open}
+        onCancel={() => {
+          setOpen(false)
+          form.resetFields()
+        }}
+        onOk={() => form.submit()}
+        confirmLoading={isPending}
       >
-        <Input
-          value={trackName ?? ''}
-          placeholder="track name ?"
-          className={styles.inputModal}
-          onChange={(e) => setTrackName(e.target.value)}
-        />
-        {gpxContent ? (
-          <p>file ready</p>
-        ) : (
-          <GpxUploader onFileSelect={handleFileSelect} />
-        )}
+        <Form<FormValues> form={form} layout="vertical" onFinish={handleSubmit}>
+          <Form.Item<FormValues> label="Name" name="name">
+            <Input className={styles.inputModal} />
+          </Form.Item>
+          <Form.Item<FormValues>
+            label="GPX File"
+            name="file"
+            valuePropName="fileList"
+            getValueFromEvent={(e) => e.fileList}
+            rules={[{ required: true, message: 'Please upload a GPX file' }]}
+          >
+            <Upload
+              beforeUpload={(file) => {
+                const isGpx =
+                  file.type === 'application/gpx+xml' ||
+                  file.name.endsWith('.gpx')
+                if (!isGpx) {
+                  messageApi.error('Only GPX files allowed')
+                }
+                return false // necessary, it prevents automatic upload
+              }}
+              accept=".gpx"
+              maxCount={1}
+            >
+              <Button>Select GPX file</Button>
+            </Upload>
+          </Form.Item>
+        </Form>
       </Modal>
     </>
   )

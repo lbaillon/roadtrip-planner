@@ -31,7 +31,7 @@ export default function NewTripModal() {
         onOk={() => form.submit()}
         confirmLoading={isPending}
       >
-        <Form
+        <Form<CreateTripInput>
           form={form}
           layout="vertical"
           onFinish={(values: CreateTripInput) => {
@@ -40,7 +40,7 @@ export default function NewTripModal() {
             form.resetFields()
           }}
         >
-          <Form.Item
+          <Form.Item<CreateTripInput>
             label="Trip name"
             name="name"
             rules={[{ required: true, message: 'Please enter a trip name' }]}
@@ -50,7 +50,7 @@ export default function NewTripModal() {
               className={styles.inputModal}
             />
           </Form.Item>
-          <Form.Item label="Description" name="description">
+          <Form.Item<CreateTripInput> label="Description" name="description">
             <Input.TextArea
               rows={4}
               placeholder="Describe your trip"

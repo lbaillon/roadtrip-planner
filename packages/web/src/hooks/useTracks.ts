@@ -4,10 +4,21 @@ import {
   type GetTrackResponse,
 } from '@roadtrip/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useApi, usePost } from './useApi'
+import { useApi } from './useApi'
 
 export function useCreateTrack() {
-  return usePost<CreateTrackRequest, CreateResponse>('/api/tracks')
+  const queryClient = useQueryClient()
+  const api = useApi()
+  return useMutation({
+    mutationFn: (request: CreateTrackRequest) =>
+      api<CreateResponse>('/api/tracks', {
+        method: 'POST',
+        body: JSON.stringify(request),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tracks'] })
+    },
+  })
 }
 
 export function useDeleteTrack() {
