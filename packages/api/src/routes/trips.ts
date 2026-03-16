@@ -81,7 +81,7 @@ router.delete(
   })
 )
 
-async function getUserTrips(user?: JWTPayload):Promise<TripSummary[]> {
+async function getUserTrips(user?: JWTPayload): Promise<TripSummary[]> {
   return await db
     .select()
     .from(trips)
@@ -90,7 +90,7 @@ async function getUserTrips(user?: JWTPayload):Promise<TripSummary[]> {
 
 router.get('/', processGet({ handler: ({ user }) => getUserTrips(user) }))
 
-async function getTrip(id: string, user?: JWTPayload):Promise<TripSummary> {
+async function getTrip(id: string, user?: JWTPayload): Promise<TripSummary> {
   if (!user) {
     throw new UnauthorizedError('Missing user', codes.MISSING_USER)
   }
@@ -109,7 +109,10 @@ router.get(
   })
 )
 
-async function getTripTracks(tripId: string, user?: JWTPayload) :Promise<TripTrack[]>{
+async function getTripTracks(
+  tripId: string,
+  user?: JWTPayload
+): Promise<TripTrack[]> {
   if (!user) {
     throw new UnauthorizedError('Missing user', codes.MISSING_USER)
   }

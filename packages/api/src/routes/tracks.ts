@@ -183,7 +183,7 @@ router.delete(
   })
 )
 
-async function getUserTracks(user?: JWTPayload) :Promise<TrackSummary[]>{
+async function getUserTracks(user?: JWTPayload): Promise<TrackSummary[]> {
   return await db
     .select()
     .from(tracks)

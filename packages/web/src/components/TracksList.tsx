@@ -23,11 +23,12 @@ function TrackItem({
   track,
   onDelete,
 }: {
-    track: Track
+  track: Track
   onDelete: (id: string) => void
-  }) {
-  return (<>
-    <FontAwesomeIcon icon={faMotorcycle} className={styles.itemIcon} />
+}) {
+  return (
+    <>
+      <FontAwesomeIcon icon={faMotorcycle} className={styles.itemIcon} />
       <Link to={`/tracks/${track.id}`} className={styles.trackName}>
         {track.name}
       </Link>
@@ -39,7 +40,7 @@ function TrackItem({
           onDelete(track.id)
         }}
       />
-  </>
+    </>
   )
 }
 
@@ -50,7 +51,8 @@ function SortableItem({
   track: Track
   onDelete: (id: string) => void
 }) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: track.id })
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: track.id })
 
   const style = { transform: CSS.Transform.toString(transform), transition }
 
@@ -79,7 +81,8 @@ export default function TracksList({
   const [items, setItems] = useState(tracks)
   const sensors = useSensors(useSensor(PointerSensor))
 
-  useEffect(() => { // Allow to synchronize state with server response
+  useEffect(() => {
+    // Allow to synchronize state with server response
     setItems(tracks)
   }, [tracks])
 
