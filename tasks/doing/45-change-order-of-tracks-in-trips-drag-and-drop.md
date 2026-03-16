@@ -10,7 +10,7 @@ As a user planning his next roadtrip, I wan to reorder my tracks in my trip so t
 
 The user can reorder the tracks in a trip.
 This is only possible for authenticated users.
-This is only possible on a trip details since tracks only have a order relatively to a trip.
+This is only possible on a trip details since tracks only have a order from within a trip.
 
 ## Notes
 
