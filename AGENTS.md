@@ -34,6 +34,7 @@ pnpm lint          # ESLint
 - No semicolons, single quotes, 2-space indent (enforced by Prettier)
 - TypeScript strict mode — no `any`, no implicit returns
 - Zod for all runtime validation — define schemas in `shared`, import in `api` and `web`
+- All code, comments and documentation must be in english (except for translation files)
 
 ## Architecture Rules
 

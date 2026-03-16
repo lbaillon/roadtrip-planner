@@ -72,6 +72,10 @@ export const AddTrackToTripRequestSchema = z.object({
   order: z.number(),
 })
 
+export const UpdateTripTracksOrderRequestSchema = z.object({
+  trackIds: z.array(z.string().min(1)),
+})
+
 // Response schemas
 
 export const ParseGpxResponseSchema = z.object({
@@ -93,6 +97,12 @@ export const GetTrackResponseSchema = z.object({
   gpxContent: z.string(),
 })
 
+// Response types
+
+export type TripSummary = { id: string; name: string }
+export type TripTrack = { id: string; name: string; order: number }
+export type TrackSummary = { id: string; name: string }
+
 export type IdParams = z.infer<typeof IdParamsSchema>
 export type TrackOfTripParams = z.infer<typeof TrackOfTripParamsSchema>
 export type ParseGpxRequest = z.infer<typeof ParseGpxRequestSchema>
@@ -108,4 +118,7 @@ export type UpdateUserRequest = z.infer<typeof UpdateUserRequestSchema>
 export type CreateTripRequest = z.infer<typeof CreateTripRequestSchema>
 export type GetTrackResponse = z.infer<typeof GetTrackResponseSchema>
 export type AddTrackToTripRequest = z.infer<typeof AddTrackToTripRequestSchema>
+export type UpdateTripTracksOrderRequest = z.infer<
+  typeof UpdateTripTracksOrderRequestSchema
+>
 export type WaypointParams = z.infer<typeof WaypointParamsSchema>
