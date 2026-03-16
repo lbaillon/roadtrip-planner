@@ -245,3 +245,77 @@ Check that CartoCDN CORS headers allow caching. If not, defer to a separate tick
 | 8 | Phase 6 (weather gcTime) | Included in 4c, just verify |
 | 9 | Phase 7 (map tiles) | Optional, Workbox config |
 | 10 | Phase 8 (UI) | In parallel or at the end |
+
+---
+
+### PR breakdown
+
+**PR 1 — `pwa/basic-setup`** *(Phase 1)*
+
+Independent, no prerequisites. Good to merge first and get installability out of the way.
+
+- `vite-plugin-pwa` setup, manifest, icons
+- `SWUpdatePrompt` component
+
+---
+
+**PR 2 — `pwa/gpx-architecture`** *(Phases 4a + 4b)*
+
+Pure backend/shared refactoring, no visible UI change. Keeps the next PR reviewable on its own.
+
+- `gpx-utils.ts` in `packages/web/src/lib/`
+- Delete `gpx-parser.ts` from API, remove `gpxparser` + `fast-xml-parser` from API deps
+- New `POST /api/weather` endpoint (replaces `POST /api/gpx`)
+- New `PUT /api/tracks/:id` endpoint
+- Remove old waypoint endpoints
+- Update schemas in `@roadtrip/shared`
+
+---
+
+**PR 3 — `pwa/gpx-frontend-refactoring`** *(Phase 4c)* — depends on PR 2
+
+The largest frontend change. Touches `TrackDetails`, `Home`, `useTracks`, and `useApi`.
+
+- `useGetParsedTrack` + `useGetTrackWeather` queries (replace `useParseGpx` mutation)
+- Waypoint mutations become local (update cache, enqueue `PUT_TRACK_GPX`)
+- Update `TrackDetails.tsx` and `Home.tsx`
+- Remove `useParseGpx` from `useApi.ts`
+
+---
+
+**PR 4 — `pwa/offline-data`** *(Phases 2 + 6)* — depends on PR 3
+
+Activates offline reading. Once merged, users can view their trips and tracks without network.
+
+- `@tanstack/query-persist-client` + `idb-keyval` setup
+- `PersistQueryClientProvider` in `main.tsx`
+- `gcTime` configuration (7 days for tracks/trips, 48h for weather)
+
+---
+
+**PR 5 — `pwa/offline-sync`** *(Phases 5 + 3)* — depends on PR 4
+
+The sync engine. Once merged, offline edits are persisted and replayed on reconnection.
+
+- `mutation-queue.ts` lib + `useMutationQueue` hook
+- `useNetworkSync` hook (replay queue on reconnection via `useApi`)
+- `AuthContext` updates: persist identity to `localStorage`, clear queue on `logout()`
+
+---
+
+**PR 6 — `pwa/offline-ui`** *(Phase 8)* — depends on PR 5
+
+Polishes the offline experience.
+
+- Replace `alert()` with Ant Design notifications
+- Offline banner with pending mutation count
+- Sync indicator on reconnection
+- Evaluate `ConnectionIndicator` — remove or repurpose
+
+---
+
+**PR 7 — `pwa/map-tile-cache`** *(Phase 7)* — optional, depends on PR 1
+
+Can be done anytime after PR 1. Defer if CartoCDN CORS blocks it.
+
+- Workbox `runtimeCaching` for CartoCDN tiles
