@@ -1,6 +1,6 @@
 # add possibility for user to add personalized markers on maps
 
-source : https://trello.com/c/eOadG52J/12-add-possibility-for-user-to-add-personalized-markers-on-maps
+source : <https://trello.com/c/eOadG52J/12-add-possibility-for-user-to-add-personalized-markers-on-maps>
 
 ## Purpose
 
@@ -8,10 +8,10 @@ As a user planning my next roadtrip I want to add routepoints on my track by tap
 
 ## Description
 
-The user should be able to activate the edit mode for any track. 
-It should not be on the same place as the existing toggles on map. 
+The user should be able to activate the edit mode for any track.
+It should not be on the same place as the existing toggles on map.
 It should not be possible for a user to edit if not logged in.
-In edit mode, the user should be able to click on the map after loading a track. 
+In edit mode, the user should be able to click on the map after loading a track.
 It should display a popup allowing the user to enter name and description (optionnal) and submit.
 The GPX file should then be edited to include the new routepoint.
 The user should be able to edit and delete existing routepoints, the GPX file will be then saved accordingly.
@@ -34,16 +34,18 @@ Before proceeding, I need clarification on:
 1. **Edit mode button placement**: The existing toggles (Location, Waypoints, Weather) live in a dropdown at the top-right of the map. Where should the edit mode toggle go?
    - Floating button at the bottom-right of the map (e.g. ✏️ icon)
    - Button on the `TrackDetails` page above the map (outside the map component)
-   - *My recommendation*: floating button at the bottom-right, visually separate from the layers dropdown
-   > I validate the recommendation
+   - _My recommendation_: floating button at the bottom-right, visually separate from the layers dropdown
+     > I validate the recommendation
 
 2. **Waypoint identification for edit/delete**: Waypoints have no ID in the GPX format. The API will need to identify them by their index in the array. Is that acceptable, or should we handle edge cases like duplicate names?
-> it is ok to use their index since we do not modify it
+
+   > it is ok to use their index since we do not modify it
 
 3. **Download GPX button placement**:
    - Only visible when edit mode is active?
    - Always visible on the TrackDetails page?
-> it should be always visible on the trackdetails page
+     > it should be always visible on the trackdetails page
+
 ---
 
 ### Overview of Changes
@@ -65,16 +67,18 @@ packages/web/       → Edit mode in TrackDetails + MapView
 **File:** `src/api-types.ts`
 
 **1a.** Add optional `description` to `UpdateTrackRequestSchema`:
+
 ```typescript
 export const UpdateTrackRequestSchema = z.object({
   lat: z.number(),
   lon: z.number(),
   name: z.string(),
-  description: z.string().optional(),  // ← new
+  description: z.string().optional(), // ← new
 })
 ```
 
 **1b.** Create `EditWaypointRequestSchema` (for updating an existing waypoint):
+
 ```typescript
 export const EditWaypointRequestSchema = z.object({
   name: z.string(),
@@ -83,6 +87,7 @@ export const EditWaypointRequestSchema = z.object({
 ```
 
 **1c.** Create `WaypointParamsSchema` (for routes `/:id/waypoints/:index`):
+
 ```typescript
 export const WaypointParamsSchema = IdParamsSchema.extend({
   index: z.coerce.number().int().nonnegative(),
@@ -96,6 +101,7 @@ export const WaypointParamsSchema = IdParamsSchema.extend({
 **File:** `src/services/gpx-parser.ts`
 
 **2a.** Update `addWaypointToGpx` to include `<desc>` when provided:
+
 ```typescript
 const newPoint = {
   '@_lat': waypoint.lat,
@@ -106,12 +112,14 @@ const newPoint = {
 ```
 
 **2b.** Create `editWaypointInGpx(gpxContent, index, data)`:
+
 - Parse GPX
 - Retrieve the waypoint array (`wpt` or `rtept`)
 - Update the element at the given index (name + desc)
 - Return the modified GPX string
 
 **2c.** Create `deleteWaypointFromGpx(gpxContent, index)`:
+
 - Parse GPX
 - Remove the element at the given index
 - Return the modified GPX string
@@ -125,21 +133,25 @@ const newPoint = {
 **3a.** Update `PUT /:id/waypoints` to pass `description` through to `addWaypointToGpx` (schema already updated in Step 1, no signature change needed).
 
 **3b.** Add `PATCH /:id/waypoints/:index` — edit an existing waypoint:
+
 ```
 PATCH /api/tracks/:id/waypoints/:index
 Body: { name, description? }
 Auth: required
 ```
+
 - Verify track ownership
 - Fetch GPX from storage
 - Call `editWaypointInGpx`
 - Overwrite GPX in storage (in cloudinary)
 
 **3c.** Add `DELETE /:id/waypoints/:index` — delete a waypoint:
+
 ```
 DELETE /api/tracks/:id/waypoints/:index
 Auth: required
 ```
+
 - Verify track ownership
 - Fetch GPX from storage
 - Call `deleteWaypointFromGpx`
@@ -152,6 +164,7 @@ Auth: required
 **File:** `src/hooks/useTracks.ts`
 
 Create 3 React Query mutations following the existing pattern:
+
 - `useAddWaypoint(trackId)` → `PUT /api/tracks/:id/waypoints`
 - `useEditWaypoint(trackId)` → `PATCH /api/tracks/:id/waypoints/:index`
 - `useDeleteWaypoint(trackId)` → `DELETE /api/tracks/:id/waypoints/:index`
@@ -168,11 +181,11 @@ Each mutation invalidates the track query (`['track', trackId]`) to trigger a GP
 
 **5b.** Gate edit mode behind authentication: hide the button when the user is not logged in (use the existing auth hook).
 
-**5c.** Add an "Edit mode" toggle button — *placement TBD per question 1* — styled separately from the layers dropdown (e.g. Ant Design button with `EditOutlined` icon).
+**5c.** Add an "Edit mode" toggle button — _placement TBD per question 1_ — styled separately from the layers dropdown (e.g. Ant Design button with `EditOutlined` icon).
 
 **5d.** Pass `isEditMode` and the mutation callbacks down to `MapView` as props.
 
-**5e.** Add a "Download GPX" button — *placement TBD per question 3*. Uses the already-available `track.gpxContent` to create a `Blob` and trigger a browser download (no new endpoint needed).
+**5e.** Add a "Download GPX" button — _placement TBD per question 3_. Uses the already-available `track.gpxContent` to create a `Blob` and trigger a browser download (no new endpoint needed).
 
 ---
 
@@ -181,6 +194,7 @@ Each mutation invalidates the track query (`['track', trackId]`) to trigger a GP
 **File:** `src/components/MapView.tsx`
 
 **6a.** Add new props:
+
 ```typescript
 isEditMode?: boolean
 onMapClick?: (lat: number, lon: number) => void
@@ -201,17 +215,19 @@ onDeleteWaypoint?: (index: number) => void
 Create `WaypointFormModal` component (Ant Design `Modal` + `Form`, consistent with `NewTripModal` and `NewTrackModal`):
 
 **Props:**
+
 ```typescript
 type WaypointFormModalProps = {
   open: boolean
   onClose: () => void
   onSubmit: (data: { name: string; description?: string }) => void
-  initialValues?: { name: string; description?: string }  // for edit
+  initialValues?: { name: string; description?: string } // for edit
   loading: boolean
 }
 ```
 
 **Fields:**
+
 - `name`: text input, required
 - `description`: textarea, optional
 
@@ -223,15 +239,15 @@ type WaypointFormModalProps = {
 
 ### Summary of Files Changed
 
-| Package | File | Change |
-|---------|------|--------|
-| shared | `src/api-types.ts` | Update |
-| api | `src/services/gpx-parser.ts` | Update |
-| api | `src/routes/tracks.ts` | Update |
-| web | `src/hooks/useTracks.ts` | Update |
-| web | `src/pages/TrackDetails.tsx` | Update |
-| web | `src/components/MapView.tsx` | Update |
-| web | `src/components/WaypointFormModal.tsx` | Create |
+| Package | File                                   | Change |
+| ------- | -------------------------------------- | ------ |
+| shared  | `src/api-types.ts`                     | Update |
+| api     | `src/services/gpx-parser.ts`           | Update |
+| api     | `src/routes/tracks.ts`                 | Update |
+| web     | `src/hooks/useTracks.ts`               | Update |
+| web     | `src/pages/TrackDetails.tsx`           | Update |
+| web     | `src/components/MapView.tsx`           | Update |
+| web     | `src/components/WaypointFormModal.tsx` | Create |
 
 ---
 

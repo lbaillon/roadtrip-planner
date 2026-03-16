@@ -1,12 +1,11 @@
 import { useGetTracks } from '#web/hooks/useTracks'
 import { useAddTrackToTrip, useGetTripTracks } from '#web/hooks/useTrips'
-import { Button, Form, InputNumber, Modal, Select } from 'antd'
+import { Button, Form, Modal, Select } from 'antd'
 import { useState } from 'react'
 import styles from './NewTripModal.module.css'
 
 type AddTrackInput = {
   trackId: string
-  order: number
 }
 type Props = {
   tripId: string | undefined
@@ -41,11 +40,8 @@ export default function AddTrackToTripModal({ tripId }: Props) {
         <Form<AddTrackInput>
           form={form}
           layout="vertical"
-          initialValues={{
-            order: (tripTracks?.length ?? 0) + 1,
-          }}
           onFinish={(values: AddTrackInput) => {
-            add(values)
+            add({ trackId: values.trackId, order: tripTracks?.length ?? 0 })
             setOpen(false)
             form.resetFields()
           }}
@@ -64,13 +60,6 @@ export default function AddTrackToTripModal({ tripId }: Props) {
                 )
                 ?.map((track) => ({ value: track.id, label: track.name }))}
             />
-          </Form.Item>
-          <Form.Item<AddTrackInput>
-            label="Order"
-            name="order"
-            rules={[{ required: true, message: 'Please define track order' }]}
-          >
-            <InputNumber min={1} max={(tripTracks?.length ?? 0) + 1} />
           </Form.Item>
         </Form>
       </Modal>

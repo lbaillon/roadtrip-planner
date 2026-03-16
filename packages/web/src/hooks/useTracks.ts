@@ -3,6 +3,7 @@ import {
   type CreateTrackRequest,
   type EditWaypointRequest,
   type GetTrackResponse,
+  type TrackSummary,
   type UpdateTrackRequest,
 } from '@roadtrip/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -41,7 +42,7 @@ export function useGetTracks() {
   const api = useApi()
   return useQuery({
     queryKey: ['tracks'],
-    queryFn: () => api<{ id: string; name: string }[]>('/api/tracks'),
+    queryFn: () => api<TrackSummary[]>('/api/tracks'),
   })
 }
 

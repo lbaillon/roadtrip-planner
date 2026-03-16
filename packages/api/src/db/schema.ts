@@ -69,7 +69,7 @@ export const tripTracks = sqliteTable(
     trackId: text('track_id')
       .references(() => tracks.id, { onDelete: 'cascade' })
       .notNull(),
-    step: integer('step'),
+    step: integer('step').notNull(),
     createdAt: integer('created_at', { mode: 'timestamp' })
       .notNull()
       .$defaultFn(() => new Date()),
