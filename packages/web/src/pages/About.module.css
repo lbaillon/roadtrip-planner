@@ -1,0 +1,28 @@
+.main{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.subtilte{
+  text-decoration: underline;
+}
+
+.content {
+  padding: 20px;
+  line-height: 1.7;
+  width: 100vw;
+  min-height: 100%;
+  position: relative;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    var(--secondary-grey) 30%
+  );
+  color: var(--primary-green);
+}
+
+.content p {
+  margin-bottom: 16px;
+  text-align: justify;
+}
