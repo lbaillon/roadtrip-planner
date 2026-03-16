@@ -1,6 +1,10 @@
 import { db } from '#api/db/client.js'
 import { tracks, trips, tripTracks } from '#api/db/schema.js'
-import { NotFoundError, UnauthorizedError } from '#api/errors/app-errors.js'
+import {
+  BadRequestError,
+  NotFoundError,
+  UnauthorizedError,
+} from '#api/errors/app-errors.js'
 import { codes } from '#api/errors/error-codes.js'
 import { authenticate, authorize } from '#api/middlewares/auth.js'
 import { JWTPayload } from '#api/services/authentication.js'
@@ -8,6 +12,7 @@ import {
   processDelete,
   processGet,
   processPost,
+  processPut,
 } from '#api/utils/route-handler.js'
 import {
   AddTrackToTripRequestSchema,
@@ -16,6 +21,9 @@ import {
   CreateTripRequestSchema,
   IdParamsSchema,
   TrackOfTripParamsSchema,
+  TripSummary,
+  TripTrack,
+  UpdateTripTracksOrderRequestSchema,
 } from '@roadtrip/shared'
 import { and, eq, sql } from 'drizzle-orm'
 import { Router } from 'express'
@@ -73,7 +81,7 @@ router.delete(
   })
 )
 
-async function getUserTrips(user?: JWTPayload) {
+async function getUserTrips(user?: JWTPayload): Promise<TripSummary[]> {
   return await db
     .select()
     .from(trips)
@@ -82,7 +90,7 @@ async function getUserTrips(user?: JWTPayload) {
 
 router.get('/', processGet({ handler: ({ user }) => getUserTrips(user) }))
 
-async function getTrip(id: string, user?: JWTPayload) {
+async function getTrip(id: string, user?: JWTPayload): Promise<TripSummary> {
   if (!user) {
     throw new UnauthorizedError('Missing user', codes.MISSING_USER)
   }
@@ -101,7 +109,10 @@ router.get(
   })
 )
 
-async function getTripTracks(tripId: string, user?: JWTPayload) {
+async function getTripTracks(
+  tripId: string,
+  user?: JWTPayload
+): Promise<TripTrack[]> {
   if (!user) {
     throw new UnauthorizedError('Missing user', codes.MISSING_USER)
   }
@@ -133,6 +144,60 @@ router.get(
   processGet({
     paramsSchema: IdParamsSchema,
     handler: ({ params, user }) => getTripTracks(params.id, user),
+  })
+)
+
+async function reorderTripTracks(
+  tripId: string,
+  trackIds: string[],
+  user?: JWTPayload
+): Promise<void> {
+  if (!user) {
+    throw new UnauthorizedError('Missing user', codes.MISSING_USER)
+  }
+  const [trip] = await db
+    .select()
+    .from(trips)
+    .where(and(eq(trips.id, tripId), eq(trips.userId, user.userId)))
+  if (!trip) {
+    throw new NotFoundError('Trip not found', codes.MISSING_TRIP)
+  }
+  const existing = await db
+    .select({ trackId: tripTracks.trackId })
+    .from(tripTracks)
+    .where(eq(tripTracks.tripId, tripId))
+  const existingIds = new Set(existing.map((r) => r.trackId))
+  const isValid =
+    trackIds.length === existingIds.size &&
+    trackIds.every((id) => existingIds.has(id))
+  if (!isValid) {
+    throw new BadRequestError(
+      'trackIds must match exactly the tracks in this trip',
+      codes.INVALID_TRACKS_ORDER
+    )
+  }
+  await db.transaction(async (tx) => {
+    for (let i = 0; i < trackIds.length; i++) {
+      await tx
+        .update(tripTracks)
+        .set({ step: i })
+        .where(
+          and(
+            eq(tripTracks.tripId, tripId),
+            eq(tripTracks.trackId, trackIds[i])
+          )
+        )
+    }
+  })
+}
+
+router.put(
+  '/:id/tracks',
+  processPut({
+    paramsSchema: IdParamsSchema,
+    bodySchema: UpdateTripTracksOrderRequestSchema,
+    handler: ({ params, body, user }) =>
+      reorderTripTracks(params.id, body.trackIds, user),
   })
 )
 
