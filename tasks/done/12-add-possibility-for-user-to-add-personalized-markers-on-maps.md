@@ -248,17 +248,3 @@ type WaypointFormModalProps = {
 | web     | `src/pages/TrackDetails.tsx`           | Update |
 | web     | `src/components/MapView.tsx`           | Update |
 | web     | `src/components/WaypointFormModal.tsx` | Create |
-
----
-
-## Checklist
-
-- [x] **Step 1** — `packages/shared`: update schemas (`UpdateTrackRequestSchema`, `EditWaypointRequestSchema`, `WaypointParamsSchema`)
-- [x] **Step 2** — `packages/api`: update GPX service (`addWaypointToGpx` + `editWaypointInGpx` + `deleteWaypointFromGpx`)
-- [x] **Step 3** — `packages/api`: new `PATCH /:id/waypoints/:index` and `DELETE /:id/waypoints/:index` endpoints
-- [x] **Step 4** — `packages/web`: new hooks (`useAddWaypoint`, `useEditWaypoint`, `useDeleteWaypoint`)
-- [x] **Step 5** — `packages/web`: edit mode state + download GPX button in `TrackDetails`
-- [x] **Step 6** — `packages/web`: update `MapView` (edit mode props, click handler, crosshair cursor, colored border, edit/delete in waypoint popup)
-- [x] **Step 7** — `packages/web`: create `WaypointFormModal` component
-- [x] `pnpm type-check` passes
-- [x] `pnpm lint` passes

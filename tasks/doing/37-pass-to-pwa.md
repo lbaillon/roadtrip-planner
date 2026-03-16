@@ -145,6 +145,12 @@ The current `POST /api/gpx` accepts raw GPX content, parses it server-side, samp
 - Graceful degradation: map renders as soon as the route is parsed; weather loads independently
 - Replace `alert()` calls with proper UI messages (be consistent across the codebase)
 
+**Update `Home.tsx`**:
+
+- The Home page also uses `useParseGpx` for the GPX preview (before saving as a track)
+- Replace with: parse locally with `parseGpxFile`, sample points with `sampleRoutePoints`, call `POST /api/weather` for weather
+- Remove `useParseGpx` from `useApi.ts` once no longer used
+
 ---
 
 ### Phase 5 — Offline mutation queue
@@ -230,7 +236,7 @@ Check that CartoCDN CORS headers allow caching. If not, defer to a separate tick
 | Step | Phase | Why |
 | ------ | ------- | ----- |
 | 1 | Phase 1 (basic PWA) | Quick win, fully independent |
-| 2 | Phase 4a (GPX in shared) | Foundation for everything else |
+| 2 | Phase 4a (GPX in web) | Foundation for everything else |
 | 3 | Phase 4b (PUT endpoint) | Required before frontend refactoring |
 | 4 | Phase 4c (TrackDetails + hooks) | Large change, do in one go |
 | 5 | Phase 2 (React Query persistence) | Queries must be well-structured first |
