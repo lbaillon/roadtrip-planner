@@ -170,3 +170,63 @@
   gap: 24px;
   min-width: 160px;
 }
+
+/* Edit mode */
+
+.mapEditMode {
+  outline: 2px solid #239182;
+  outline-offset: -2px;
+}
+
+.mapEditMode :global(.maplibregl-canvas) {
+  cursor: crosshair !important;
+}
+
+.editModeButton {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 10;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: white;
+  border: 1px solid #d9d9d9;
+  cursor: pointer;
+  font-size: 18px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.editModeButton:hover {
+  border-color: #239182;
+  background: #f0faf9;
+}
+
+.editModeActive {
+  border-color: #239182;
+  background: #e6f7f5;
+}
+
+.editModeBanner {
+  position: absolute;
+  bottom: 56px;
+  right: 10px;
+  z-index: 10;
+  background: #239182;
+  color: white;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+}
+
+.waypointActions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}

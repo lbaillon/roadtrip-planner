@@ -97,10 +97,36 @@ export function processPut<TBody = void, TParams = void>({
 }) {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const validatedBody = bodySchema.parse(req.query)
+      const validatedBody = bodySchema.parse(req.body)
       const validatedParams = paramsSchema.parse(req.params)
       const args = {
-        ...(validatedBody !== undefined && { query: validatedBody }),
+        ...(validatedBody !== undefined && { body: validatedBody }),
+        ...(validatedParams !== undefined && { params: validatedParams }),
+        user: req.user,
+      } as HandlerArgs<void, TParams, TBody>
+      await handler(args)
+      res.status(204).send()
+    } catch (error) {
+      next(error)
+    }
+  }
+}
+
+export function processPatch<TBody = void, TParams = void>({
+  bodySchema,
+  paramsSchema = emptyObjectSchema as unknown as z.ZodSchema<TParams>,
+  handler,
+}: {
+  bodySchema: z.ZodSchema<TBody>
+  paramsSchema?: z.ZodSchema<TParams>
+  handler: (args: HandlerArgs<void, TParams, TBody>) => Promise<void>
+}) {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const validatedBody = bodySchema.parse(req.body)
+      const validatedParams = paramsSchema.parse(req.params)
+      const args = {
+        ...(validatedBody !== undefined && { body: validatedBody }),
         ...(validatedParams !== undefined && { params: validatedParams }),
         user: req.user,
       } as HandlerArgs<void, TParams, TBody>

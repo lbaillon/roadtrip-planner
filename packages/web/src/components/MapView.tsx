@@ -1,6 +1,7 @@
 import type { GpxCoordinate, GpxWaypoint, WeatherData } from '@roadtrip/shared'
-import { Dropdown, Switch } from 'antd'
+import { Button, Dropdown, Switch } from 'antd'
 import type { MenuProps } from 'antd'
+import type { MapMouseEvent } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { useEffect, useState } from 'react'
 import Map, { Layer, Marker, Popup, Source } from 'react-map-gl/maplibre'
@@ -11,6 +12,15 @@ interface MapViewProps {
   waypoints?: GpxWaypoint[]
   weather: WeatherData[]
   timepointIndex: number
+  isEditMode?: boolean
+  showEditToggle?: boolean
+  onToggleEditMode?: () => void
+  onMapClick?: (lat: number, lon: number) => void
+  onEditWaypoint?: (
+    index: number,
+    waypoint: { name: string; description?: string }
+  ) => void
+  onDeleteWaypoint?: (index: number) => void
 }
 
 export default function MapView({
@@ -18,6 +28,12 @@ export default function MapView({
   waypoints = [],
   weather,
   timepointIndex,
+  isEditMode = false,
+  showEditToggle = false,
+  onToggleEditMode,
+  onMapClick,
+  onEditWaypoint,
+  onDeleteWaypoint,
 }: MapViewProps) {
   const [selectedWeather, setSelectedWeather] = useState<WeatherData | null>(
     null
@@ -25,6 +41,9 @@ export default function MapView({
   const [selectedWaypoint, setSelectedWaypoint] = useState<GpxWaypoint | null>(
     null
   )
+  const [selectedWaypointIndex, setSelectedWaypointIndex] = useState<
+    number | null
+  >(null)
   const [locationEnabled, setLocationEnabled] = useState(false)
   const [waypointsEnabled, setWaypointsEnabled] = useState(true)
   const [weatherEnabled, setWeatherEnabled] = useState(true)
@@ -139,8 +158,34 @@ export default function MapView({
       : []),
   ]
 
+  function handleMapClick(e: MapMouseEvent) {
+    if (!isEditMode || !onMapClick) return
+    onMapClick(e.lngLat.lat, e.lngLat.lng)
+  }
+
+  function handleEditClick() {
+    if (selectedWaypoint && selectedWaypointIndex !== null && onEditWaypoint) {
+      onEditWaypoint(selectedWaypointIndex, {
+        name: selectedWaypoint.name ?? '',
+        description: selectedWaypoint.desc,
+      })
+      setSelectedWaypoint(null)
+      setSelectedWaypointIndex(null)
+    }
+  }
+
+  function handleDeleteClick() {
+    if (selectedWaypointIndex !== null && onDeleteWaypoint) {
+      onDeleteWaypoint(selectedWaypointIndex)
+      setSelectedWaypoint(null)
+      setSelectedWaypointIndex(null)
+    }
+  }
+
   return (
-    <div className={styles.mapMain}>
+    <div
+      className={`${styles.mapMain} ${isEditMode ? styles.mapEditMode : ''}`}
+    >
       <div className={styles.layersControl}>
         <Dropdown
           menu={{ items: dropdownItems }}
@@ -160,10 +205,28 @@ export default function MapView({
         )}
       </div>
 
+      {showEditToggle && (
+        <button
+          className={`${styles.editModeButton} ${isEditMode ? styles.editModeActive : ''}`}
+          onClick={onToggleEditMode}
+          aria-label={isEditMode ? 'Exit edit mode' : 'Edit waypoints'}
+          title={isEditMode ? 'Exit edit mode' : 'Add / edit waypoints'}
+        >
+          ✏️
+        </button>
+      )}
+
+      {isEditMode && (
+        <div className={styles.editModeBanner}>
+          Click on the map to add a waypoint
+        </div>
+      )}
+
       <Map
         initialViewState={initialViewState}
         style={{ width: '100%', height: '100%' }}
         mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
+        onClick={handleMapClick}
       >
         {/* Route line */}
         <Source id="route" type="geojson" data={routeGeoJSON}>
@@ -189,6 +252,7 @@ export default function MapView({
               onClick={(e) => {
                 e.originalEvent.stopPropagation()
                 setSelectedWaypoint(wp)
+                setSelectedWaypointIndex(idx)
                 setSelectedWeather(null)
               }}
             >
@@ -207,7 +271,10 @@ export default function MapView({
             longitude={selectedWaypoint.lon}
             latitude={selectedWaypoint.lat}
             anchor="top"
-            onClose={() => setSelectedWaypoint(null)}
+            onClose={() => {
+              setSelectedWaypoint(null)
+              setSelectedWaypointIndex(null)
+            }}
             closeOnClick={false}
           >
             <div style={{ padding: '8px', minWidth: '120px' }}>
@@ -223,6 +290,16 @@ export default function MapView({
                   <br />
                   ⛰️ {selectedWaypoint.ele.toFixed(0)} m
                 </>
+              )}
+              {isEditMode && (
+                <div className={styles.waypointActions}>
+                  <Button size="small" onClick={handleEditClick}>
+                    Edit
+                  </Button>
+                  <Button size="small" danger onClick={handleDeleteClick}>
+                    Delete
+                  </Button>
+                </div>
               )}
             </div>
           </Popup>
