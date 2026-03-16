@@ -1,8 +1,9 @@
 import type { FormProps } from 'antd'
 import { Alert, Button, Form, Input } from 'antd'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useCreateUser } from '../hooks/useApi'
 import styles from './SignUp-LogIn.module.css'
+import { useNavigate } from 'react-router-dom'
 
 type FieldType = {
   username: string
@@ -19,6 +20,13 @@ type AlertState = {
 export default function SignUp() {
   const { mutate: postUser } = useCreateUser()
   const [alert, setAlert] = useState<AlertState>(null)
+  const navigate = useNavigate()
+
+    useEffect(() => {
+      if (alert?.type !== 'success') return
+      const timer = setTimeout(() => navigate('/login'), 1500)
+      return () => clearTimeout(timer)
+    }, [alert, navigate])
 
   const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
     postUser(values, {
