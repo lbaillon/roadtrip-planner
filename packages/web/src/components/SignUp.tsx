@@ -22,11 +22,11 @@ export default function SignUp() {
   const [alert, setAlert] = useState<AlertState>(null)
   const navigate = useNavigate()
 
-    useEffect(() => {
-      if (alert?.type !== 'success') return
-      const timer = setTimeout(() => navigate('/login'), 1500)
-      return () => clearTimeout(timer)
-    }, [alert, navigate])
+  useEffect(() => {
+    if (alert?.type !== 'success') return
+    const timer = setTimeout(() => navigate('/login'), 1500)
+    return () => clearTimeout(timer)
+  }, [alert, navigate])
 
   const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
     postUser(values, {

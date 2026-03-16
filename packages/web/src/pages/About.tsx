@@ -81,10 +81,10 @@ export default function About() {
         </p>
         <p>
           Importe un fichier GPX, et l&apos;appli s&apos;occupe du reste : carte
-          interactive, météo prévue sur le trajet, graphiques
-          d&apos;humidité... Tu peux aussi personnaliser tes waypoints
-          directement sur la carte, ajouter un arrêt coup de cœur, modifier un
-          point, ou en supprimer un puis télécharger ton itinéraire mis à jour.
+          interactive, météo prévue sur le trajet, graphiques d&apos;humidité...
+          Tu peux aussi personnaliser tes waypoints directement sur la carte,
+          ajouter un arrêt coup de cœur, modifier un point, ou en supprimer un
+          puis télécharger ton itinéraire mis à jour.
         </p>
         <p>
           Crée un compte pour retrouver tous tes voyages au même endroit, et
@@ -92,7 +92,9 @@ export default function About() {
         </p>
 
         <h3 className={styles.subtilte}>L&apos;équipe</h3>
-        <p className={styles.teamHint}>Clique sur une photo pour en savoir plus.</p>
+        <p className={styles.teamHint}>
+          Clique sur une photo pour en savoir plus.
+        </p>
 
         <div className={styles.team}>
           <div className={styles.teamRowCenter}>

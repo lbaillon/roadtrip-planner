@@ -20,7 +20,7 @@ export default function App() {
         <Route path="/tracks/:id" element={<TrackDetails />} />
         <Route path="/trips" element={<Trips />} />
         <Route path="/trips/:id" element={<TripDetails />} />
-        <Route path='/about' element={<About/>} />
+        <Route path="/about" element={<About />} />
       </Route>
     </Routes>
   )
