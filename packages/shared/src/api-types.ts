@@ -10,6 +10,11 @@ export const TrackOfTripParamsSchema = z.object({
   trackId: z.string().min(1, 'Cannot be empty'),
 })
 
+export const WaypointParamsSchema = z.object({
+  id: z.string(),
+  index: z.coerce.number().int().nonnegative(),
+})
+
 // Request schemas
 
 export const ParseGpxRequestSchema = z.object({
@@ -36,6 +41,12 @@ export const UpdateTrackRequestSchema = z.object({
   lat: z.number(),
   lon: z.number(),
   name: z.string(),
+  description: z.string().optional(),
+})
+
+export const EditWaypointRequestSchema = z.object({
+  name: z.string(),
+  description: z.string().optional(),
 })
 
 export const UpdateUserRequestSchema = z.object({
@@ -92,7 +103,9 @@ export type LogInRequest = z.infer<typeof LogInRequestSchema>
 export type LogInResponse = z.infer<typeof LogInResponseSchema>
 export type CreateTrackRequest = z.infer<typeof CreateTrackRequestSchema>
 export type UpdateTrackRequest = z.infer<typeof UpdateTrackRequestSchema>
+export type EditWaypointRequest = z.infer<typeof EditWaypointRequestSchema>
 export type UpdateUserRequest = z.infer<typeof UpdateUserRequestSchema>
 export type CreateTripRequest = z.infer<typeof CreateTripRequestSchema>
 export type GetTrackResponse = z.infer<typeof GetTrackResponseSchema>
 export type AddTrackToTripRequest = z.infer<typeof AddTrackToTripRequestSchema>
+export type WaypointParams = z.infer<typeof WaypointParamsSchema>

@@ -18,6 +18,12 @@
 }
 
 
+.trackActions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
 .contentBox {
   width: 100vw;
   min-height: 100%;

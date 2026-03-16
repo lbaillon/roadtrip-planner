@@ -1,16 +1,43 @@
 import { HumidityChart } from '#web/components/HumidityChart'
 import MapView from '#web/components/MapView'
 import { TimeSelector } from '#web/components/TimeSelector'
+import WaypointFormModal from '#web/components/WaypointFormModal'
+import { useAuth } from '#web/hooks/useAuth'
 import { useParseGpx } from '#web/hooks/useApi'
-import { useGetTrack } from '#web/hooks/useTracks'
+import {
+  useAddWaypoint,
+  useDeleteWaypoint,
+  useEditWaypoint,
+  useGetTrack,
+} from '#web/hooks/useTracks'
+import { Button } from 'antd'
 import { Suspense, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import styles from './TrackDetails.module.css'
 
+type WaypointFormData = { name: string; description?: string }
+type EditingWaypoint = { index: number } & WaypointFormData
+
 export default function TrackDetails() {
   const [timepointIndex, setTimepointIndex] = useState(0)
+  const [isEditMode, setIsEditMode] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [pendingClickCoords, setPendingClickCoords] = useState<{
+    lat: number
+    lon: number
+  } | null>(null)
+  const [editingWaypoint, setEditingWaypoint] =
+    useState<EditingWaypoint | null>(null)
+
   const { id } = useParams()
+  const { accessToken } = useAuth()
   const { data: track } = useGetTrack(id)
+
+  const { mutate: addWaypoint, isPending: isAdding } = useAddWaypoint(id ?? '')
+  const { mutate: editWaypoint, isPending: isEditing } = useEditWaypoint(
+    id ?? ''
+  )
+  const { mutate: deleteWaypoint } = useDeleteWaypoint(id ?? '')
 
   const {
     mutate: uploadGpx,
@@ -29,6 +56,78 @@ export default function TrackDetails() {
       { onError: (error) => alert(`Error: ${error.message}`) }
     )
   }, [track, uploadGpx])
+
+  function handleMapClick(lat: number, lon: number) {
+    setPendingClickCoords({ lat, lon })
+    setEditingWaypoint(null)
+    setIsModalOpen(true)
+  }
+
+  function handleEditWaypoint(
+    index: number,
+    waypoint: { name: string; description?: string }
+  ) {
+    setEditingWaypoint({ index, ...waypoint })
+    setPendingClickCoords(null)
+    setIsModalOpen(true)
+  }
+
+  function handleDeleteWaypoint(index: number) {
+    deleteWaypoint(index, {
+      onError: () => alert('Failed to delete waypoint'),
+    })
+  }
+
+  function handleModalSubmit(data: WaypointFormData) {
+    const cleanData: WaypointFormData = {
+      name: data.name,
+      description: data.description || undefined,
+    }
+    if (editingWaypoint) {
+      editWaypoint(
+        { index: editingWaypoint.index, ...cleanData },
+        {
+          onSuccess: () => {
+            setIsModalOpen(false)
+            setEditingWaypoint(null)
+          },
+          onError: () => alert('Failed to edit waypoint'),
+        }
+      )
+    } else if (pendingClickCoords) {
+      addWaypoint(
+        {
+          ...pendingClickCoords,
+          name: cleanData.name,
+          description: cleanData.description,
+        },
+        {
+          onSuccess: () => {
+            setIsModalOpen(false)
+            setPendingClickCoords(null)
+          },
+          onError: () => alert('Failed to add waypoint'),
+        }
+      )
+    }
+  }
+
+  function handleModalClose() {
+    setIsModalOpen(false)
+    setEditingWaypoint(null)
+    setPendingClickCoords(null)
+  }
+
+  function handleDownload() {
+    if (!track) return
+    const blob = new Blob([track.gpxContent], { type: 'application/gpx+xml' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${track.name}.gpx`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
 
   return (
     <div className={styles.contentBox}>
@@ -52,14 +151,32 @@ export default function TrackDetails() {
             </p>
           )}
 
+          <div className={styles.trackActions}>
+            <Button onClick={handleDownload}>Download GPX</Button>
+          </div>
+
           <Suspense fallback={<div>Loading map...</div>}>
             <MapView
               coordinates={routeData.route.coordinates}
               weather={routeData.weather}
               timepointIndex={timepointIndex}
               waypoints={routeData.route.waypoints}
+              isEditMode={isEditMode}
+              showEditToggle={!!accessToken}
+              onToggleEditMode={() => setIsEditMode((prev) => !prev)}
+              onMapClick={handleMapClick}
+              onEditWaypoint={handleEditWaypoint}
+              onDeleteWaypoint={handleDeleteWaypoint}
             />
           </Suspense>
+
+          <WaypointFormModal
+            open={isModalOpen}
+            onClose={handleModalClose}
+            onSubmit={handleModalSubmit}
+            initialValues={editingWaypoint ?? undefined}
+            loading={isAdding || isEditing}
+          />
 
           <TimeSelector
             weather={routeData.weather}

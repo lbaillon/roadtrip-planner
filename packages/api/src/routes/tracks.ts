@@ -4,11 +4,17 @@ import { NotFoundError, UnauthorizedError } from '#api/errors/app-errors.js'
 import { codes } from '#api/errors/error-codes.js'
 import { authenticate, authorize } from '#api/middlewares/auth.js'
 import { JWTPayload } from '#api/services/authentication.js'
-import { addWaypointToGpx, parseGpxFile } from '#api/services/gpx-parser.js'
+import {
+  addWaypointToGpx,
+  deleteWaypointFromGpx,
+  editWaypointInGpx,
+  parseGpxFile,
+} from '#api/services/gpx-parser.js'
 import { Uploader } from '#api/services/uploader.js'
 import {
   processDelete,
   processGet,
+  processPatch,
   processPost,
   processPut,
 } from '#api/utils/route-handler.js'
@@ -16,11 +22,16 @@ import {
   CreateResponse,
   CreateTrackRequest,
   CreateTrackRequestSchema,
+  EditWaypointRequest,
+  EditWaypointRequestSchema,
   GetTrackResponse,
   IdParamsSchema,
   UpdateTrackRequest,
   UpdateTrackRequestSchema,
+  WaypointParams,
+  WaypointParamsSchema,
 } from '@roadtrip/shared'
+
 import { and, eq } from 'drizzle-orm'
 import { Router } from 'express'
 
@@ -112,6 +123,62 @@ router.put(
     paramsSchema: IdParamsSchema,
     bodySchema: UpdateTrackRequestSchema,
     handler: ({ params, body, user }) => addWaypoint(params.id, body, user),
+  })
+)
+
+async function editWaypoint(
+  params: WaypointParams,
+  body: EditWaypointRequest,
+  user?: JWTPayload
+) {
+  if (!user) {
+    throw new UnauthorizedError('Missing user', codes.MISSING_USER)
+  }
+  const [track] = await db
+    .select()
+    .from(tracks)
+    .where(and(eq(tracks.id, params.id), eq(tracks.userId, user.userId)))
+  if (!track) {
+    throw new NotFoundError('track not found', codes.MISSING_TRACK)
+  }
+  const gpxContent = await new Uploader().getGpxFile(track.gpxFile)
+  const updatedGpx = editWaypointInGpx(gpxContent, params.index, body)
+  await new Uploader().overwriteGpx(track.gpxFile, updatedGpx)
+}
+
+router.patch(
+  '/:id/waypoints/:index',
+  processPatch({
+    paramsSchema: WaypointParamsSchema,
+    bodySchema: EditWaypointRequestSchema,
+    handler: ({ params, body, user }) => editWaypoint(params, body, user),
+  })
+)
+
+async function deleteWaypointAtIndex(
+  params: WaypointParams,
+  user?: JWTPayload
+) {
+  if (!user) {
+    throw new UnauthorizedError('Missing user', codes.MISSING_USER)
+  }
+  const [track] = await db
+    .select()
+    .from(tracks)
+    .where(and(eq(tracks.id, params.id), eq(tracks.userId, user.userId)))
+  if (!track) {
+    throw new NotFoundError('track not found', codes.MISSING_TRACK)
+  }
+  const gpxContent = await new Uploader().getGpxFile(track.gpxFile)
+  const updatedGpx = deleteWaypointFromGpx(gpxContent, params.index)
+  await new Uploader().overwriteGpx(track.gpxFile, updatedGpx)
+}
+
+router.delete(
+  '/:id/waypoints/:index',
+  processDelete({
+    paramsSchema: WaypointParamsSchema,
+    handler: ({ params, user }) => deleteWaypointAtIndex(params, user),
   })
 )
 

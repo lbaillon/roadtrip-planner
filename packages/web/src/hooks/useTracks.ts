@@ -1,7 +1,9 @@
 import {
   type CreateResponse,
   type CreateTrackRequest,
+  type EditWaypointRequest,
   type GetTrackResponse,
+  type UpdateTrackRequest,
 } from '@roadtrip/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useApi } from './useApi'
@@ -49,5 +51,49 @@ export function useGetTrack(id: string | undefined) {
     queryKey: ['tracks', id],
     queryFn: () => api<GetTrackResponse>(`/api/tracks/${id}`),
     enabled: !!id,
+  })
+}
+
+export function useAddWaypoint(trackId: string) {
+  const queryClient = useQueryClient()
+  const api = useApi()
+  return useMutation({
+    mutationFn: (request: UpdateTrackRequest) =>
+      api<void>(`/api/tracks/${trackId}/waypoints`, {
+        method: 'PUT',
+        body: JSON.stringify(request),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tracks', trackId] })
+    },
+  })
+}
+
+export function useEditWaypoint(trackId: string) {
+  const queryClient = useQueryClient()
+  const api = useApi()
+  return useMutation({
+    mutationFn: ({ index, ...data }: EditWaypointRequest & { index: number }) =>
+      api<void>(`/api/tracks/${trackId}/waypoints/${index}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tracks', trackId] })
+    },
+  })
+}
+
+export function useDeleteWaypoint(trackId: string) {
+  const queryClient = useQueryClient()
+  const api = useApi()
+  return useMutation({
+    mutationFn: (index: number) =>
+      api<void>(`/api/tracks/${trackId}/waypoints/${index}`, {
+        method: 'DELETE',
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tracks', trackId] })
+    },
   })
 }

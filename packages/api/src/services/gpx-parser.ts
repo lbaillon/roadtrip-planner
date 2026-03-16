@@ -112,28 +112,95 @@ export function sampleRoutePoints(
   return coordinates.filter((_, index) => index % sampleEvery === 0)
 }
 
+// Returns mutable references to all waypoint elements in extraction order (wpt first, then rtept)
+function getAllWaypointRefs(
+  parsed: ReturnType<typeof xmlParser.parse>
+): { array: unknown[]; localIndex: number }[] {
+  const gpx = parsed?.gpx
+  const refs: { array: unknown[]; localIndex: number }[] = []
+
+  const wpts: unknown[] = Array.isArray(gpx?.wpt) ? gpx.wpt : []
+  wpts.forEach((_, i) => refs.push({ array: wpts, localIndex: i }))
+
+  const rtes: unknown[] = Array.isArray(gpx?.rte) ? gpx.rte : []
+  rtes.forEach((rte: unknown) => {
+    const rtepts: unknown[] = Array.isArray(
+      (rte as Record<string, unknown>).rtept
+    )
+      ? ((rte as Record<string, unknown>).rtept as unknown[])
+      : []
+    rtepts.forEach((_, i) => refs.push({ array: rtepts, localIndex: i }))
+  })
+
+  return refs
+}
+
 export function addWaypointToGpx(
   gpxContent: string,
-  waypoint: { lat: number; lon: number; name: string }
+  waypoint: { lat: number; lon: number; name: string; description?: string }
 ): string {
   const parsed = xmlParser.parse(gpxContent)
 
-  const newPoint = {
+  const newPoint: Record<string, unknown> = {
     '@_lat': waypoint.lat,
     '@_lon': waypoint.lon,
     name: waypoint.name,
+    ...(waypoint.description ? { desc: waypoint.description } : {}),
   }
 
-  if (parsed.gpx.rte?.rtept) {
-    parsed.gpx.rte.rtept.push(newPoint)
-  } else if (parsed.gpx.wpt) {
+  const rtes: unknown[] = Array.isArray(parsed.gpx?.rte) ? parsed.gpx.rte : []
+  if (
+    rtes.length > 0 &&
+    Array.isArray((rtes[0] as Record<string, unknown>).rtept)
+  ) {
+    ;((rtes[0] as Record<string, unknown>).rtept as unknown[]).push(newPoint)
+  } else if (Array.isArray(parsed.gpx?.wpt)) {
     parsed.gpx.wpt.push(newPoint)
   } else {
-    throw new BadRequestError(
-      'Format GPX non supporté : aucun rtept ou wpt trouvé',
-      codes.WRONG_GPX
-    )
+    // No existing waypoints — create a wpt array
+    parsed.gpx.wpt = [newPoint]
   }
+
+  return xmlBuilder.build(parsed)
+}
+
+export function editWaypointInGpx(
+  gpxContent: string,
+  index: number,
+  data: { name: string; description?: string }
+): string {
+  const parsed = xmlParser.parse(gpxContent)
+  const refs = getAllWaypointRefs(parsed)
+
+  if (index < 0 || index >= refs.length) {
+    throw new BadRequestError('Waypoint index out of bounds', codes.WRONG_GPX)
+  }
+
+  const ref = refs[index]
+  const elem = ref.array[ref.localIndex] as Record<string, unknown>
+  elem['name'] = data.name
+  if (data.description) {
+    elem['desc'] = data.description
+  } else {
+    delete elem['desc']
+  }
+
+  return xmlBuilder.build(parsed)
+}
+
+export function deleteWaypointFromGpx(
+  gpxContent: string,
+  index: number
+): string {
+  const parsed = xmlParser.parse(gpxContent)
+  const refs = getAllWaypointRefs(parsed)
+
+  if (index < 0 || index >= refs.length) {
+    throw new BadRequestError('Waypoint index out of bounds', codes.WRONG_GPX)
+  }
+
+  const ref = refs[index]
+  ref.array.splice(ref.localIndex, 1)
 
   return xmlBuilder.build(parsed)
 }
