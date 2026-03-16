@@ -38,6 +38,10 @@ export default function Header() {
       label: <Link to="/">Home</Link>,
       key: 'home',
     },
+    {
+      label: <Link to="/about">About</Link>,
+      key: 'about',
+    },
   ]
 
   const onLogout = () => {
@@ -69,6 +73,10 @@ export default function Header() {
       {
         label: <Link to="/trips">My trips</Link>,
         key: 'trips',
+      },
+      {
+        label: <Link to="/about">About</Link>,
+        key: 'about',
       },
     ]
   }

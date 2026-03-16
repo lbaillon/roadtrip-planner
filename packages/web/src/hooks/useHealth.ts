@@ -13,5 +13,6 @@ export function useHealth() {
     retry: 3,
     retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10000),
     staleTime: 10000,
+    throwOnError: false,
   })
 }
