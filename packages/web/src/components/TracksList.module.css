@@ -1,3 +1,14 @@
+.dragHandle {
+  margin-right: 10px;
+  opacity: 0.4;
+  cursor: grab;
+  color: var(--secondary-green);
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
 .itemIcon {
   margin-right: 10px;
   opacity: 0.6;

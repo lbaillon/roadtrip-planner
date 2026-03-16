@@ -7,6 +7,7 @@ import {
   useGetTrip,
   useGetTripTracks,
   useRemoveTrackFromTrip,
+  useUpdateTripTracksOrder,
 } from '#web/hooks/useTrips'
 import { faArrowLeftLong } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -17,6 +18,7 @@ export default function TripDetails() {
   const { data: trip } = useGetTrip(id)
   const { data: tracks } = useGetTripTracks(id)
   const { mutate: removeTrackFromTrip } = useRemoveTrackFromTrip(id ?? '')
+  const { mutate: updateTracksOrder } = useUpdateTripTracksOrder(id ?? '')
 
   return (
     <>
@@ -34,7 +36,11 @@ export default function TripDetails() {
           <BoxTitle>{trip?.name ?? 'No trip found'}</BoxTitle>
         </div>
         <AddTrackToTripModal tripId={id} />
-        <TracksList tracks={tracks ?? []} onDelete={removeTrackFromTrip} />
+        <TracksList
+          tracks={tracks ?? []}
+          onDelete={removeTrackFromTrip}
+          onReorder={updateTracksOrder}
+        />
       </Box>
     </>
   )

@@ -144,3 +144,19 @@ const { mutate: updateTracksOrder } = useUpdateTripTracksOrder(id ?? '')
 3. Frontend hook
 4. `TracksList` component
 5. `TripDetails` page
+
+---
+
+## Checklist
+
+- [x] Install `@dnd-kit/core` and `@dnd-kit/sortable` in `packages/web`
+- [x] `packages/shared/src/api-types.ts` — add `TripSummary`, `TripTrack`, `TrackSummary` types and `UpdateTripTracksOrderRequestSchema` / `UpdateTripTracksOrderRequest`
+- [x] `packages/api/src/errors/error-codes.ts` — add `INVALID_TRACKS_ORDER` error code
+- [x] `packages/api/src/routes/trips.ts` — cast `order: tripTracks.step ?? 0` in `getTripTracks`; add `reorderTripTracks` function and `PUT /:id/tracks` endpoint
+- [x] `packages/web/src/hooks/useTrips.ts` — use shared types for all hooks; add `useUpdateTripTracksOrder` with optimistic update
+- [x] `packages/web/src/hooks/useTracks.ts` — use `TrackSummary` type in `useGetTracks`
+- [x] `packages/web/src/components/AddTrackToTripModal.tsx` — remove order field from form; compute order automatically as `tripTracks.length`
+- [x] `packages/web/src/components/TracksList.tsx` — add drag-and-drop with `@dnd-kit`; add `onReorder` optional prop; drag handle only shown when `onReorder` is provided
+- [x] `packages/web/src/components/TracksList.module.css` — add drag handle styles
+- [x] `packages/web/src/pages/TripDetails.tsx` — wire `useUpdateTripTracksOrder` and pass `onReorder` to `TracksList`
+- [x] `pnpm type-check`, `pnpm lint`, `pnpm format` all pass
