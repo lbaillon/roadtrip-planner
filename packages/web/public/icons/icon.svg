@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="#184c45"/>
+  <!-- Map pin: circle (top bulge) + triangle (bottom point) -->
+  <circle cx="256" cy="200" r="100" fill="white"/>
+  <polygon points="156,200 356,200 256,410" fill="white"/>
+  <!-- Hole -->
+  <circle cx="256" cy="200" r="40" fill="#184c45"/>
+</svg>

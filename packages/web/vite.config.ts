@@ -1,4 +1,5 @@
 import react from '@vitejs/plugin-react'
+import { VitePWA } from 'vite-plugin-pwa'
 
 import path from 'node:path'
 import { defineConfig } from 'vite'
@@ -9,6 +10,35 @@ export default defineConfig({
     react({
       babel: {
         plugins: ['babel-plugin-react-compiler'],
+      },
+    }),
+    VitePWA({
+      registerType: 'prompt',
+      manifest: {
+        name: 'Roadtrip Planner',
+        short_name: 'Roadtrip',
+        description: 'Plan and navigate your roadtrips',
+        theme_color: '#184c45',
+        background_color: '#ffffff',
+        display: 'standalone',
+        start_url: '/',
+        icons: [
+          {
+            src: '/icons/icon.svg',
+            sizes: 'any',
+            type: 'image/svg+xml',
+            purpose: 'any',
+          },
+          {
+            src: '/icons/icon-maskable.svg',
+            sizes: 'any',
+            type: 'image/svg+xml',
+            purpose: 'maskable',
+          },
+        ],
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,svg,png,woff,woff2}'],
       },
     }),
   ],

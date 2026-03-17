@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Full bleed background (required for maskable) -->
+  <rect width="512" height="512" fill="#184c45"/>
+  <!-- Map pin within safe zone (~80%: 51–461) -->
+  <circle cx="256" cy="210" r="90" fill="white"/>
+  <polygon points="166,210 346,210 256,400" fill="white"/>
+  <!-- Hole -->
+  <circle cx="256" cy="210" r="36" fill="#184c45"/>
+</svg>
