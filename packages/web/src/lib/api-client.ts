@@ -11,6 +11,25 @@ export class ApiError extends Error {
   }
 }
 
+// Module-level singleton: ensures only one refresh request is in flight at a
+// time. Concurrent 401s share the same promise instead of each making their
+// own refresh call (which would fail if refresh tokens are single-use).
+let pendingRefresh: Promise<string> | null = null
+
+export function refreshAccessToken(): Promise<string> {
+  if (!pendingRefresh) {
+    pendingRefresh = fetchApi<{ accessToken: string }>('/api/auth/refresh', {
+      method: 'POST',
+      credentials: 'include',
+    })
+      .then((data) => data.accessToken)
+      .finally(() => {
+        pendingRefresh = null
+      })
+  }
+  return pendingRefresh
+}
+
 export async function fetchApi<TResponse>(
   endpoint: string,
   options?: RequestInit

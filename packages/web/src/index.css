@@ -30,4 +30,6 @@ h3 {
   --primary-grey: #aebcc2;
   --secondary-grey: #f2f4f3;
   --error-red: rgb(129, 9, 9);
+  --warning-orange: #d46b08;
+  --info-blue: #1677ff;
 }

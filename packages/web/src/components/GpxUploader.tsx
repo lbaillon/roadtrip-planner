@@ -1,3 +1,4 @@
+import { message } from 'antd'
 import styles from './GpxUploader.module.css'
 
 interface GpxUploaderProps {
@@ -5,9 +6,11 @@ interface GpxUploaderProps {
 }
 
 export function GpxUploader({ onFileSelect }: GpxUploaderProps) {
+  const [messageApi, contextHolder] = message.useMessage()
+
   const handleFile = async (file: File) => {
     if (!file.name.endsWith('.gpx')) {
-      alert('Please upload a GPX file')
+      messageApi.error('Please upload a GPX file')
       return
     }
 
@@ -28,19 +31,22 @@ export function GpxUploader({ onFileSelect }: GpxUploaderProps) {
   }
 
   return (
-    <div onDrop={handleDrop} className={styles.upload}>
-      <input
-        type="file"
-        accept=".gpx"
-        onChange={handleFileInput}
-        style={{ display: 'none' }}
-        id="gpx-input"
-      />
-      <label htmlFor="gpx-input" className={styles.label}>
-        <div>
-          <p className={styles.textLabel}>Upload your GPX file here</p>
-        </div>
-      </label>
-    </div>
+    <>
+      {contextHolder}
+      <div onDrop={handleDrop} className={styles.upload}>
+        <input
+          type="file"
+          accept=".gpx"
+          onChange={handleFileInput}
+          style={{ display: 'none' }}
+          id="gpx-input"
+        />
+        <label htmlFor="gpx-input" className={styles.label}>
+          <div>
+            <p className={styles.textLabel}>Upload your GPX file here</p>
+          </div>
+        </label>
+      </div>
+    </>
   )
 }
