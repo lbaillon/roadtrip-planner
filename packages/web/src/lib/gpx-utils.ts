@@ -1,18 +1,11 @@
-import {
-  ParsedGpxSchema,
-  type ParsedGpx,
-  type GpxWaypoint,
-} from '@roadtrip/shared'
-
+import { ParsedGpxSchema, type GpxWaypoint, type ParsedGpx } from '@roadtrip/shared'
 import GpxParser from 'gpxparser'
-import { XMLParser, XMLBuilder } from 'fast-xml-parser'
-import { BadRequestError } from '#api/errors/app-errors.js'
-import { codes } from '#api/errors/error-codes.js'
+import { XMLBuilder, XMLParser } from 'fast-xml-parser'
 
 const xmlParser = new XMLParser({
   ignoreAttributes: false,
   attributeNamePrefix: '@_',
-  isArray: (name) => name === 'rtept' || name === 'wpt' || name === 'rte', // 'rte' ajouté pour supporter plusieurs routes
+  isArray: (name) => name === 'rtept' || name === 'wpt' || name === 'rte',
 })
 
 const xmlBuilder = new XMLBuilder({
@@ -22,12 +15,11 @@ const xmlBuilder = new XMLBuilder({
 })
 
 export function parseGpxFile(gpxContent: string): ParsedGpx {
-  // @ts-expect-error Could not fix 'This expression is not constructable'
   const gpx = new GpxParser()
   gpx.parse(gpxContent)
 
   if (!gpx.tracks || gpx.tracks.length === 0) {
-    throw new BadRequestError('No tracks found in GPX file', codes.WRONG_GPX)
+    throw new Error('No tracks found in GPX file')
   }
 
   const track = gpx.tracks[0]
@@ -48,8 +40,8 @@ export function parseGpxFile(gpxContent: string): ParsedGpx {
   })
 }
 
-// Extrait <wpt> et <rtept> via fast-xml-parser
-// Gère la balise <n> non-standard de Liberty Rider en plus de <name>
+// Extracts <wpt> and <rtept> via fast-xml-parser
+// Handles Liberty Rider's non-standard <n> tag in addition to <name>
 function extractWaypoints(gpxContent: string): GpxWaypoint[] {
   const parsed = xmlParser.parse(gpxContent)
   const gpxData = parsed?.gpx
@@ -63,13 +55,12 @@ function extractWaypoints(gpxContent: string): GpxWaypoint[] {
   ): GpxWaypoint => ({
     lat: parseFloat(String(el['@_lat'])),
     lon: parseFloat(String(el['@_lon'])),
-    name: (el['name'] ?? el['n'] ?? undefined) as string | undefined, // fallback <n> Liberty Rider
+    name: (el['name'] ?? el['n'] ?? undefined) as string | undefined,
     desc: el['desc'] as string | undefined,
     ele: el['ele'] != null ? parseFloat(String(el['ele'])) : undefined,
     type,
   })
 
-  // <wpt> standalone
   const wpts: unknown[] = Array.isArray(gpxData.wpt)
     ? gpxData.wpt
     : gpxData.wpt
@@ -79,7 +70,6 @@ function extractWaypoints(gpxContent: string): GpxWaypoint[] {
     results.push(toWaypoint(w as Record<string, unknown>, 'wpt'))
   )
 
-  // <rtept> dans <rte> (isArray: 'rte' garanti un tableau même si une seule route)
   const rtes = Array.isArray(gpxData.rte)
     ? gpxData.rte
     : gpxData.rte
@@ -99,20 +89,15 @@ function extractWaypoints(gpxContent: string): GpxWaypoint[] {
   return results
 }
 
-// Sample points along route (e.g., every 50km)
 export function sampleRoutePoints(
   coordinates: Array<{ lat: number; lon: number }>
 ): Array<{ lat: number; lon: number }> {
   if (coordinates.length === 0) return []
-
-  // For MVP, just sample every Nth point
   const totalPoints = coordinates.length
-  const sampleEvery = Math.max(1, Math.floor(totalPoints / 10)) // Max 10 samples
-
+  const sampleEvery = Math.max(1, Math.floor(totalPoints / 10))
   return coordinates.filter((_, index) => index % sampleEvery === 0)
 }
 
-// Returns mutable references to all waypoint elements in extraction order (wpt first, then rtept)
 function getAllWaypointRefs(
   parsed: ReturnType<typeof xmlParser.parse>
 ): { array: unknown[]; localIndex: number }[] {
@@ -157,7 +142,6 @@ export function addWaypointToGpx(
   } else if (Array.isArray(parsed.gpx?.wpt)) {
     parsed.gpx.wpt.push(newPoint)
   } else {
-    // No existing waypoints — create a wpt array
     parsed.gpx.wpt = [newPoint]
   }
 
@@ -173,7 +157,7 @@ export function editWaypointInGpx(
   const refs = getAllWaypointRefs(parsed)
 
   if (index < 0 || index >= refs.length) {
-    throw new BadRequestError('Waypoint index out of bounds', codes.WRONG_GPX)
+    throw new Error('Waypoint index out of bounds')
   }
 
   const ref = refs[index]
@@ -196,7 +180,7 @@ export function deleteWaypointFromGpx(
   const refs = getAllWaypointRefs(parsed)
 
   if (index < 0 || index >= refs.length) {
-    throw new BadRequestError('Waypoint index out of bounds', codes.WRONG_GPX)
+    throw new Error('Waypoint index out of bounds')
   }
 
   const ref = refs[index]

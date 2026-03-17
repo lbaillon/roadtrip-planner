@@ -21,6 +21,14 @@ export const ParseGpxRequestSchema = z.object({
   gpxContent: z.string().min(1, 'GPX content cannot be empty'),
 })
 
+export const GetWeatherRequestSchema = z.object({
+  coordinates: z.array(z.object({ lat: z.number(), lon: z.number() })).min(1),
+})
+
+export const UpdateTrackGpxRequestSchema = z.object({
+  gpxContent: z.string().min(1, 'GPX content cannot be empty'),
+})
+
 export const CreateUserRequestSchema = z.object({
   email: z.string().min(1, 'Cannot be empty'),
   username: z.string().min(1, 'Cannot be empty'),
@@ -83,6 +91,8 @@ export const ParseGpxResponseSchema = z.object({
   weather: z.array(WeatherDataSchema),
 })
 
+export const GetWeatherResponseSchema = z.array(WeatherDataSchema)
+
 export const CreateResponseSchema = z.object({
   id: z.string(),
 })
@@ -122,3 +132,6 @@ export type UpdateTripTracksOrderRequest = z.infer<
   typeof UpdateTripTracksOrderRequestSchema
 >
 export type WaypointParams = z.infer<typeof WaypointParamsSchema>
+export type GetWeatherRequest = z.infer<typeof GetWeatherRequestSchema>
+export type GetWeatherResponse = z.infer<typeof GetWeatherResponseSchema>
+export type UpdateTrackGpxRequest = z.infer<typeof UpdateTrackGpxRequestSchema>
