@@ -34,19 +34,19 @@ export function GpxUploader({ onFileSelect }: GpxUploaderProps) {
     <>
       {contextHolder}
       <div onDrop={handleDrop} className={styles.upload}>
-      <input
-        type="file"
-        accept=".gpx"
-        onChange={handleFileInput}
-        style={{ display: 'none' }}
-        id="gpx-input"
-      />
-      <label htmlFor="gpx-input" className={styles.label}>
-        <div>
-          <p className={styles.textLabel}>Upload your GPX file here</p>
-        </div>
-      </label>
-    </div>
+        <input
+          type="file"
+          accept=".gpx"
+          onChange={handleFileInput}
+          style={{ display: 'none' }}
+          id="gpx-input"
+        />
+        <label htmlFor="gpx-input" className={styles.label}>
+          <div>
+            <p className={styles.textLabel}>Upload your GPX file here</p>
+          </div>
+        </label>
+      </div>
     </>
   )
 }

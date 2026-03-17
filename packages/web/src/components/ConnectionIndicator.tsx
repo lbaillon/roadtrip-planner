@@ -30,7 +30,9 @@ export default function ConnectionIndicator({ isSyncing }: Props) {
 
   if (pendingCount > 0)
     return (
-      <span className={styles.pending}>{pendingCount} change(s) pending sync</span>
+      <span className={styles.pending}>
+        {pendingCount} change(s) pending sync
+      </span>
     )
 
   return null
