@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { ParsedGpxSchema, WeatherDataSchema } from './validators.js'
+import { WeatherDataSchema } from './validators.js'
 
 // Params schemas
 
@@ -10,16 +10,7 @@ export const TrackOfTripParamsSchema = z.object({
   trackId: z.string().min(1, 'Cannot be empty'),
 })
 
-export const WaypointParamsSchema = z.object({
-  id: z.string(),
-  index: z.coerce.number().int().nonnegative(),
-})
-
 // Request schemas
-
-export const ParseGpxRequestSchema = z.object({
-  gpxContent: z.string().min(1, 'GPX content cannot be empty'),
-})
 
 export const GetWeatherRequestSchema = z.object({
   coordinates: z.array(z.object({ lat: z.number(), lon: z.number() })).min(1),
@@ -43,18 +34,6 @@ export const LogInRequestSchema = z.object({
 export const CreateTrackRequestSchema = z.object({
   name: z.string().optional(),
   gpxContent: z.string().min(1, 'GPX content cannot be empty'),
-})
-
-export const UpdateTrackRequestSchema = z.object({
-  lat: z.number(),
-  lon: z.number(),
-  name: z.string(),
-  description: z.string().optional(),
-})
-
-export const EditWaypointRequestSchema = z.object({
-  name: z.string(),
-  description: z.string().optional(),
 })
 
 export const UpdateUserRequestSchema = z.object({
@@ -86,11 +65,6 @@ export const UpdateTripTracksOrderRequestSchema = z.object({
 
 // Response schemas
 
-export const ParseGpxResponseSchema = z.object({
-  route: ParsedGpxSchema,
-  weather: z.array(WeatherDataSchema),
-})
-
 export const GetWeatherResponseSchema = z.array(WeatherDataSchema)
 
 export const CreateResponseSchema = z.object({
@@ -115,15 +89,11 @@ export type TrackSummary = { id: string; name: string }
 
 export type IdParams = z.infer<typeof IdParamsSchema>
 export type TrackOfTripParams = z.infer<typeof TrackOfTripParamsSchema>
-export type ParseGpxRequest = z.infer<typeof ParseGpxRequestSchema>
-export type ParseGpxResponse = z.infer<typeof ParseGpxResponseSchema>
 export type CreateUserRequest = z.infer<typeof CreateUserRequestSchema>
 export type CreateResponse = z.infer<typeof CreateResponseSchema>
 export type LogInRequest = z.infer<typeof LogInRequestSchema>
 export type LogInResponse = z.infer<typeof LogInResponseSchema>
 export type CreateTrackRequest = z.infer<typeof CreateTrackRequestSchema>
-export type UpdateTrackRequest = z.infer<typeof UpdateTrackRequestSchema>
-export type EditWaypointRequest = z.infer<typeof EditWaypointRequestSchema>
 export type UpdateUserRequest = z.infer<typeof UpdateUserRequestSchema>
 export type CreateTripRequest = z.infer<typeof CreateTripRequestSchema>
 export type GetTrackResponse = z.infer<typeof GetTrackResponseSchema>
@@ -131,7 +101,6 @@ export type AddTrackToTripRequest = z.infer<typeof AddTrackToTripRequestSchema>
 export type UpdateTripTracksOrderRequest = z.infer<
   typeof UpdateTripTracksOrderRequestSchema
 >
-export type WaypointParams = z.infer<typeof WaypointParamsSchema>
 export type GetWeatherRequest = z.infer<typeof GetWeatherRequestSchema>
 export type GetWeatherResponse = z.infer<typeof GetWeatherResponseSchema>
 export type UpdateTrackGpxRequest = z.infer<typeof UpdateTrackGpxRequestSchema>
