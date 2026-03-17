@@ -1,6 +1,6 @@
-import { fetchApi } from '#web/lib/api-client'
+import { fetchApi, refreshAccessToken } from '#web/lib/api-client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { clearQueue } from '../lib/mutation-queue'
 import { AuthContext } from './AuthContext'
 
@@ -32,6 +32,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
   }
+
+  // On mount, silently restore the access token from the refresh token cookie.
+  // Without this, accessToken stays null until a 401 triggers a refresh —
+  // which never happens on pages with no authenticated calls (e.g. Home).
+  useEffect(() => {
+    refreshAccessToken()
+      .then(setAccessToken)
+      .catch(() => {
+        // No valid refresh token — user needs to log in, nothing to do.
+      })
+  }, []) 
 
   const { mutate: logout } = useMutation({
     mutationFn: () =>

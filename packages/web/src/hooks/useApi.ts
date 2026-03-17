@@ -8,7 +8,7 @@ import {
 } from '@roadtrip/shared'
 import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-import { ApiError, fetchApi } from '../lib/api-client'
+import { ApiError, fetchApi, refreshAccessToken } from '../lib/api-client'
 import { useAuth } from './useAuth'
 
 export function useApi() {
@@ -25,15 +25,10 @@ export function useApi() {
       })
     } catch (error) {
       if (error instanceof ApiError && error.status === 401) {
+        let newAccessToken: string
         try {
-          const { accessToken } = await fetchApi<{ accessToken: string }>(
-            '/api/auth/refresh',
-            {
-              method: 'POST',
-              credentials: 'include',
-            }
-          )
-          setAccessToken(accessToken)
+          newAccessToken = await refreshAccessToken()
+          setAccessToken(newAccessToken)
         } catch (refreshError) {
           // Only log out if the refresh token itself is invalid (401).
           // A network error means we're offline — keep the user logged in
@@ -48,7 +43,7 @@ export function useApi() {
           ...options,
           headers: {
             ...options?.headers,
-            Authorization: `Bearer ${accessToken}`,
+            Authorization: `Bearer ${newAccessToken}`,
           },
         })
       }
