@@ -13,9 +13,7 @@ async function handleGetWeather(
   body: GetWeatherRequest
 ): Promise<GetWeatherResponse> {
   return Promise.all(
-    body.coordinates.map((point) =>
-      fetchWeatherForPoint(point.lat, point.lon)
-    )
+    body.coordinates.map((point) => fetchWeatherForPoint(point.lat, point.lon))
   )
 }
 

@@ -1,12 +1,20 @@
 import {
   type CreateResponse,
   type CreateTrackRequest,
-  type EditWaypointRequest,
   type GetTrackResponse,
+  type GetWeatherRequest,
+  type GetWeatherResponse,
   type TrackSummary,
-  type UpdateTrackRequest,
+  type UpdateTrackGpxRequest,
 } from '@roadtrip/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  addWaypointToGpx,
+  deleteWaypointFromGpx,
+  editWaypointInGpx,
+  parseGpxFile,
+  sampleRoutePoints,
+} from '../lib/gpx-utils'
 import { useApi } from './useApi'
 
 export function useCreateTrack() {
@@ -55,17 +63,80 @@ export function useGetTrack(id: string | undefined) {
   })
 }
 
+export function useGetParsedTrack(trackId: string | undefined) {
+  const { data: track } = useGetTrack(trackId)
+  return useQuery({
+    queryKey: ['tracks', trackId, 'parsed'],
+    queryFn: () => {
+      if (!track?.gpxContent) throw new Error('GPX content not available')
+      return parseGpxFile(track.gpxContent)
+    },
+    enabled: !!trackId && !!track?.gpxContent,
+    gcTime: 7 * 24 * 60 * 60 * 1000,
+    staleTime: Infinity,
+  })
+}
+
+export function useGetTrackWeather(trackId: string | undefined) {
+  const { data: parsed } = useGetParsedTrack(trackId)
+  const api = useApi()
+  const sampled = parsed ? sampleRoutePoints(parsed.coordinates) : undefined
+  return useQuery({
+    queryKey: ['tracks', trackId, 'weather'],
+    queryFn: () =>
+      api<GetWeatherResponse>('/api/weather', {
+        method: 'POST',
+        body: JSON.stringify({
+          coordinates: sampled!,
+        } satisfies GetWeatherRequest),
+      }),
+    enabled: !!trackId && !!sampled && sampled.length > 0,
+    gcTime: 48 * 60 * 60 * 1000,
+    staleTime: 60 * 60 * 1000,
+  })
+}
+
 export function useAddWaypoint(trackId: string) {
   const queryClient = useQueryClient()
   const api = useApi()
   return useMutation({
-    mutationFn: (request: UpdateTrackRequest) =>
-      api<void>(`/api/tracks/${trackId}/waypoints`, {
+    mutationFn: async (request: {
+      lat: number
+      lon: number
+      name: string
+      description?: string
+    }) => {
+      const track = queryClient.getQueryData<GetTrackResponse>([
+        'tracks',
+        trackId,
+      ])
+      if (!track?.gpxContent) throw new Error('Track GPX not available')
+      const updatedGpx = addWaypointToGpx(track.gpxContent, request)
+      await api<void>(`/api/tracks/${trackId}`, {
         method: 'PUT',
-        body: JSON.stringify(request),
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tracks', trackId] })
+        body: JSON.stringify({
+          gpxContent: updatedGpx,
+        } satisfies UpdateTrackGpxRequest),
+      })
+      return updatedGpx
+    },
+    onSuccess: async (updatedGpx) => {
+      const track = queryClient.getQueryData<GetTrackResponse>([
+        'tracks',
+        trackId,
+      ])
+      if (track) {
+        queryClient.setQueryData<GetTrackResponse>(['tracks', trackId], {
+          ...track,
+          gpxContent: updatedGpx,
+        })
+      }
+      await queryClient.invalidateQueries({
+        queryKey: ['tracks', trackId, 'parsed'],
+      })
+    },
+    onError: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['tracks', trackId] })
     },
   })
 }
@@ -74,13 +145,45 @@ export function useEditWaypoint(trackId: string) {
   const queryClient = useQueryClient()
   const api = useApi()
   return useMutation({
-    mutationFn: ({ index, ...data }: EditWaypointRequest & { index: number }) =>
-      api<void>(`/api/tracks/${trackId}/waypoints/${index}`, {
-        method: 'PATCH',
-        body: JSON.stringify(data),
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tracks', trackId] })
+    mutationFn: async (request: {
+      index: number
+      name: string
+      description?: string
+    }) => {
+      const track = queryClient.getQueryData<GetTrackResponse>([
+        'tracks',
+        trackId,
+      ])
+      if (!track?.gpxContent) throw new Error('Track GPX not available')
+      const updatedGpx = editWaypointInGpx(track.gpxContent, request.index, {
+        name: request.name,
+        description: request.description,
+      })
+      await api<void>(`/api/tracks/${trackId}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          gpxContent: updatedGpx,
+        } satisfies UpdateTrackGpxRequest),
+      })
+      return updatedGpx
+    },
+    onSuccess: async (updatedGpx) => {
+      const track = queryClient.getQueryData<GetTrackResponse>([
+        'tracks',
+        trackId,
+      ])
+      if (track) {
+        queryClient.setQueryData<GetTrackResponse>(['tracks', trackId], {
+          ...track,
+          gpxContent: updatedGpx,
+        })
+      }
+      await queryClient.invalidateQueries({
+        queryKey: ['tracks', trackId, 'parsed'],
+      })
+    },
+    onError:async () => {
+      await queryClient.invalidateQueries({ queryKey: ['tracks', trackId] })
     },
   })
 }
@@ -89,12 +192,38 @@ export function useDeleteWaypoint(trackId: string) {
   const queryClient = useQueryClient()
   const api = useApi()
   return useMutation({
-    mutationFn: (index: number) =>
-      api<void>(`/api/tracks/${trackId}/waypoints/${index}`, {
-        method: 'DELETE',
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tracks', trackId] })
+    mutationFn: async (index: number) => {
+      const track = queryClient.getQueryData<GetTrackResponse>([
+        'tracks',
+        trackId,
+      ])
+      if (!track?.gpxContent) throw new Error('Track GPX not available')
+      const updatedGpx = deleteWaypointFromGpx(track.gpxContent, index)
+      await api<void>(`/api/tracks/${trackId}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          gpxContent: updatedGpx,
+        } satisfies UpdateTrackGpxRequest),
+      })
+      return updatedGpx
+    },
+    onSuccess:async (updatedGpx) => {
+      const track = queryClient.getQueryData<GetTrackResponse>([
+        'tracks',
+        trackId,
+      ])
+      if (track) {
+        queryClient.setQueryData<GetTrackResponse>(['tracks', trackId], {
+          ...track,
+          gpxContent: updatedGpx,
+        })
+      }
+      await queryClient.invalidateQueries({
+        queryKey: ['tracks', trackId, 'parsed'],
+      })
+    },
+    onError:async () => {
+      await queryClient.invalidateQueries({ queryKey: ['tracks', trackId] })
     },
   })
 }

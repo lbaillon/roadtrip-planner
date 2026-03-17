@@ -3,15 +3,16 @@ import MapView from '#web/components/MapView'
 import { TimeSelector } from '#web/components/TimeSelector'
 import WaypointFormModal from '#web/components/WaypointFormModal'
 import { useAuth } from '#web/hooks/useAuth'
-import { useParseGpx } from '#web/hooks/useApi'
 import {
   useAddWaypoint,
   useDeleteWaypoint,
   useEditWaypoint,
+  useGetParsedTrack,
   useGetTrack,
+  useGetTrackWeather,
 } from '#web/hooks/useTracks'
-import { Button } from 'antd'
-import { Suspense, useEffect, useState } from 'react'
+import { Button, message } from 'antd'
+import { Suspense, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import styles from './TrackDetails.module.css'
 
@@ -29,33 +30,19 @@ export default function TrackDetails() {
   const [editingWaypoint, setEditingWaypoint] =
     useState<EditingWaypoint | null>(null)
 
+  const [messageApi, contextHolder] = message.useMessage()
   const { id } = useParams()
   const { accessToken } = useAuth()
+
   const { data: track } = useGetTrack(id)
+  const { data: parsed, isLoading: parsedLoading } = useGetParsedTrack(id)
+  const { data: weather, isLoading: weatherLoading } = useGetTrackWeather(id)
 
   const { mutate: addWaypoint, isPending: isAdding } = useAddWaypoint(id ?? '')
   const { mutate: editWaypoint, isPending: isEditing } = useEditWaypoint(
     id ?? ''
   )
   const { mutate: deleteWaypoint } = useDeleteWaypoint(id ?? '')
-
-  const {
-    mutate: uploadGpx,
-    data: routeData,
-    isPending: loading,
-    isError,
-    error,
-  } = useParseGpx()
-
-  useEffect(() => {
-    if (!track) {
-      return
-    }
-    uploadGpx(
-      { gpxContent: track.gpxContent },
-      { onError: (error) => alert(`Error: ${error.message}`) }
-    )
-  }, [track, uploadGpx])
 
   function handleMapClick(lat: number, lon: number) {
     setPendingClickCoords({ lat, lon })
@@ -74,7 +61,7 @@ export default function TrackDetails() {
 
   function handleDeleteWaypoint(index: number) {
     deleteWaypoint(index, {
-      onError: () => alert('Failed to delete waypoint'),
+      onError: () => messageApi.error('Failed to delete waypoint'),
     })
   }
 
@@ -91,7 +78,7 @@ export default function TrackDetails() {
             setIsModalOpen(false)
             setEditingWaypoint(null)
           },
-          onError: () => alert('Failed to edit waypoint'),
+          onError: () => messageApi.error('Failed to edit waypoint'),
         }
       )
     } else if (pendingClickCoords) {
@@ -106,7 +93,7 @@ export default function TrackDetails() {
             setIsModalOpen(false)
             setPendingClickCoords(null)
           },
-          onError: () => alert('Failed to add waypoint'),
+          onError: () => messageApi.error('Failed to add waypoint'),
         }
       )
     }
@@ -131,23 +118,19 @@ export default function TrackDetails() {
 
   return (
     <div className={styles.contentBox}>
-      {loading && (
+      {contextHolder}
+      {parsedLoading && (
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <p>Loading route and weather data...</p>
-        </div>
-      )}
-      {isError && (
-        <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <p>Error occurred: {error.message}</p>
+          <p>Loading route...</p>
         </div>
       )}
 
-      {routeData && (
+      {parsed && (
         <div className={styles.mapBox}>
-          <h2 className={styles.routeName}>{routeData.route.name}</h2>
-          {routeData.route.distance && (
+          <h2 className={styles.routeName}>{parsed.name}</h2>
+          {parsed.distance && (
             <p className={styles.routeName}>
-              Distance: {(routeData.route.distance / 1000).toFixed(2)} km
+              Distance: {(parsed.distance / 1000).toFixed(2)} km
             </p>
           )}
 
@@ -157,10 +140,10 @@ export default function TrackDetails() {
 
           <Suspense fallback={<div>Loading map...</div>}>
             <MapView
-              coordinates={routeData.route.coordinates}
-              weather={routeData.weather}
+              coordinates={parsed.coordinates}
+              weather={weather ?? []}
               timepointIndex={timepointIndex}
-              waypoints={routeData.route.waypoints}
+              waypoints={parsed.waypoints}
               isEditMode={isEditMode}
               showEditToggle={!!accessToken}
               onToggleEditMode={() => setIsEditMode((prev) => !prev)}
@@ -178,19 +161,29 @@ export default function TrackDetails() {
             loading={isAdding || isEditing}
           />
 
-          <TimeSelector
-            weather={routeData.weather}
-            setTimepointIndex={setTimepointIndex}
-            timepointIndex={timepointIndex}
-          />
+          {weatherLoading && !weather && (
+            <div style={{ textAlign: 'center', marginTop: '20px' }}>
+              <p>Loading weather data...</p>
+            </div>
+          )}
 
-          <h3 className={styles.humidityPlot}>Humidity Chart</h3>
+          {weather && (
+            <>
+              <TimeSelector
+                weather={weather}
+                setTimepointIndex={setTimepointIndex}
+                timepointIndex={timepointIndex}
+              />
 
-          <HumidityChart
-            coordinates={routeData.route.coordinates}
-            weather={routeData.weather}
-            timepointIndex={timepointIndex}
-          />
+              <h3 className={styles.humidityPlot}>Humidity Chart</h3>
+
+              <HumidityChart
+                coordinates={parsed.coordinates}
+                weather={weather}
+                timepointIndex={timepointIndex}
+              />
+            </>
+          )}
         </div>
       )}
     </div>

@@ -1,4 +1,8 @@
-import { ParsedGpxSchema, type GpxWaypoint, type ParsedGpx } from '@roadtrip/shared'
+import {
+  ParsedGpxSchema,
+  type GpxWaypoint,
+  type ParsedGpx,
+} from '@roadtrip/shared'
 import GpxParser from 'gpxparser'
 import { XMLBuilder, XMLParser } from 'fast-xml-parser'
 

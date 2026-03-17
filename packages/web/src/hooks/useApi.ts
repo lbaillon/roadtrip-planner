@@ -1,10 +1,10 @@
 import {
   type CreateResponse,
   type CreateUserRequest,
+  type GetWeatherRequest,
+  type GetWeatherResponse,
   type LogInRequest,
   type LogInResponse,
-  type ParseGpxRequest,
-  type ParseGpxResponse,
 } from '@roadtrip/shared'
 import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
@@ -51,11 +51,11 @@ export function useApi() {
   }
 }
 
-export function useParseGpx() {
+export function useGetWeather() {
   const api = useApi()
   return useMutation({
-    mutationFn: (request: ParseGpxRequest) =>
-      api<ParseGpxResponse>('/api/gpx', {
+    mutationFn: (request: GetWeatherRequest) =>
+      api<GetWeatherResponse>('/api/weather', {
         method: 'POST',
         body: JSON.stringify(request),
       }),

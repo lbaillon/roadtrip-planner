@@ -2,30 +2,45 @@ import { GpxUploader } from '#web/components/GpxUploader'
 import { HumidityChart } from '#web/components/HumidityChart'
 import { TimeSelector } from '#web/components/TimeSelector'
 import { Title } from '#web/components/Title'
-import { useParseGpx } from '#web/hooks/useApi'
+import { useGetWeather } from '#web/hooks/useApi'
+import type { ParsedGpx } from '@roadtrip/shared'
+import { message } from 'antd'
 import { lazy, Suspense, useState } from 'react'
+import { parseGpxFile, sampleRoutePoints } from '../lib/gpx-utils'
 import styles from './Home.module.css'
 const MapView = lazy(() => import('#web/components/MapView'))
 
 export default function Home() {
   const [timepointIndex, setTimepointIndex] = useState(0)
+  const [parsedGpx, setParsedGpx] = useState<ParsedGpx | null>(null)
+  const [messageApi, contextHolder] = message.useMessage()
 
   const {
-    mutate: uploadGpx,
-    data: routeData,
+    mutate: fetchWeather,
+    data: weather,
     isPending: loading,
     isError,
     error,
-  } = useParseGpx()
+  } = useGetWeather()
 
   const handleFileSelect = (content: string) => {
-    uploadGpx(
-      { gpxContent: content },
-      { onError: (error) => alert(`Error: ${error.message}`) }
-    )
+    try {
+      const parsed = parseGpxFile(content)
+      setParsedGpx(parsed)
+      fetchWeather(
+        { coordinates: sampleRoutePoints(parsed.coordinates) },
+        { onError: (err) => messageApi.error(`Error: ${err.message}`) }
+      )
+    } catch (e) {
+      messageApi.error(
+        e instanceof Error ? e.message : 'Failed to parse GPX file'
+      )
+    }
   }
+
   return (
     <>
+      {contextHolder}
       <Title />
       <div className={styles.contentBox}>
         <div className={styles.uploadBox}>
@@ -33,7 +48,7 @@ export default function Home() {
         </div>
         {loading && (
           <div style={{ textAlign: 'center', marginTop: '20px' }}>
-            <p>Loading route and weather data...</p>
+            <p>Loading weather data...</p>
           </div>
         )}
         {isError && (
@@ -42,37 +57,41 @@ export default function Home() {
           </div>
         )}
 
-        {routeData && (
+        {parsedGpx && (
           <div className={styles.mapBox}>
-            <h2 className={styles.routeName}>{routeData.route.name}</h2>
-            {routeData.route.distance && (
+            <h2 className={styles.routeName}>{parsedGpx.name}</h2>
+            {parsedGpx.distance && (
               <p className={styles.routeName}>
-                Distance: {(routeData.route.distance / 1000).toFixed(2)} km
+                Distance: {(parsedGpx.distance / 1000).toFixed(2)} km
               </p>
             )}
 
             <Suspense fallback={<div>Loading map...</div>}>
               <MapView
-                coordinates={routeData.route.coordinates}
-                weather={routeData.weather}
+                coordinates={parsedGpx.coordinates}
+                weather={weather ?? []}
                 timepointIndex={timepointIndex}
-                waypoints={routeData.route.waypoints}
+                waypoints={parsedGpx.waypoints}
               />
             </Suspense>
 
-            <TimeSelector
-              weather={routeData.weather}
-              setTimepointIndex={setTimepointIndex}
-              timepointIndex={timepointIndex}
-            />
+            {weather && (
+              <>
+                <TimeSelector
+                  weather={weather}
+                  setTimepointIndex={setTimepointIndex}
+                  timepointIndex={timepointIndex}
+                />
 
-            <h3 className={styles.humidityPlot}>Humidity Chart</h3>
+                <h3 className={styles.humidityPlot}>Humidity Chart</h3>
 
-            <HumidityChart
-              coordinates={routeData.route.coordinates}
-              weather={routeData.weather}
-              timepointIndex={timepointIndex}
-            />
+                <HumidityChart
+                  coordinates={parsedGpx.coordinates}
+                  weather={weather}
+                  timepointIndex={timepointIndex}
+                />
+              </>
+            )}
           </div>
         )}
       </div>
