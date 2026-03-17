@@ -1,12 +1,12 @@
 import { useHealth } from '#web/hooks/useHealth'
 import { useMutationQueue } from '#web/hooks/useMutationQueue'
-import styles from './ConnectionIndicator.module.css'
+import styles from './OfflineStatus.module.css'
 
 interface Props {
   isSyncing: boolean
 }
 
-export default function ConnectionIndicator({ isSyncing }: Props) {
+export default function OfflineStatus({ isSyncing }: Props) {
   const { isOnline, isServerReady } = useHealth()
   const { pendingCount } = useMutationQueue()
 

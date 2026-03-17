@@ -96,25 +96,20 @@ export function useGetTrackWeather(trackId: string | undefined) {
   })
 }
 
-export function useAddWaypoint(trackId: string) {
+function useGpxMutation<TRequest>(
+  trackId: string,
+  transform: (gpxContent: string, request: TRequest) => string
+) {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (request: {
-      lat: number
-      lon: number
-      name: string
-      description?: string
-    }) => {
+    mutationFn: async (request: TRequest) => {
       const track = queryClient.getQueryData<GetTrackResponse>([
         'tracks',
         trackId,
       ])
       if (!track?.gpxContent) throw new Error('Track GPX not available')
-      const updatedGpx = addWaypointToGpx(track.gpxContent, request)
-      await enqueueMutation('PUT_TRACK_GPX', {
-        trackId,
-        gpxContent: updatedGpx,
-      })
+      const updatedGpx = transform(track.gpxContent, request)
+      await enqueueMutation('PUT_TRACK_GPX', { trackId, gpxContent: updatedGpx })
       return updatedGpx
     },
     onSuccess: async (updatedGpx) => {
@@ -134,81 +129,25 @@ export function useAddWaypoint(trackId: string) {
       await queryClient.invalidateQueries({ queryKey: ['mutation-queue'] })
     },
   })
+}
+
+export function useAddWaypoint(trackId: string) {
+  return useGpxMutation<{ lat: number; lon: number; name: string; description?: string }>(
+    trackId,
+    (gpx, request) => addWaypointToGpx(gpx, request)
+  )
 }
 
 export function useEditWaypoint(trackId: string) {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: async (request: {
-      index: number
-      name: string
-      description?: string
-    }) => {
-      const track = queryClient.getQueryData<GetTrackResponse>([
-        'tracks',
-        trackId,
-      ])
-      if (!track?.gpxContent) throw new Error('Track GPX not available')
-      const updatedGpx = editWaypointInGpx(track.gpxContent, request.index, {
-        name: request.name,
-        description: request.description,
-      })
-      await enqueueMutation('PUT_TRACK_GPX', {
-        trackId,
-        gpxContent: updatedGpx,
-      })
-      return updatedGpx
-    },
-    onSuccess: async (updatedGpx) => {
-      const track = queryClient.getQueryData<GetTrackResponse>([
-        'tracks',
-        trackId,
-      ])
-      if (track) {
-        queryClient.setQueryData<GetTrackResponse>(['tracks', trackId], {
-          ...track,
-          gpxContent: updatedGpx,
-        })
-      }
-      await queryClient.invalidateQueries({
-        queryKey: ['tracks', trackId, 'parsed'],
-      })
-      await queryClient.invalidateQueries({ queryKey: ['mutation-queue'] })
-    },
-  })
+  return useGpxMutation<{ index: number; name: string; description?: string }>(
+    trackId,
+    (gpx, request) => editWaypointInGpx(gpx, request.index, { name: request.name, description: request.description })
+  )
 }
 
 export function useDeleteWaypoint(trackId: string) {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: async (index: number) => {
-      const track = queryClient.getQueryData<GetTrackResponse>([
-        'tracks',
-        trackId,
-      ])
-      if (!track?.gpxContent) throw new Error('Track GPX not available')
-      const updatedGpx = deleteWaypointFromGpx(track.gpxContent, index)
-      await enqueueMutation('PUT_TRACK_GPX', {
-        trackId,
-        gpxContent: updatedGpx,
-      })
-      return updatedGpx
-    },
-    onSuccess: async (updatedGpx) => {
-      const track = queryClient.getQueryData<GetTrackResponse>([
-        'tracks',
-        trackId,
-      ])
-      if (track) {
-        queryClient.setQueryData<GetTrackResponse>(['tracks', trackId], {
-          ...track,
-          gpxContent: updatedGpx,
-        })
-      }
-      await queryClient.invalidateQueries({
-        queryKey: ['tracks', trackId, 'parsed'],
-      })
-      await queryClient.invalidateQueries({ queryKey: ['mutation-queue'] })
-    },
-  })
+  return useGpxMutation<number>(
+    trackId,
+    (gpx, index) => deleteWaypointFromGpx(gpx, index)
+  )
 }

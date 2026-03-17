@@ -2,7 +2,7 @@ import Footer from '#web/components/Footer'
 import Header from '#web/components/Header'
 import { useNetworkSync } from '#web/hooks/useNetworkSync'
 import { Outlet } from 'react-router-dom'
-import ConnectionIndicator from './ConnectionIndicator'
+import OfflineStatus from './OfflineStatus'
 import styles from './MainLayout.module.css'
 
 export default function MainLayout() {
@@ -14,7 +14,7 @@ export default function MainLayout() {
         <Outlet />
       </main>
       <Footer>
-        <ConnectionIndicator isSyncing={isSyncing} />
+        <OfflineStatus isSyncing={isSyncing} />
       </Footer>
     </>
   )

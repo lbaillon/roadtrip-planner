@@ -1,3 +1,4 @@
+import { useHealth } from '#web/hooks/useHealth'
 import { useCreateTrack } from '#web/hooks/useTracks'
 import {
   Button,
@@ -5,6 +6,7 @@ import {
   Input,
   message,
   Modal,
+  Tooltip,
   Upload,
   type UploadFile,
 } from 'antd'
@@ -20,6 +22,7 @@ export default function NewTrackModal() {
   const [open, setOpen] = useState(false)
   const { mutate: createTrack, isPending } = useCreateTrack()
   const [messageApi, contextHolder] = message.useMessage()
+  const { isReady } = useHealth()
 
   const handleSubmit = async (values: FormValues) => {
     const file = values.file?.[0]?.originFileObj
@@ -47,13 +50,16 @@ export default function NewTrackModal() {
   return (
     <>
       {contextHolder}
-      <Button
-        type="primary"
-        onClick={() => setOpen(true)}
-        className={styles.modalButton}
-      >
-        Upload new track
-      </Button>
+      <Tooltip title={!isReady ? 'Unavailable offline' : undefined}>
+        <Button
+          type="primary"
+          onClick={() => setOpen(true)}
+          disabled={!isReady}
+          className={styles.modalButton}
+        >
+          Upload new track
+        </Button>
+      </Tooltip>
       <Modal
         title="New track"
         open={open}

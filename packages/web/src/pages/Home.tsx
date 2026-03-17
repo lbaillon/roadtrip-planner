@@ -3,6 +3,7 @@ import { HumidityChart } from '#web/components/HumidityChart'
 import { TimeSelector } from '#web/components/TimeSelector'
 import { Title } from '#web/components/Title'
 import { useGetWeather } from '#web/hooks/useApi'
+import { useHealth } from '#web/hooks/useHealth'
 import type { ParsedGpx } from '@roadtrip/shared'
 import { message } from 'antd'
 import { lazy, Suspense, useState } from 'react'
@@ -14,6 +15,7 @@ export default function Home() {
   const [timepointIndex, setTimepointIndex] = useState(0)
   const [parsedGpx, setParsedGpx] = useState<ParsedGpx | null>(null)
   const [messageApi, contextHolder] = message.useMessage()
+  const { isReady } = useHealth()
 
   const {
     mutate: fetchWeather,
@@ -44,7 +46,11 @@ export default function Home() {
       <Title />
       <div className={styles.contentBox}>
         <div className={styles.uploadBox}>
-          <GpxUploader onFileSelect={handleFileSelect} />
+          {isReady ? (
+            <GpxUploader onFileSelect={handleFileSelect} />
+          ) : (
+            <p>GPX preview is unavailable offline.</p>
+          )}
         </div>
         {loading && (
           <div style={{ textAlign: 'center', marginTop: '20px' }}>

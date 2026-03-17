@@ -57,15 +57,23 @@ export function useNetworkSync() {
   }, [api, queryClient])
 
   useEffect(() => {
-    window.addEventListener('online', flush)
+    // When the device comes online, force an immediate health re-check rather
+    // than waiting for the next poll interval. The flush itself is triggered
+    // below when isReady becomes true — navigator.onLine alone is not enough
+    // since the server may still be starting up (cold start).
+    const onOnline = async () => {
+      await queryClient.invalidateQueries({ queryKey: ['/health'] })
+    }
+    window.addEventListener('online', onOnline)
     window.addEventListener('mutation-enqueued', flush)
     return () => {
-      window.removeEventListener('online', flush)
+      window.removeEventListener('online', onOnline)
       window.removeEventListener('mutation-enqueued', flush)
     }
-  }, [flush])
+  }, [flush, queryClient])
 
-  // Also flush when the server becomes reachable (e.g. after a cold start)
+  // Flush when the server becomes ready (network back + health check passed).
+  // This is the single trigger for syncing pending mutations on reconnection.
   useEffect(() => {
     if (isReady) void flush()
   }, [isReady, flush])
