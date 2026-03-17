@@ -109,7 +109,10 @@ function useGpxMutation<TRequest>(
       ])
       if (!track?.gpxContent) throw new Error('Track GPX not available')
       const updatedGpx = transform(track.gpxContent, request)
-      await enqueueMutation('PUT_TRACK_GPX', { trackId, gpxContent: updatedGpx })
+      await enqueueMutation('PUT_TRACK_GPX', {
+        trackId,
+        gpxContent: updatedGpx,
+      })
       return updatedGpx
     },
     onSuccess: async (updatedGpx) => {
@@ -132,22 +135,27 @@ function useGpxMutation<TRequest>(
 }
 
 export function useAddWaypoint(trackId: string) {
-  return useGpxMutation<{ lat: number; lon: number; name: string; description?: string }>(
-    trackId,
-    (gpx, request) => addWaypointToGpx(gpx, request)
-  )
+  return useGpxMutation<{
+    lat: number
+    lon: number
+    name: string
+    description?: string
+  }>(trackId, (gpx, request) => addWaypointToGpx(gpx, request))
 }
 
 export function useEditWaypoint(trackId: string) {
   return useGpxMutation<{ index: number; name: string; description?: string }>(
     trackId,
-    (gpx, request) => editWaypointInGpx(gpx, request.index, { name: request.name, description: request.description })
+    (gpx, request) =>
+      editWaypointInGpx(gpx, request.index, {
+        name: request.name,
+        description: request.description,
+      })
   )
 }
 
 export function useDeleteWaypoint(trackId: string) {
-  return useGpxMutation<number>(
-    trackId,
-    (gpx, index) => deleteWaypointFromGpx(gpx, index)
+  return useGpxMutation<number>(trackId, (gpx, index) =>
+    deleteWaypointFromGpx(gpx, index)
   )
 }
