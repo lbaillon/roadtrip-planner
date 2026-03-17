@@ -34,9 +34,15 @@ export function useApi() {
             }
           )
           setAccessToken(accessToken)
-        } catch {
-          logout()
-          navigate('/login')
+        } catch (refreshError) {
+          // Only log out if the refresh token itself is invalid (401).
+          // A network error means we're offline — keep the user logged in
+          // so queued mutations can be replayed when connectivity returns.
+          if (refreshError instanceof ApiError && refreshError.status === 401) {
+            logout()
+            navigate('/login')
+          }
+          throw refreshError
         }
         return await fetchApi(url, {
           ...options,

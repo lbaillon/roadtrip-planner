@@ -5,7 +5,6 @@ import {
   type GetWeatherRequest,
   type GetWeatherResponse,
   type TrackSummary,
-  type UpdateTrackGpxRequest,
 } from '@roadtrip/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
@@ -15,6 +14,7 @@ import {
   parseGpxFile,
   sampleRoutePoints,
 } from '../lib/gpx-utils'
+import { enqueueMutation } from '../lib/mutation-queue'
 import { useApi } from './useApi'
 
 export function useCreateTrack() {
@@ -98,7 +98,6 @@ export function useGetTrackWeather(trackId: string | undefined) {
 
 export function useAddWaypoint(trackId: string) {
   const queryClient = useQueryClient()
-  const api = useApi()
   return useMutation({
     mutationFn: async (request: {
       lat: number
@@ -112,11 +111,9 @@ export function useAddWaypoint(trackId: string) {
       ])
       if (!track?.gpxContent) throw new Error('Track GPX not available')
       const updatedGpx = addWaypointToGpx(track.gpxContent, request)
-      await api<void>(`/api/tracks/${trackId}`, {
-        method: 'PUT',
-        body: JSON.stringify({
-          gpxContent: updatedGpx,
-        } satisfies UpdateTrackGpxRequest),
+      await enqueueMutation('PUT_TRACK_GPX', {
+        trackId,
+        gpxContent: updatedGpx,
       })
       return updatedGpx
     },
@@ -134,16 +131,13 @@ export function useAddWaypoint(trackId: string) {
       await queryClient.invalidateQueries({
         queryKey: ['tracks', trackId, 'parsed'],
       })
-    },
-    onError: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['tracks', trackId] })
+      await queryClient.invalidateQueries({ queryKey: ['mutation-queue'] })
     },
   })
 }
 
 export function useEditWaypoint(trackId: string) {
   const queryClient = useQueryClient()
-  const api = useApi()
   return useMutation({
     mutationFn: async (request: {
       index: number
@@ -159,11 +153,9 @@ export function useEditWaypoint(trackId: string) {
         name: request.name,
         description: request.description,
       })
-      await api<void>(`/api/tracks/${trackId}`, {
-        method: 'PUT',
-        body: JSON.stringify({
-          gpxContent: updatedGpx,
-        } satisfies UpdateTrackGpxRequest),
+      await enqueueMutation('PUT_TRACK_GPX', {
+        trackId,
+        gpxContent: updatedGpx,
       })
       return updatedGpx
     },
@@ -181,16 +173,13 @@ export function useEditWaypoint(trackId: string) {
       await queryClient.invalidateQueries({
         queryKey: ['tracks', trackId, 'parsed'],
       })
-    },
-    onError:async () => {
-      await queryClient.invalidateQueries({ queryKey: ['tracks', trackId] })
+      await queryClient.invalidateQueries({ queryKey: ['mutation-queue'] })
     },
   })
 }
 
 export function useDeleteWaypoint(trackId: string) {
   const queryClient = useQueryClient()
-  const api = useApi()
   return useMutation({
     mutationFn: async (index: number) => {
       const track = queryClient.getQueryData<GetTrackResponse>([
@@ -199,15 +188,13 @@ export function useDeleteWaypoint(trackId: string) {
       ])
       if (!track?.gpxContent) throw new Error('Track GPX not available')
       const updatedGpx = deleteWaypointFromGpx(track.gpxContent, index)
-      await api<void>(`/api/tracks/${trackId}`, {
-        method: 'PUT',
-        body: JSON.stringify({
-          gpxContent: updatedGpx,
-        } satisfies UpdateTrackGpxRequest),
+      await enqueueMutation('PUT_TRACK_GPX', {
+        trackId,
+        gpxContent: updatedGpx,
       })
       return updatedGpx
     },
-    onSuccess:async (updatedGpx) => {
+    onSuccess: async (updatedGpx) => {
       const track = queryClient.getQueryData<GetTrackResponse>([
         'tracks',
         trackId,
@@ -221,9 +208,7 @@ export function useDeleteWaypoint(trackId: string) {
       await queryClient.invalidateQueries({
         queryKey: ['tracks', trackId, 'parsed'],
       })
-    },
-    onError:async () => {
-      await queryClient.invalidateQueries({ queryKey: ['tracks', trackId] })
+      await queryClient.invalidateQueries({ queryKey: ['mutation-queue'] })
     },
   })
 }
