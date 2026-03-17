@@ -126,9 +126,13 @@ function useGpxMutation<TRequest>(
           gpxContent: updatedGpx,
         })
       }
-      await queryClient.invalidateQueries({
-        queryKey: ['tracks', trackId, 'parsed'],
-      })
+      // Set the parsed result directly instead of invalidating — invalidating
+      // would refetch using a stale closure of `track` in useGetParsedTrack
+      // (the component hasn't re-rendered yet with the new gpxContent).
+      queryClient.setQueryData(
+        ['tracks', trackId, 'parsed'],
+        parseGpxFile(updatedGpx)
+      )
       await queryClient.invalidateQueries({ queryKey: ['mutation-queue'] })
     },
   })
