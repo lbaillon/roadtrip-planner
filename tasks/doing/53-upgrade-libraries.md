@@ -8,7 +8,7 @@ The goal here is to take a critical look at our codebase and assess our choices.
 
 ## Description
 
-There are several paths to explore here. The first is a general assessment of our whole codebase and what could be done better, with an emphasis on how to simplify things and make it easy to manage in the future. The second is to upgrade our libraries and make sure everything works correctly. I am especially motivated to upgrade Vite with the latest release of Vite 8.0. Third and finally, I want to improve our design system. For example, I want all colors and general settings to be defined in `:root` in index.css so that CSS variables are used in the rest of the code. There are more things to do than just that, be critical and explore the best ways to improve our design system.
+There are several paths to explore here. The first is a general assessment of our whole codebase and what could be done better, with an emphasis on how to simplify things and make it easy to manage in the future. The second is to upgrade our libraries and make sure everything works correctly. I am especially motivated to upgrade Vite with the latest release of Vite 8.0. Third and finally, I want to improve our design system. For example, I want all colors and general settings to be defined in `:root` in index.css so that CSS variables are used in the rest of the code. Also, having the color in the name defeats the purpose of naming them with primary/secondary/success/error, their names should be agnostic of the color to allow an easy switch between themes. There are more things to do than just that, be critical and explore the best ways to improve our design system.
 
 ## Notes
 
