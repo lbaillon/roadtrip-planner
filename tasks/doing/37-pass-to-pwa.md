@@ -319,3 +319,17 @@ Polishes the offline experience.
 Can be done anytime after PR 1. Defer if CartoCDN CORS blocks it.
 
 - Workbox `runtimeCaching` for CartoCDN tiles
+
+---
+
+**PR 8 — `pwa/cleanup`** — depends on PR 3
+
+Final cleanup once all PRs are merged and the old hooks/endpoints are gone.
+
+- Remove dead schemas and types from `@roadtrip/shared`:
+  - `ParseGpxRequestSchema`, `ParseGpxRequest`
+  - `ParseGpxResponseSchema`, `ParseGpxResponse`
+  - `UpdateTrackRequestSchema`, `UpdateTrackRequest`
+  - `EditWaypointRequestSchema`, `EditWaypointRequest`
+  - `WaypointParamsSchema`, `WaypointParams`
+- Rebuild shared (`pnpm --filter @roadtrip/shared build`) and verify nothing imports these anymore
