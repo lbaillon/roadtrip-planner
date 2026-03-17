@@ -3,7 +3,6 @@ import SignUp from '#web/components/SignUp'
 import { Route, Routes } from 'react-router-dom'
 import MainLayout from './components/MainLayout'
 import SWUpdatePrompt from './components/SWUpdatePrompt'
-import { useNetworkSync } from './hooks/useNetworkSync'
 import Home from './pages/Home'
 import TrackDetails from './pages/TrackDetails'
 import Tracks from './pages/Tracks'
@@ -12,7 +11,6 @@ import Trips from './pages/Trips'
 import About from './pages/About'
 
 export default function App() {
-  useNetworkSync()
   return (
     <>
       <SWUpdatePrompt />

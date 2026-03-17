@@ -1,7 +1,14 @@
-.ok {
-  color:green
+.offline {
+  color: var(--warning-orange);
+  font-size: 0.85rem;
 }
 
-.ko {
-  color:red
+.pending {
+  color: var(--info-blue);
+  font-size: 0.85rem;
+}
+
+.syncing {
+  color: var(--info-blue);
+  font-size: 0.85rem;
 }

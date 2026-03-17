@@ -7,6 +7,7 @@ import {
   type PutTrackGpxPayload,
 } from '../lib/mutation-queue'
 import { useApi } from './useApi'
+import { useHealth } from './useHealth'
 
 export function useNetworkSync() {
   const api = useApi()
@@ -15,9 +16,14 @@ export function useNetworkSync() {
   // Ref (not state) so the guard is visible synchronously on the next call,
   // before React batches state updates. Prevents concurrent flushes.
   const isSyncingRef = useRef(false)
+  const { isReady } = useHealth()
+  const isReadyRef = useRef(isReady)
+  useEffect(() => {
+    isReadyRef.current = isReady
+  }, [isReady])
 
   const flush = useCallback(async () => {
-    if (isSyncingRef.current || !navigator.onLine) return
+    if (isSyncingRef.current || !isReadyRef.current) return
     const mutations = await getMutations()
     if (mutations.length === 0) return
 
@@ -53,12 +59,16 @@ export function useNetworkSync() {
   useEffect(() => {
     window.addEventListener('online', flush)
     window.addEventListener('mutation-enqueued', flush)
-    if (navigator.onLine) void flush()
     return () => {
       window.removeEventListener('online', flush)
       window.removeEventListener('mutation-enqueued', flush)
     }
   }, [flush])
+
+  // Also flush when the server becomes reachable (e.g. after a cold start)
+  useEffect(() => {
+    if (isReady) void flush()
+  }, [isReady, flush])
 
   return { isSyncing }
 }
