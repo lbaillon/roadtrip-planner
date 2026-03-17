@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .catch(() => {
         // No valid refresh token — user needs to log in, nothing to do.
       })
-  }, []) 
+  }, [])
 
   const { mutate: logout } = useMutation({
     mutationFn: () =>
