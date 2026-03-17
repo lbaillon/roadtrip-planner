@@ -64,6 +64,7 @@ router.post('/refresh', async (req, res) => {
   const refreshToken = req.cookies?.refreshToken
   if (!refreshToken) {
     res.status(401).json({ message: 'Missing refresh token' })
+    return
   }
   try {
     const payload = await verifyToken(refreshToken)
