@@ -20,7 +20,6 @@ export function refreshAccessToken(): Promise<string> {
   if (!pendingRefresh) {
     pendingRefresh = fetchApi<{ accessToken: string }>('/api/auth/refresh', {
       method: 'POST',
-      credentials: 'include',
     })
       .then((data) => data.accessToken)
       .finally(() => {
