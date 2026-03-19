@@ -1,5 +1,4 @@
-import LogIn from '#web/components/LogIn'
-import SignUp from '#web/components/SignUp'
+import AuthForm from '#web/components/AuthForm'
 import { Route, Routes } from 'react-router-dom'
 import MainLayout from './components/MainLayout'
 import SWUpdatePrompt from './components/SWUpdatePrompt'
@@ -17,8 +16,8 @@ export default function App() {
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
-          <Route path="/login" element={<LogIn />} />
-          <Route path="/signup" element={<SignUp />} />
+          <Route path="/login" element={<AuthForm mode="login" />} />
+          <Route path="/signup" element={<AuthForm mode="signup" />} />
           <Route path="/tracks" element={<Tracks />} />
           <Route path="/tracks/:id" element={<TrackDetails />} />
           <Route path="/trips" element={<Trips />} />
