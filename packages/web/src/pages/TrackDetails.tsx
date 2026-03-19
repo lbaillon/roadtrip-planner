@@ -1,5 +1,4 @@
 import { HumidityChart } from '#web/components/HumidityChart'
-import MapView from '#web/components/MapView'
 import { TimeSelector } from '#web/components/TimeSelector'
 import WaypointFormModal from '#web/components/WaypointFormModal'
 import { useAuth } from '#web/hooks/useAuth'
@@ -12,9 +11,11 @@ import {
   useGetTrackWeather,
 } from '#web/hooks/useTracks'
 import { Button, message } from 'antd'
-import { Suspense, useState } from 'react'
+import { Suspense, lazy, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import styles from './TrackDetails.module.css'
+
+const MapView = lazy(() => import('#web/components/MapView'))
 
 type WaypointFormData = { name: string; description?: string }
 type EditingWaypoint = { index: number } & WaypointFormData
