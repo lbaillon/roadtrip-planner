@@ -4,6 +4,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App.tsx'
+import { theme } from './lib/theme'
 import { AuthProvider } from './contexts/AuthProvider.tsx'
 import './index.css'
 import { persister } from './lib/persister'
@@ -20,8 +21,8 @@ createRoot(document.getElementById('root')!).render(
           <ConfigProvider
             theme={{
               token: {
-                colorPrimary: '#184c45',
-                colorPrimaryHover: '#4f7a67',
+                colorPrimary: theme.primary,
+                colorPrimaryHover: theme.secondary,
               },
             }}
           >

@@ -23,6 +23,7 @@ h3 {
   margin-bottom: 15px;
 }
 
+/* Brand colors (--primary-green, --secondary-green) must stay in sync with src/lib/theme.ts */
 :root {
   --header-height: 60px;
   --primary-green: #184c45;
