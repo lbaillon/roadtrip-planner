@@ -2,34 +2,41 @@ import { JWTPayload } from '#api/services/authentication.js'
 import { NextFunction, Request, Response } from 'express'
 import { z } from 'zod'
 
-type HandlerArgs<TQuery, TParams, TBody> = (TQuery extends void
-  ? Record<string, never>
-  : { query: TQuery }) &
-  (TParams extends void ? Record<string, never> : { params: TParams }) &
-  (TBody extends void ? Record<string, never> : { body: TBody }) & {
+type HandlerArgs<TQuery, TParams, TBody> = (TQuery extends void ? object : { query: TQuery }) &
+  (TParams extends void ? object : { params: TParams }) &
+  (TBody extends void ? object : { body: TBody }) & {
     user?: JWTPayload
   }
 
 const emptyObjectSchema = z.object({}).strict()
+type VoidSchema = z.ZodVoid
 
-export function processPost<TBody = void, TParams = void, TOutput = unknown>({
+export function processPost<
+  TBodySchema extends z.ZodType,
+  TParamsSchema extends z.ZodType = VoidSchema,
+  TOutput = unknown,
+>({
   bodySchema,
-  paramsSchema = emptyObjectSchema as unknown as z.ZodSchema<TParams>,
+  paramsSchema = emptyObjectSchema as unknown as TParamsSchema,
   handler,
 }: {
-  bodySchema: z.ZodSchema<TBody>
-  paramsSchema?: z.ZodSchema<TParams>
-  handler: (args: HandlerArgs<void, TParams, TBody>) => Promise<TOutput>
+  bodySchema: TBodySchema
+  paramsSchema?: TParamsSchema
+  handler: (
+    args: HandlerArgs<void, z.infer<TParamsSchema>, z.infer<TBodySchema>>
+  ) => Promise<TOutput>
 }) {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const validatedBody = bodySchema.parse(req.body) // validate input body using zod to parse with schema
-      const validatedParams = paramsSchema.parse(req.params)
+      const validatedBody = bodySchema.parse(req.body) as z.infer<TBodySchema>
+      const validatedParams = paramsSchema.parse(
+        req.params
+      ) as z.infer<TParamsSchema>
       const args = {
         ...(validatedBody !== undefined && { body: validatedBody }),
         ...(validatedParams !== undefined && { params: validatedParams }),
         user: req.user,
-      } as HandlerArgs<void, TParams, TBody>
+      } as HandlerArgs<void, z.infer<TParamsSchema>, z.infer<TBodySchema>>
       const result = await handler(args)
       res.status(201).json(result)
     } catch (error) {
@@ -38,24 +45,34 @@ export function processPost<TBody = void, TParams = void, TOutput = unknown>({
   }
 }
 
-export function processGet<TQuery = void, TParams = void, TOutput = unknown>({
-  querySchema = emptyObjectSchema as unknown as z.ZodSchema<TQuery>,
-  paramsSchema = emptyObjectSchema as unknown as z.ZodSchema<TParams>,
+export function processGet<
+  TQuerySchema extends z.ZodType = VoidSchema,
+  TParamsSchema extends z.ZodType = VoidSchema,
+  TOutput = unknown,
+>({
+  querySchema = emptyObjectSchema as unknown as TQuerySchema,
+  paramsSchema = emptyObjectSchema as unknown as TParamsSchema,
   handler,
 }: {
-  querySchema?: z.ZodSchema<TQuery>
-  paramsSchema?: z.ZodSchema<TParams>
-  handler: (args: HandlerArgs<TQuery, TParams, void>) => Promise<TOutput>
+  querySchema?: TQuerySchema
+  paramsSchema?: TParamsSchema
+  handler: (
+    args: HandlerArgs<z.infer<TQuerySchema>, z.infer<TParamsSchema>, void>
+  ) => Promise<TOutput>
 }) {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const validatedQuery = querySchema.parse(req.query)
-      const validatedParams = paramsSchema.parse(req.params)
+      const validatedQuery = querySchema.parse(
+        req.query
+      ) as z.infer<TQuerySchema>
+      const validatedParams = paramsSchema.parse(
+        req.params
+      ) as z.infer<TParamsSchema>
       const args = {
         ...(validatedQuery !== undefined && { query: validatedQuery }),
         ...(validatedParams !== undefined && { params: validatedParams }),
         user: req.user,
-      } as HandlerArgs<TQuery, TParams, void>
+      } as HandlerArgs<z.infer<TQuerySchema>, z.infer<TParamsSchema>, void>
       const result = await handler(args)
       res.status(200).json(result)
     } catch (error) {
@@ -64,20 +81,24 @@ export function processGet<TQuery = void, TParams = void, TOutput = unknown>({
   }
 }
 
-export function processDelete<TParams>({
+export function processDelete<TParamsSchema extends z.ZodType>({
   paramsSchema,
   handler,
 }: {
-  paramsSchema: z.ZodSchema<TParams>
-  handler: (args: HandlerArgs<void, TParams, void>) => Promise<void>
+  paramsSchema: TParamsSchema
+  handler: (
+    args: HandlerArgs<void, z.infer<TParamsSchema>, void>
+  ) => Promise<void>
 }) {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const validatedParams = paramsSchema.parse(req.params)
+      const validatedParams = paramsSchema.parse(
+        req.params
+      ) as z.infer<TParamsSchema>
       const args = {
-        ...(validatedParams !== undefined && { params: validatedParams }),
+        params: validatedParams,
         user: req.user,
-      } as HandlerArgs<void, TParams, void>
+      } as unknown as HandlerArgs<void, z.infer<TParamsSchema>, void>
       await handler(args)
       return res.status(204).send()
     } catch (error) {
@@ -86,24 +107,31 @@ export function processDelete<TParams>({
   }
 }
 
-export function processPut<TBody = void, TParams = void>({
+export function processPut<
+  TBodySchema extends z.ZodType,
+  TParamsSchema extends z.ZodType = VoidSchema,
+>({
   bodySchema,
-  paramsSchema = emptyObjectSchema as unknown as z.ZodSchema<TParams>,
+  paramsSchema = emptyObjectSchema as unknown as TParamsSchema,
   handler,
 }: {
-  bodySchema: z.ZodSchema<TBody>
-  paramsSchema?: z.ZodSchema<TParams>
-  handler: (args: HandlerArgs<void, TParams, TBody>) => Promise<void>
+  bodySchema: TBodySchema
+  paramsSchema?: TParamsSchema
+  handler: (
+    args: HandlerArgs<void, z.infer<TParamsSchema>, z.infer<TBodySchema>>
+  ) => Promise<void>
 }) {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const validatedBody = bodySchema.parse(req.body)
-      const validatedParams = paramsSchema.parse(req.params)
+      const validatedBody = bodySchema.parse(req.body) as z.infer<TBodySchema>
+      const validatedParams = paramsSchema.parse(
+        req.params
+      ) as z.infer<TParamsSchema>
       const args = {
         ...(validatedBody !== undefined && { body: validatedBody }),
         ...(validatedParams !== undefined && { params: validatedParams }),
         user: req.user,
-      } as HandlerArgs<void, TParams, TBody>
+      } as HandlerArgs<void, z.infer<TParamsSchema>, z.infer<TBodySchema>>
       await handler(args)
       res.status(204).send()
     } catch (error) {
@@ -112,24 +140,31 @@ export function processPut<TBody = void, TParams = void>({
   }
 }
 
-export function processPatch<TBody = void, TParams = void>({
+export function processPatch<
+  TBodySchema extends z.ZodType,
+  TParamsSchema extends z.ZodType = VoidSchema,
+>({
   bodySchema,
-  paramsSchema = emptyObjectSchema as unknown as z.ZodSchema<TParams>,
+  paramsSchema = emptyObjectSchema as unknown as TParamsSchema,
   handler,
 }: {
-  bodySchema: z.ZodSchema<TBody>
-  paramsSchema?: z.ZodSchema<TParams>
-  handler: (args: HandlerArgs<void, TParams, TBody>) => Promise<void>
+  bodySchema: TBodySchema
+  paramsSchema?: TParamsSchema
+  handler: (
+    args: HandlerArgs<void, z.infer<TParamsSchema>, z.infer<TBodySchema>>
+  ) => Promise<void>
 }) {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const validatedBody = bodySchema.parse(req.body)
-      const validatedParams = paramsSchema.parse(req.params)
+      const validatedBody = bodySchema.parse(req.body) as z.infer<TBodySchema>
+      const validatedParams = paramsSchema.parse(
+        req.params
+      ) as z.infer<TParamsSchema>
       const args = {
         ...(validatedBody !== undefined && { body: validatedBody }),
         ...(validatedParams !== undefined && { params: validatedParams }),
         user: req.user,
-      } as HandlerArgs<void, TParams, TBody>
+      } as HandlerArgs<void, z.infer<TParamsSchema>, z.infer<TBodySchema>>
       await handler(args)
       res.status(204).send()
     } catch (error) {

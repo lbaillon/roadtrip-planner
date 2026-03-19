@@ -23,7 +23,7 @@ export function errorHandler(
     return res.status(400).json({
       error: 'Validation error',
       code: 'VALIDATION_ERROR',
-      details: error.errors,
+      details: error.issues,
     })
   }
   return res.status(500).json({
