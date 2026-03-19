@@ -13,7 +13,6 @@ export function GpxUploader({ onFileSelect }: GpxUploaderProps) {
       messageApi.error('Please upload a GPX file')
       return
     }
-
     const content = await file.text()
     onFileSelect(content)
   }
