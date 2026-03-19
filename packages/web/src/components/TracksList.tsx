@@ -1,5 +1,5 @@
 import type { DragEndEvent } from '@dnd-kit/core'
-import { DndContext, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
+import { DndContext, MouseSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core'
 import {
   arrayMove,
   SortableContext,
@@ -79,7 +79,12 @@ export default function TracksList({
   onReorder?: (trackIds: string[]) => void
 }) {
   const [items, setItems] = useState(tracks)
-  const sensors = useSensors(useSensor(PointerSensor))
+  const sensors = useSensors(
+    useSensor(MouseSensor),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 250, tolerance: 5 },
+    })
+  )
 
   useEffect(() => {
     // Allow to synchronize state with server response
