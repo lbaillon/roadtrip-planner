@@ -5,23 +5,23 @@
   padding: 40px;
   justify-content: space-around;
   align-items: center;
-  background-color: color-mix(in srgb, var(--secondary-grey) 50%, transparent);
+  background-color: color-mix(in srgb, var(--surface) 50%, transparent);
 }
 
 .inputBox :global(.ant-form-item-label > label) {
-  color: var(--primary-green);
+  color: var(--primary);
   font-weight: 600;
 }
 
 .inputBox :global(.ant-form-item-explain-error) {
-  color: var(--error-red);
+  color: var(--error);
 }
 
 .button {
   margin-top: 20px;
   border-radius: 20px;
   cursor: pointer;
-  color: var(--secondary-grey);
+  color: var(--surface);
 }
 
 .button:active {

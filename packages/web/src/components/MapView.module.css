@@ -10,11 +10,10 @@
   cursor: pointer;
   width: 50px;
   height: 50px;
-  background-color:  color-mix(in srgb, var(--primary-grey) 30%, transparent);
+  background-color:  color-mix(in srgb, var(--muted) 30%, transparent);
   border-radius: 25px;
 }
 
-/* Toggle géolocalisation */
 .locationToggle {
   position: absolute;
   top: 12px;
@@ -57,7 +56,7 @@
 }
 
 .toggleActive .toggleTrack {
-  background: #239182;
+  background: var(--primary-light);
 }
 
 .toggleThumb {
@@ -155,8 +154,8 @@
 }
 
 .layersButton:hover {
-  border-color: #239182;
-  color: #239182;
+  border-color: var(--primary-light);
+  color: var(--primary-light);
 }
 
 .layersLabel {
@@ -174,7 +173,7 @@
 /* Edit mode */
 
 .mapEditMode {
-  outline: 2px solid #239182;
+  outline: 2px solid var(--primary-light);
   outline-offset: -2px;
 }
 
@@ -202,12 +201,12 @@
 }
 
 .editModeButton:hover {
-  border-color: #239182;
+  border-color: var(--primary-light);
   background: #f0faf9;
 }
 
 .editModeActive {
-  border-color: #239182;
+  border-color: var(--primary-light);
   background: #e6f7f5;
 }
 
@@ -216,7 +215,7 @@
   bottom: 56px;
   right: 10px;
   z-index: 10;
-  background: #239182;
+  background: var(--primary-light);
   color: white;
   font-size: 12px;
   padding: 4px 10px;

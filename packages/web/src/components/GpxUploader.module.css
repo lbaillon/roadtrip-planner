@@ -1,9 +1,9 @@
 .upload{
   border-radius: 50px;
   text-align: center;
-  background-color: var(--primary-green);
+  background-color: var(--primary);
   cursor: pointer;
-  color: var(--secondary-grey);
+  color: var(--surface);
   padding-top: 10px;
   padding-bottom: 10px;
     position: relative;

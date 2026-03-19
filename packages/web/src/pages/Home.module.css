@@ -13,11 +13,11 @@
 
 .routeName {
   text-align: center;
-  color: var(--primary-green);
+  color: var(--primary);
 }
 
 .humidityPlot {
-  color: var(--primary-green);
+  color: var(--primary);
   margin-top: 10%;
 }
 
@@ -29,7 +29,7 @@
   background: linear-gradient(
     to bottom,
     transparent 0%,
-    var(--secondary-grey) 30%
+    var(--surface) 30%
   );
 }
 

@@ -4,7 +4,7 @@
   background: linear-gradient(
     to bottom,
     transparent -10%,
-    var(--secondary-grey) 30%
+    var(--surface) 30%
   );
   border-radius: 20px;
   padding: 10%;

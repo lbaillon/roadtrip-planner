@@ -2,7 +2,7 @@
   grid-column: 1/13;
   grid-row: 2/3;
   text-align: center;
-  color: var(--primary-green);
+  color: var(--primary);
   font-size: 28px;
   display: inline-block;
   justify-self: center;
@@ -17,6 +17,6 @@
 
   margin: 16px auto 0;
 
-  background-color: var(--secondary-green);
+  background-color: var(--secondary);
   border-radius: 2px;
 }

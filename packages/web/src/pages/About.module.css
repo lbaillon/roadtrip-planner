@@ -17,9 +17,9 @@
   background: linear-gradient(
     to bottom,
     transparent 0%,
-    var(--secondary-grey) 30%
+    var(--surface) 30%
   );
-  color: var(--primary-green);
+  color: var(--primary);
 }
 
 .content p {
@@ -90,12 +90,12 @@
 .memberName {
   font-size: 14px;
   font-weight: 600;
-  color: var(--primary-green);
+  color: var(--primary);
 }
 
 .bio {
-  background: color-mix(in srgb, var(--primary-green) 8%, transparent);
-  border-left: 3px solid var(--primary-green);
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+  border-left: 3px solid var(--primary);
   padding: 16px 20px;
   border-radius: 0 8px 8px 0;
   margin-top: 8px;

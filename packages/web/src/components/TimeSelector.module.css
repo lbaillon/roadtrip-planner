@@ -6,7 +6,7 @@
   scroll-snap-type: x mandatory;
   width: 85%;
   height: 6%;
-  border: solid 2px var(--primary-grey);
+  border: solid 2px var(--muted);
   border-radius: 10px;
   margin-top: 10px;
 }

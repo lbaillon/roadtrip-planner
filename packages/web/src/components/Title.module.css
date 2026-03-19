@@ -6,7 +6,7 @@
   font-size: 40px;
   line-height: 1.1;
   display: inline-block;
-  color: var(--primary-green);
+  color: var(--primary);
 }
 
 .title::after {
@@ -18,6 +18,6 @@
 
   margin: 16px auto 0;
 
-  background-color: var(--secondary-green);
+  background-color: var(--secondary);
   border-radius: 2px;
 }
