@@ -2,7 +2,9 @@ import { JWTPayload } from '#api/services/authentication.js'
 import { NextFunction, Request, Response } from 'express'
 import { z } from 'zod'
 
-type HandlerArgs<TQuery, TParams, TBody> = (TQuery extends void ? object : { query: TQuery }) &
+type HandlerArgs<TQuery, TParams, TBody> = (TQuery extends void
+  ? object
+  : { query: TQuery }) &
   (TParams extends void ? object : { params: TParams }) &
   (TBody extends void ? object : { body: TBody }) & {
     user?: JWTPayload
