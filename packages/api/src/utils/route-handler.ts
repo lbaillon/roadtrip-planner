@@ -141,36 +141,3 @@ export function processPut<
     }
   }
 }
-
-export function processPatch<
-  TBodySchema extends z.ZodType,
-  TParamsSchema extends z.ZodType = VoidSchema,
->({
-  bodySchema,
-  paramsSchema = emptyObjectSchema as unknown as TParamsSchema,
-  handler,
-}: {
-  bodySchema: TBodySchema
-  paramsSchema?: TParamsSchema
-  handler: (
-    args: HandlerArgs<void, z.infer<TParamsSchema>, z.infer<TBodySchema>>
-  ) => Promise<void>
-}) {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const validatedBody = bodySchema.parse(req.body) as z.infer<TBodySchema>
-      const validatedParams = paramsSchema.parse(
-        req.params
-      ) as z.infer<TParamsSchema>
-      const args = {
-        ...(validatedBody !== undefined && { body: validatedBody }),
-        ...(validatedParams !== undefined && { params: validatedParams }),
-        user: req.user,
-      } as HandlerArgs<void, z.infer<TParamsSchema>, z.infer<TBodySchema>>
-      await handler(args)
-      res.status(204).send()
-    } catch (error) {
-      next(error)
-    }
-  }
-}
