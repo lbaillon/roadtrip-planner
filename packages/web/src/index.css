@@ -6,6 +6,7 @@
 
 /* Brand colors (--primary, --secondary) must stay in sync with src/lib/theme.ts */
 :root {
+  /* px intentional: structural value used in calc(), must not scale with font size */
   --header-height: 60px;
 
   /* Colors */
@@ -40,5 +41,5 @@ body {
 h1,
 h2,
 h3 {
-  margin-bottom: 15px;
+  margin-bottom: 0.9rem;
 }

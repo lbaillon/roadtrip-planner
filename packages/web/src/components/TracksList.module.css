@@ -20,7 +20,7 @@
   display: flex;
   align-items: center;
   color: var(--primary) ;
-  font-size: 17px;
+  font-size: 1.0625rem;
 }
 
 .deleteIcon {
