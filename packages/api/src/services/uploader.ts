@@ -9,7 +9,7 @@ cloudinary.config({
 
 export async function uploadGpx(
   trackName: string,
-  gpxContent: string,
+  gpxContent: string
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
@@ -20,10 +20,9 @@ export async function uploadGpx(
         format: 'gpx',
       },
       (error, result) => {
-        if (error || !result)
-          return reject(error ?? new Error('Upload failed'))
+        if (error || !result) return reject(error ?? new Error('Upload failed'))
         resolve(result.public_id)
-      },
+      }
     )
     uploadStream.end(Buffer.from(gpxContent, 'utf-8'))
   })
@@ -31,7 +30,7 @@ export async function uploadGpx(
 
 export async function overwriteGpx(
   publicId: string,
-  gpxContent: string,
+  gpxContent: string
 ): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
@@ -43,10 +42,9 @@ export async function overwriteGpx(
         format: 'gpx',
       },
       (error, result) => {
-        if (error || !result)
-          return reject(error ?? new Error('Upload failed'))
+        if (error || !result) return reject(error ?? new Error('Upload failed'))
         resolve()
-      },
+      }
     )
     uploadStream.end(Buffer.from(gpxContent, 'utf-8'))
   })
