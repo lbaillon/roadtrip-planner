@@ -31,13 +31,14 @@ export default function AuthForm<M extends 'login' | 'signup'>({
   const { setAccessToken } = useAuth()
   const navigate = useNavigate()
 
-  const isLogin = mode === 'login'
-
   useEffect(() => {
     if (alert?.type !== 'success') return
-    const timer = setTimeout(() => navigate(isLogin ? '/' : '/login'), 1500)
+    const timer = setTimeout(
+      () => navigate(mode === 'login' ? '/' : '/login'),
+      1500
+    )
     return () => clearTimeout(timer)
-  }, [alert, navigate, isLogin])
+  }, [alert, navigate, mode])
 
   const onFinish = (values: FieldType<M>) => {
     if (mode === 'login') {
@@ -79,7 +80,7 @@ export default function AuthForm<M extends 'login' | 'signup'>({
   const onFinishFailed: FormProps<FieldType<M>>['onFinishFailed'] = (
     errorInfo
   ) => {
-    const prefix = isLogin ? 'Login' : 'Profile creation'
+    const prefix = mode === 'login' ? 'Login' : 'Profile creation'
     setAlert({
       type: 'error',
       message: `${prefix} failed: ${errorInfo.message}`,
@@ -92,7 +93,7 @@ export default function AuthForm<M extends 'login' | 'signup'>({
         <Alert description={alert.message} type={alert.type} showIcon />
       )}
       <Form<FieldType<M>>
-        name={isLogin ? 'login' : 'signup'}
+        name={mode === 'login' ? 'login' : 'signup'}
         labelCol={{ span: 8 }}
         wrapperCol={{ span: 16 }}
         style={{ maxWidth: 600 }}
@@ -108,7 +109,7 @@ export default function AuthForm<M extends 'login' | 'signup'>({
           <Input autoComplete="username" />
         </Form.Item>
 
-        {!isLogin && (
+        {mode === 'signup' && (
           <Form.Item<SignUpFields>
             label="Email"
             name="email"
@@ -124,11 +125,13 @@ export default function AuthForm<M extends 'login' | 'signup'>({
           rules={[{ required: true, message: 'Please input your password!' }]}
         >
           <Input.Password
-            autoComplete={isLogin ? 'current-password' : 'new-password'}
+            autoComplete={
+              mode === 'login' ? 'current-password' : 'new-password'
+            }
           />
         </Form.Item>
 
-        {!isLogin && (
+        {mode === 'signup' && (
           <Form.Item<SignUpFields>
             label="Confirm password"
             name="confirmPassword"
