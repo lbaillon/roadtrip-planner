@@ -1,17 +1,11 @@
 import { get, set } from 'idb-keyval'
+import type { MutationDefinition } from './mutations'
 
 const QUEUE_KEY = 'roadtrip:mutation-queue'
 
-export interface PendingMutation<T = unknown> {
+export type PendingMutation = MutationDefinition & {
   id: string
-  type: string
-  payload: T
   enqueuedAt: number
-}
-
-export interface PutTrackGpxPayload {
-  trackId: string
-  gpxContent: string
 }
 
 export async function getMutations(): Promise<PendingMutation[]> {
@@ -19,28 +13,22 @@ export async function getMutations(): Promise<PendingMutation[]> {
 }
 
 export async function enqueueMutation(
-  type: string,
-  payload: unknown
+  definition: MutationDefinition
 ): Promise<void> {
   const mutations = await getMutations()
 
   // PUT_TRACK_GPX: deduplicate by trackId — the new GPX supersedes the old
   let filtered = mutations
-  if (type === 'PUT_TRACK_GPX') {
-    const { trackId } = payload as PutTrackGpxPayload
+  if (definition.type === 'PUT_TRACK_GPX') {
+    const { trackId } = definition.payload
     filtered = mutations.filter(
-      (m) =>
-        !(
-          m.type === 'PUT_TRACK_GPX' &&
-          (m.payload as PutTrackGpxPayload).trackId === trackId
-        )
+      (m) => !(m.type === 'PUT_TRACK_GPX' && m.payload.trackId === trackId)
     )
   }
 
   const mutation: PendingMutation = {
+    ...definition,
     id: crypto.randomUUID(),
-    type,
-    payload,
     enqueuedAt: Date.now(),
   }
 

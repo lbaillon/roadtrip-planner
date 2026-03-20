@@ -109,9 +109,9 @@ function useGpxMutation<TRequest>(
       ])
       if (!track?.gpxContent) throw new Error('Track GPX not available')
       const updatedGpx = transform(track.gpxContent, request)
-      await enqueueMutation('PUT_TRACK_GPX', {
-        trackId,
-        gpxContent: updatedGpx,
+      await enqueueMutation({
+        type: 'PUT_TRACK_GPX',
+        payload: { trackId, gpxContent: updatedGpx },
       })
       return updatedGpx
     },

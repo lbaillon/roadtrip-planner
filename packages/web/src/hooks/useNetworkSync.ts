@@ -1,11 +1,7 @@
 import { type UpdateTrackGpxRequest } from '@roadtrip/shared'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import {
-  getMutations,
-  removeMutation,
-  type PutTrackGpxPayload,
-} from '../lib/mutation-queue'
+import { getMutations, removeMutation } from '../lib/mutation-queue'
 import { useApi } from './useApi'
 import { useHealth } from './useHealth'
 
@@ -34,7 +30,7 @@ export function useNetworkSync() {
         // Only PUT_TRACK_GPX is implemented so far — unknown types are skipped.
         // TODO: remove or log unknown mutations instead of leaving them in the queue forever.
         if (mutation.type === 'PUT_TRACK_GPX') {
-          const { trackId, gpxContent } = mutation.payload as PutTrackGpxPayload
+          const { trackId, gpxContent } = mutation.payload
           await api<void>(`/api/tracks/${trackId}`, {
             method: 'PUT',
             body: JSON.stringify({
