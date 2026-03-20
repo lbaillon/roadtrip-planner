@@ -6,6 +6,7 @@ const QUEUE_KEY = 'roadtrip:mutation-queue'
 export type PendingMutation = MutationDefinition & {
   id: string
   enqueuedAt: number
+  dedupeKey?: string
 }
 
 export async function getMutations(): Promise<PendingMutation[]> {
@@ -13,23 +14,24 @@ export async function getMutations(): Promise<PendingMutation[]> {
 }
 
 export async function enqueueMutation(
-  definition: MutationDefinition
+  definition: MutationDefinition,
+  options?: { dedupeKey?: string }
 ): Promise<void> {
   const mutations = await getMutations()
 
-  // PUT_TRACK_GPX: deduplicate by trackId — the new GPX supersedes the old
-  let filtered = mutations
-  if (definition.type === 'PUT_TRACK_GPX') {
-    const { trackId } = definition.payload
-    filtered = mutations.filter(
-      (m) => !(m.type === 'PUT_TRACK_GPX' && m.payload.trackId === trackId)
-    )
-  }
+  const dedupeKey = options?.dedupeKey
+  const filtered =
+    dedupeKey !== undefined
+      ? mutations.filter(
+          (m) => !(m.type === definition.type && m.dedupeKey === dedupeKey)
+        )
+      : mutations
 
   const mutation: PendingMutation = {
     ...definition,
     id: crypto.randomUUID(),
     enqueuedAt: Date.now(),
+    dedupeKey,
   }
 
   await set(QUEUE_KEY, [...filtered, mutation])
