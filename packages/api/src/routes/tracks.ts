@@ -4,7 +4,12 @@ import { NotFoundError, UnauthorizedError } from '#api/errors/app-errors.js'
 import { codes } from '#api/errors/error-codes.js'
 import { authenticate, authorize } from '#api/middlewares/auth.js'
 import { JWTPayload } from '#api/services/authentication.js'
-import { Uploader } from '#api/services/uploader.js'
+import {
+  deleteGpx,
+  getGpxFile,
+  overwriteGpx,
+  uploadGpx,
+} from '#api/services/uploader.js'
 import {
   processDelete,
   processGet,
@@ -36,7 +41,7 @@ async function createTrack(
     throw new UnauthorizedError('Missing user', codes.MISSING_USER)
   }
   const trackName = body.name ?? 'Unnamed Track'
-  const gpxPublicId = await new Uploader().uploadGpx(trackName, body.gpxContent)
+  const gpxPublicId = await uploadGpx(trackName, body.gpxContent)
 
   const [track] = await db
     .insert(tracks)
@@ -70,7 +75,7 @@ async function deleteTrack(id: string, user?: JWTPayload) {
     throw new NotFoundError('track not found', codes.MISSING_TRACK)
   }
   const publicId = track.gpxFile
-  await new Uploader().deleteGpx(publicId)
+  await deleteGpx(publicId)
 }
 
 router.delete(
@@ -96,7 +101,7 @@ async function updateTrackGpx(
   if (!track) {
     throw new NotFoundError('track not found', codes.MISSING_TRACK)
   }
-  await new Uploader().overwriteGpx(track.gpxFile, body.gpxContent)
+  await overwriteGpx(track.gpxFile, body.gpxContent)
 }
 
 router.put(
@@ -131,7 +136,7 @@ async function getTrack(
   if (!track) {
     throw new NotFoundError('track not found', codes.MISSING_TRACK)
   }
-  const gpxContent = await new Uploader().getGpxFile(track.gpxFile)
+  const gpxContent = await getGpxFile(track.gpxFile)
 
   return { id: track.id, name: track.name, gpxContent }
 }

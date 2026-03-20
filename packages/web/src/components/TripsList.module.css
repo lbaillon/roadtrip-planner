@@ -1,15 +1,15 @@
 .itemIcon {
   margin-right: 10px;
   opacity: 0.6;
-  color: var(--secondary-green);
+  color: var(--secondary);
 }
 
 .trip {
   margin-top: 10px;
   display: flex;
   align-items: center;
-  color: var(--primary-green) ;
-  font-size: 17px;
+  color: var(--primary) ;
+  font-size: 1.0625rem;
 }
 
 .deleteIcon {
@@ -21,6 +21,6 @@
 }
 
 .tripName{
-  color: var(--primary-green);
+  color: var(--primary);
   text-decoration: none;
 }

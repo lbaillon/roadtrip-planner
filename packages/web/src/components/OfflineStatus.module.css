@@ -1,14 +1,14 @@
 .offline {
-  color: var(--warning-orange);
+  color: var(--warning);
   font-size: 0.85rem;
 }
 
 .pending {
-  color: var(--info-blue);
+  color: var(--info);
   font-size: 0.85rem;
 }
 
 .syncing {
-  color: var(--info-blue);
+  color: var(--info);
   font-size: 0.85rem;
 }

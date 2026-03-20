@@ -2,8 +2,8 @@
   grid-column: 1/13;
   grid-row: 2/3;
   text-align: center;
-  color: var(--primary-green);
-  font-size: 28px;
+  color: var(--primary);
+  font-size: 1.75rem;
   display: inline-block;
   justify-self: center;
 }
@@ -15,8 +15,14 @@
   width: 25%;
   height: 4px;
 
-  margin: 16px auto 0;
+  margin: 1rem auto 0;
 
-  background-color: var(--secondary-green);
+  background-color: var(--secondary);
   border-radius: 2px;
+}
+
+@media (max-width: 768px) {
+  .greet {
+    font-size: 1.25rem;
+  }
 }

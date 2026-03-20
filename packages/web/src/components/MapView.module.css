@@ -10,11 +10,10 @@
   cursor: pointer;
   width: 50px;
   height: 50px;
-  background-color:  color-mix(in srgb, var(--primary-grey) 30%, transparent);
+  background-color:  color-mix(in srgb, var(--muted) 30%, transparent);
   border-radius: 25px;
 }
 
-/* Toggle géolocalisation */
 .locationToggle {
   position: absolute;
   top: 12px;
@@ -43,7 +42,7 @@
 }
 
 .toggleIcon {
-  font-size: 16px;
+  font-size: 1rem;
   line-height: 1;
 }
 
@@ -57,7 +56,7 @@
 }
 
 .toggleActive .toggleTrack {
-  background: #239182;
+  background: var(--primary-light);
 }
 
 .toggleThumb {
@@ -79,7 +78,7 @@
 .locationError {
   background: #fff3cd;
   color: #856404;
-  font-size: 12px;
+  font-size: 0.75rem;
   padding: 4px 8px;
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
@@ -150,17 +149,17 @@
   border: 1px solid #d9d9d9;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 0.875rem;
   box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
 .layersButton:hover {
-  border-color: #239182;
-  color: #239182;
+  border-color: var(--primary-light);
+  color: var(--primary-light);
 }
 
 .layersLabel {
-  font-size: 13px;
+  font-size: 0.8125rem;
 }
 
 .dropdownItem {
@@ -174,7 +173,7 @@
 /* Edit mode */
 
 .mapEditMode {
-  outline: 2px solid #239182;
+  outline: 2px solid var(--primary-light);
   outline-offset: -2px;
 }
 
@@ -193,7 +192,7 @@
   background: white;
   border: 1px solid #d9d9d9;
   cursor: pointer;
-  font-size: 18px;
+  font-size: 1.125rem;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   display: flex;
   align-items: center;
@@ -202,12 +201,12 @@
 }
 
 .editModeButton:hover {
-  border-color: #239182;
+  border-color: var(--primary-light);
   background: #f0faf9;
 }
 
 .editModeActive {
-  border-color: #239182;
+  border-color: var(--primary-light);
   background: #e6f7f5;
 }
 
@@ -216,9 +215,9 @@
   bottom: 56px;
   right: 10px;
   z-index: 10;
-  background: #239182;
+  background: var(--primary-light);
   color: white;
-  font-size: 12px;
+  font-size: 0.75rem;
   padding: 4px 10px;
   border-radius: 6px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);

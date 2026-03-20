@@ -11,7 +11,7 @@
 }
 
 .headerIcon{
-  font-size: 28px;
+  font-size: 1.75rem;
   cursor: pointer;
-  color: var(--primary-green);
+  color: var(--primary);
 }

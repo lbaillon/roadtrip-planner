@@ -4,13 +4,13 @@
   height: 30px;
   margin: 10px;
   cursor: pointer;
-  background-color: var(--secondary-grey);
+  background-color: var(--surface);
   border-radius: 20px;
-  border: solid 2px var(--primary-green);
-  color: var(--primary-green);
+  border: solid 2px var(--primary);
+  color: var(--primary);
 }
 
 .selected {
-  background-color: var(--secondary-green);
-  color: var(--secondary-grey);
+  background-color: var(--secondary);
+  color: var(--surface);
 }

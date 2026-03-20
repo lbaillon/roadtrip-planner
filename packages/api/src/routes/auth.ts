@@ -29,7 +29,7 @@ async function login(body: LogInRequest) {
 const refreshTokenCookieParameters = {
   httpOnly: true,
   secure: !env.isDev,
-  sameSite: env.isDev ? 'lax' : 'none',
+  sameSite: 'lax',
   path: '/api/auth/refresh',
 } as const
 
