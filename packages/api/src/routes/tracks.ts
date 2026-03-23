@@ -40,15 +40,14 @@ async function createTrack(
   if (!user) {
     throw new UnauthorizedError('Missing user', codes.MISSING_USER)
   }
-  const trackName = body.name ?? 'Unnamed Track'
-  const gpxPublicId = await uploadGpx(trackName, body.gpxContent)
+  const gpxPublicId = await uploadGpx(body.id, body.gpxContent)
 
   const [track] = await db
     .insert(tracks)
     .values({
       id: body.id,
       userId: user.userId,
-      name: trackName,
+      name: body.name,
       gpxFile: gpxPublicId,
     })
     .returning()

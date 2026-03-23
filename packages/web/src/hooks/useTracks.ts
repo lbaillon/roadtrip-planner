@@ -6,8 +6,9 @@ import {
   type GetWeatherResponse,
   type TrackSummary,
 } from '@roadtrip/shared'
-import { v7 as uuidv7 } from 'uuid'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { v7 as uuidv7 } from 'uuid'
+import { saveGpxBlob } from '../lib/gpx-blob-store'
 import {
   addWaypointToGpx,
   deleteWaypointFromGpx,
@@ -15,35 +16,59 @@ import {
   parseGpxFile,
   sampleRoutePoints,
 } from '../lib/gpx-utils'
-import { saveGpxBlob } from '../lib/gpx-blob-store'
 import { enqueueMutation } from '../lib/mutation-queue'
 import { useApi } from './useApi'
 
 export function useCreateTrack() {
   const queryClient = useQueryClient()
-  const api = useApi()
   return useMutation({
-    mutationFn: (request: Omit<CreateTrackRequest, 'id'>) =>
-      api<CreateResponse>('/api/tracks', {
-        method: 'POST',
-        body: JSON.stringify({ id: uuidv7(), ...request }),
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tracks'] })
+    mutationFn: async (
+      request: Omit<CreateTrackRequest, 'id' | 'name'> & { name?: string }
+    ): Promise<CreateResponse> => {
+      const trackId = uuidv7()
+      const trackName = request.name ?? 'Unnamed Track'
+      await saveGpxBlob(trackId, request.gpxContent)
+      await enqueueMutation({
+        type: 'CREATE_TRACK',
+        payload: { trackId, name: trackName },
+      })
+      return { id: trackId }
+    },
+    onSuccess: async ({ id: trackId }, { name, gpxContent }) => {
+      const trackName = name ?? 'Unnamed Track'
+      queryClient.setQueryData<TrackSummary[]>(['tracks'], (old = []) => [
+        ...old,
+        { id: trackId, name: trackName },
+      ])
+      queryClient.setQueryData<GetTrackResponse>(['tracks', trackId], {
+        id: trackId,
+        name: trackName,
+        gpxContent,
+      })
+      await queryClient.invalidateQueries({
+        queryKey: ['mutation-queue', 'pending'],
+      })
     },
   })
 }
 
 export function useDeleteTrack() {
   const queryClient = useQueryClient()
-  const api = useApi()
   return useMutation({
-    mutationFn: (id: string) =>
-      api<void>(`/api/tracks/${id}`, {
-        method: 'DELETE',
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tracks'] })
+    mutationFn: async (id: string) => {
+      await enqueueMutation(
+        { type: 'DELETE_TRACK', payload: { trackId: id } },
+        { dedupeKey: id }
+      )
+    },
+    onSuccess: async (_, id) => {
+      queryClient.setQueryData<TrackSummary[]>(['tracks'], (old = []) =>
+        old.filter((t) => t.id !== id)
+      )
+      queryClient.removeQueries({ queryKey: ['tracks', id] })
+      await queryClient.invalidateQueries({
+        queryKey: ['mutation-queue', 'pending'],
+      })
     },
   })
 }
@@ -136,7 +161,9 @@ function useGpxMutation<TRequest>(
         ['tracks', trackId, 'parsed'],
         parseGpxFile(updatedGpx)
       )
-      await queryClient.invalidateQueries({ queryKey: ['mutation-queue'] })
+      await queryClient.invalidateQueries({
+        queryKey: ['mutation-queue', 'pending'],
+      })
     },
   })
 }

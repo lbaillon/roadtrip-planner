@@ -33,7 +33,7 @@ export const LogInRequestSchema = z.object({
 
 export const CreateTrackRequestSchema = z.object({
   id: z.uuidv7(),
-  name: z.string().optional(),
+  name: z.string().min(1, 'Cannot be empty'),
   gpxContent: z.string().min(1, 'GPX content cannot be empty'),
 })
 

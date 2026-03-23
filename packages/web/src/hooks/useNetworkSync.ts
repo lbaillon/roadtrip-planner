@@ -1,8 +1,13 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { ApiError } from '../lib/api-client'
 import { clearGpxBlobs } from '../lib/gpx-blob-store'
 import { applyFlushHandler } from '../lib/mutations'
-import { getMutations, removeMutation } from '../lib/mutation-queue'
+import {
+  addFailedMutation,
+  getMutations,
+  removeMutation,
+} from '../lib/mutation-queue'
 import { useApi } from './useApi'
 import { useHealth } from './useHealth'
 
@@ -26,17 +31,34 @@ export function useNetworkSync() {
 
     isSyncingRef.current = true
     setIsSyncing(true)
+    let allSucceeded = true
     try {
       for (const mutation of mutations) {
-        await applyFlushHandler(mutation, api)
-        await removeMutation(mutation.id)
+        try {
+          await applyFlushHandler(mutation, api)
+          await removeMutation(mutation.id)
+        } catch (error) {
+          allSucceeded = false
+          if (error instanceof ApiError) {
+            if (error.status === 401) {
+              // Auth expired — useApi already handled refresh/logout.
+              // Stop sync entirely; mutations are preserved for after re-login.
+              return
+            }
+            // Other HTTP errors (404, 409, 4xx, 5xx) — record as failed and continue.
+            await addFailedMutation(mutation, error.message)
+            await removeMutation(mutation.id)
+          } else {
+            // Network error — stop sync, will retry on reconnection.
+            return
+          }
+        }
       }
-      await clearGpxBlobs()
+      if (allSucceeded) {
+        await clearGpxBlobs()
+      }
       // Reload fresh data from server after a successful sync
       await queryClient.invalidateQueries()
-    } catch {
-      // Stop on any error — network error or unresolvable auth error (logout
-      // already called by useApi). Will retry on next reconnection.
     } finally {
       isSyncingRef.current = false
       setIsSyncing(false)
