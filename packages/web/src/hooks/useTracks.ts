@@ -1,4 +1,12 @@
 import {
+  addWaypointToGpx,
+  deleteWaypointFromGpx,
+  editWaypointInGpx,
+  parseGpxFile,
+  sampleRoutePoints,
+} from '#web/lib/gpx-utils'
+import { enqueueMutation, saveGpxBlob } from '#web/lib/mutation-queue'
+import {
   type CreateResponse,
   type CreateTrackRequest,
   type GetTrackResponse,
@@ -8,15 +16,6 @@ import {
 } from '@roadtrip/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { v7 as uuidv7 } from 'uuid'
-import { saveGpxBlob } from '../lib/gpx-blob-store'
-import {
-  addWaypointToGpx,
-  deleteWaypointFromGpx,
-  editWaypointInGpx,
-  parseGpxFile,
-  sampleRoutePoints,
-} from '../lib/gpx-utils'
-import { enqueueMutation } from '../lib/mutation-queue'
 import { useApi } from './useApi'
 
 export function useCreateTrack() {

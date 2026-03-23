@@ -1,8 +1,9 @@
-import { get, set } from 'idb-keyval'
+import { clear, createStore, get, set } from 'idb-keyval'
 import type { MutationDefinition } from './mutations'
 
 const QUEUE_KEY = 'roadtrip:mutation-queue'
 const FAILED_KEY = 'roadtrip:failed-mutations'
+const gpxBlobStore = createStore('roadtrip-gpx-blobs', 'blobs')
 
 export type PendingMutation = MutationDefinition & {
   id: string
@@ -39,7 +40,6 @@ export async function enqueueMutation(
     enqueuedAt: Date.now(),
     dedupeKey,
   }
-
   await set(QUEUE_KEY, [...filtered, mutation])
   window.dispatchEvent(new Event('mutation-enqueued'))
 }
@@ -56,6 +56,7 @@ export async function removeMutation(id: string): Promise<void> {
 export async function clearQueue(): Promise<void> {
   await set(QUEUE_KEY, [])
   await set(FAILED_KEY, [])
+  await clearGpxBlobs()
   window.dispatchEvent(new Event('mutation-dequeued'))
 }
 
@@ -97,4 +98,19 @@ export async function dismissFailedMutation(id: string): Promise<void> {
     failed.filter((m) => m.id !== id)
   )
   window.dispatchEvent(new Event('mutation-dequeued'))
+}
+
+export async function saveGpxBlob(
+  trackId: string,
+  content: string
+): Promise<void> {
+  await set(trackId, content, gpxBlobStore)
+}
+
+export async function getGpxBlob(trackId: string): Promise<string | undefined> {
+  return get<string>(trackId, gpxBlobStore)
+}
+
+export async function clearGpxBlobs(): Promise<void> {
+  await clear(gpxBlobStore)
 }

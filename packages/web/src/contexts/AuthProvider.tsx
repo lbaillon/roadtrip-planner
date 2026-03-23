@@ -1,9 +1,8 @@
 import { fetchApi, refreshAccessToken } from '#web/lib/api-client'
+import { clearQueue } from '#web/lib/mutation-queue'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
-import { clearQueue } from '../lib/mutation-queue'
 import { AuthContext } from './AuthContext'
-import { clearGpxBlobs } from '#web/lib/gpx-blob-store'
 
 const USER_ID_KEY = 'roadtrip:user-id'
 
@@ -55,7 +54,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUserId(null)
       localStorage.removeItem(USER_ID_KEY)
       await clearQueue()
-      await clearGpxBlobs()
       queryClient.clear()
     },
   })

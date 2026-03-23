@@ -4,10 +4,10 @@ import { TimeSelector } from '#web/components/TimeSelector'
 import { Title } from '#web/components/Title'
 import { useGetWeather } from '#web/hooks/useApi'
 import { useHealth } from '#web/hooks/useHealth'
+import { parseGpxFile, sampleRoutePoints } from '#web/lib/gpx-utils'
 import type { ParsedGpx } from '@roadtrip/shared'
 import { message } from 'antd'
 import { lazy, Suspense, useState } from 'react'
-import { parseGpxFile, sampleRoutePoints } from '../lib/gpx-utils'
 import styles from './Home.module.css'
 const MapView = lazy(() => import('#web/components/MapView'))
 

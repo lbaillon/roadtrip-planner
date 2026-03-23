@@ -1,9 +1,9 @@
+import { useCreateUser, useLogin } from '#web/hooks/useApi'
+import { useAuth } from '#web/hooks/useAuth'
 import type { FormProps } from 'antd'
 import { Alert, Button, Form, Input } from 'antd'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '#web/hooks/useAuth'
-import { useLogin, useCreateUser } from '../hooks/useApi'
 import styles from './AuthForm.module.css'
 
 type LoginFields = { username: string; password: string }

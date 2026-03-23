@@ -1,6 +1,6 @@
+import { fetchApi } from '#web/lib/api-client'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
-import { fetchApi } from '../lib/api-client'
 
 export function useHealth() {
   const [isOnline, setIsOnline] = useState(navigator.onLine)

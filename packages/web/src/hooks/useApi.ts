@@ -1,3 +1,4 @@
+import { ApiError, fetchApi, refreshAccessToken } from '#web/lib/api-client'
 import {
   type CreateResponse,
   type CreateUserRequest,
@@ -8,7 +9,6 @@ import {
 } from '@roadtrip/shared'
 import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-import { ApiError, fetchApi, refreshAccessToken } from '../lib/api-client'
 import { useAuth } from './useAuth'
 
 export function useApi() {

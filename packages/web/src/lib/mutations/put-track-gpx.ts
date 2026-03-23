@@ -1,5 +1,5 @@
+import { getGpxBlob } from '#web/mutation-queue'
 import type { UpdateTrackGpxRequest } from '@roadtrip/shared'
-import { getGpxBlob } from '../gpx-blob-store'
 import type { FlushHandler } from './types'
 
 interface PutTrackGpxPayload {
