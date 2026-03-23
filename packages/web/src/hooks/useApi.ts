@@ -8,19 +8,30 @@ import {
   type LogInResponse,
 } from '@roadtrip/shared'
 import { useMutation } from '@tanstack/react-query'
+import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from './useAuth'
 
 export function useApi() {
   const { accessToken, setAccessToken, logout } = useAuth()
   const navigate = useNavigate()
+  // Ref so the token is always current inside async callbacks (avoids stale
+  // closure when multiple mutations flush in sequence and the token is
+  // refreshed mid-loop — React state updates are async, the ref is not).
+  const accessTokenRef = useRef(accessToken)
+  useEffect(() => {
+    accessTokenRef.current = accessToken
+  }, [accessToken])
+
   return async <T>(url: string, options: RequestInit = {}): Promise<T> => {
     try {
       return await fetchApi(url, {
         ...options,
         headers: {
           ...options?.headers,
-          Authorization: accessToken ? `Bearer ${accessToken}` : '',
+          Authorization: accessTokenRef.current
+            ? `Bearer ${accessTokenRef.current}`
+            : '',
         },
       })
     } catch (error) {
@@ -29,6 +40,9 @@ export function useApi() {
         try {
           newAccessToken = await refreshAccessToken()
           setAccessToken(newAccessToken)
+          // Update the ref immediately so subsequent calls in the same
+          // flush loop use the fresh token without waiting for a re-render.
+          accessTokenRef.current = newAccessToken
         } catch (refreshError) {
           // Only log out if the refresh token itself is invalid (401).
           // A network error means we're offline — keep the user logged in

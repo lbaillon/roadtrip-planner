@@ -22,7 +22,7 @@ export function useHealth() {
       fetchApi<{ status: 'ok' }>('/api/health', { cache: 'no-store' }),
     refetchInterval: (q) => {
       if (!navigator.onLine) return false
-      return q.state.data?.status === 'ok' ? 30000 : 5000
+      return !q.state.error && q.state.data?.status === 'ok' ? 30000 : 5000
     },
     retry: 3,
     retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10000),

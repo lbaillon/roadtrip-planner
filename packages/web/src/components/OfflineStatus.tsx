@@ -47,7 +47,7 @@ export default function OfflineStatus({ isSyncing }: Props) {
           {failedMutations.length} sync error(s) {showFailed ? '▲' : '▼'}
         </button>
       )}
-      {showFailed && (
+      {showFailed && failedMutations.length > 0 && (
         <ul className={styles.failedList}>
           {failedMutations.map((m) => (
             <li key={m.id} className={styles.failedItem}>

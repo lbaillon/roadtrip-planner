@@ -40,9 +40,10 @@ export function useNetworkSync() {
         } catch (error) {
           allSucceeded = false
           if (error instanceof ApiError) {
-            if (error.status === 401) {
-              // Auth expired — useApi already handled refresh/logout.
-              // Stop sync entirely; mutations are preserved for after re-login.
+            if ([401, 502, 503, 504].includes(error.status)) {
+              // 401: auth expired — useApi already handled refresh/logout.
+              // 502/503/504: server temporarily unavailable — preserve queue,
+              // retry on reconnection.
               return
             }
             // Other HTTP errors (404, 409, 4xx, 5xx) — record as failed and continue.

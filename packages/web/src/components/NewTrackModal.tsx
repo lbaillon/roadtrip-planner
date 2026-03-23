@@ -6,7 +6,7 @@ import {
   message,
   Modal,
   Upload,
-  type UploadFile
+  type UploadFile,
 } from 'antd'
 import { useState } from 'react'
 import styles from './NewTrackModal.module.css'
@@ -47,12 +47,12 @@ export default function NewTrackModal() {
   return (
     <>
       {contextHolder}
-        <Button
-          type="primary"
+      <Button
+        type="primary"
         onClick={() => setOpen(true)}
-          className={styles.modalButton}
-        >
-          Upload new track
+        className={styles.modalButton}
+      >
+        Upload new track
       </Button>
       <Modal
         title="New track"
