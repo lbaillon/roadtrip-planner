@@ -56,8 +56,6 @@ export const trips = sqliteTable(
       .$defaultFn(() => new Date()),
     startDate: text('start_date'),
     endDate: text('end_date'),
-    departureTime: text('departure_time'),
-    speedKmh: integer('speed_kmh')
   },
   (table) => [index('trips_user_id_idx').on(table.userId)]
 )

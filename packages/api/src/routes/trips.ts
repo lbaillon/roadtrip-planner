@@ -46,8 +46,6 @@ async function createTrip(
       description: body.description,
       startDate: body.startDate,
       endDate: body.endDate,
-      departureTime: body.departureTime,
-      speedKmh: body.speedKmh
     })
     .returning()
   return { id: trip.id }
