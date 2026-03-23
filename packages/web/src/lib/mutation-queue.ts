@@ -85,10 +85,10 @@ export async function retryFailedMutation(id: string): Promise<void> {
     FAILED_KEY,
     failed.filter((m) => m.id !== id)
   )
-  // Re-enqueue as a fresh pending mutation (FailedMutation extends PendingMutation)
-  const mutations = await getMutations()
-  await set(QUEUE_KEY, [...mutations, mutation as PendingMutation])
-  window.dispatchEvent(new Event('mutation-enqueued'))
+  await enqueueMutation(
+    { type: mutation.type, payload: mutation.payload } as MutationDefinition,
+    { dedupeKey: mutation.dedupeKey }
+  )
 }
 
 export async function dismissFailedMutation(id: string): Promise<void> {
