@@ -31,6 +31,7 @@ export default function TrackDetails() {
   } | null>(null)
   const [editingWaypoint, setEditingWaypoint] =
     useState<EditingWaypoint | null>(null)
+  const [useCustomTime, setUseCustomTime] = useState(false)
   const [departureTime, setDepartureTime] = useState<Date | null>(null)
   const [speedKmh, setSpeedKmh] = useState<number | null>(50)
 
@@ -159,15 +160,6 @@ export default function TrackDetails() {
               Distance: {(parsed.distance / 1000).toFixed(2)} km
             </p>
           )}
-          <div className={styles.speedAndTime}>
-            <label>Heure de départ</label>
-            <TimePicker onChange={(value)=>setDepartureTime(value?.toDate()??null)} format = 'HH:mm'/>
-          </div>
-          <div className={styles.speedAndTime}>
-            <label>Vitesse moyenne (km/h)</label>
-            <InputNumber min={1} defaultValue={50} onChange={(value) => setSpeedKmh(value)} />
-          </div>
-
           <div className={styles.trackActions}>
             <Button onClick={handleDownload}>Download GPX</Button>
           </div>
@@ -203,11 +195,47 @@ export default function TrackDetails() {
 
           {weather && (
             <>
-              <TimeSelector
-                weather={weather}
-                setTimepointIndex={setTimepointIndex}
-                timepointIndex={timepointIndex}
-              />
+              {useCustomTime ? (
+                <>
+                  <div style={{ width: '300px' }}>
+                    <label>Heure de départ</label>
+                    <TimePicker
+                      format="HH:mm"
+                      onChange={(value) =>
+                        setDepartureTime(value?.toDate() ?? null)
+                      }
+                    />
+                  </div>
+                  <div style={{ width: '300px' }}>
+                    <label>Vitesse moyenne (km/h)</label>
+                    <InputNumber
+                      min={1}
+                      defaultValue={50}
+                      onChange={(value) => setSpeedKmh(value)}
+                    />
+                  </div>
+                </>
+              ) : (
+                <TimeSelector
+                  weather={weather}
+                  setTimepointIndex={setTimepointIndex}
+                  timepointIndex={timepointIndex}
+                />
+              )}
+
+              <Button
+                onClick={() => {
+                  if (useCustomTime) {
+                    setDepartureTime(null)
+                    setSpeedKmh(50)
+                  }
+                  setUseCustomTime((prev) => !prev)
+                }}
+              >
+                {useCustomTime
+                  ? "Choisir l'heure manuellement"
+                  : 'Utiliser heure de départ + vitesse'}
+              </Button>
 
               <h3 className={styles.humidityPlot}>Humidity Chart</h3>
 
