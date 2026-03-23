@@ -1,31 +1,18 @@
 import type { CreateTripRequest } from '@roadtrip/shared'
 import type { FlushHandler } from './types'
 
-interface CreateTripPayload {
-  tripId: string
-  name: string
-  description?: string
-  startDate?: string
-  endDate?: string
-}
 
 export interface CreateTripMutation {
   type: 'CREATE_TRIP'
-  payload: CreateTripPayload
+  payload: CreateTripRequest
 }
 
-export const flushCreateTrip: FlushHandler<CreateTripPayload> = async (
-  { tripId, name, description, startDate, endDate },
+export const flushCreateTrip: FlushHandler<CreateTripRequest> = async (
+  payload,
   api
 ) => {
   await api<void>('/api/trips', {
     method: 'POST',
-    body: JSON.stringify({
-      id: tripId,
-      name,
-      description,
-      startDate,
-      endDate,
-    } satisfies CreateTripRequest),
+    body: JSON.stringify(payload),
   })
 }

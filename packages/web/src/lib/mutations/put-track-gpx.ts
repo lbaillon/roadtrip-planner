@@ -1,4 +1,4 @@
-import { getGpxBlob } from '#web/mutation-queue'
+import { getGpxBlob } from '../mutation-queue'
 import type { UpdateTrackGpxRequest } from '@roadtrip/shared'
 import type { FlushHandler } from './types'
 

@@ -1,6 +1,6 @@
-import { getGpxBlob } from '#web/mutation-queue'
 import type { CreateTrackRequest } from '@roadtrip/shared'
 import type { FlushHandler } from './types'
+import { getGpxBlob } from '../mutation-queue'
 
 interface CreateTrackPayload {
   trackId: string
