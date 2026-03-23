@@ -22,9 +22,7 @@ export const users = sqliteTable('users', {
 export const tracks = sqliteTable(
   'tracks',
   {
-    id: text('id')
-      .primaryKey()
-      .$defaultFn(() => crypto.randomUUID()),
+    id: text('id').primaryKey(),
     userId: text('user_id')
       .references(() => users.id, { onDelete: 'cascade' })
       .notNull(),
@@ -43,9 +41,7 @@ export const tracks = sqliteTable(
 export const trips = sqliteTable(
   'trips',
   {
-    id: text('id')
-      .primaryKey()
-      .$defaultFn(() => crypto.randomUUID()),
+    id: text('id').primaryKey(),
     userId: text('user_id')
       .references(() => users.id, { onDelete: 'cascade' })
       .notNull(),

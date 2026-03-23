@@ -1,3 +1,4 @@
+import type { CreateTrackRequest } from '@roadtrip/shared'
 import { getGpxBlob } from '../gpx-blob-store'
 import type { FlushHandler } from './types'
 
@@ -19,10 +20,12 @@ export const flushCreateTrack: FlushHandler<CreateTrackPayload> = async (
   if (gpxContent === undefined) {
     throw new Error('GPX data lost — please re-upload the track')
   }
-  // id will be accepted after backend migration (Step 3 — UUID v7)
   await api<void>('/api/tracks', {
     method: 'POST',
-    body: JSON.stringify({ id: trackId, name, gpxContent }),
+    body: JSON.stringify({
+      id: trackId,
+      name,
+      gpxContent,
+    } satisfies CreateTrackRequest),
   })
-
 }

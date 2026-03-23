@@ -23,5 +23,4 @@ export const flushPutTrackGpx: FlushHandler<PutTrackGpxPayload> = async (
     method: 'PUT',
     body: JSON.stringify({ gpxContent } satisfies UpdateTrackGpxRequest),
   })
-
 }

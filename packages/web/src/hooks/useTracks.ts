@@ -6,6 +6,7 @@ import {
   type GetWeatherResponse,
   type TrackSummary,
 } from '@roadtrip/shared'
+import { v7 as uuidv7 } from 'uuid'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   addWaypointToGpx,
@@ -22,10 +23,10 @@ export function useCreateTrack() {
   const queryClient = useQueryClient()
   const api = useApi()
   return useMutation({
-    mutationFn: (request: CreateTrackRequest) =>
+    mutationFn: (request: Omit<CreateTrackRequest, 'id'>) =>
       api<CreateResponse>('/api/tracks', {
         method: 'POST',
-        body: JSON.stringify(request),
+        body: JSON.stringify({ id: uuidv7(), ...request }),
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tracks'] })

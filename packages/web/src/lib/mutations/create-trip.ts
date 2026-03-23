@@ -1,3 +1,4 @@
+import type { CreateTripRequest } from '@roadtrip/shared'
 import type { FlushHandler } from './types'
 
 interface CreateTripPayload {
@@ -17,9 +18,14 @@ export const flushCreateTrip: FlushHandler<CreateTripPayload> = async (
   { tripId, name, description, startDate, endDate },
   api
 ) => {
-  // id will be accepted after backend migration (Step 3 — UUID v7)
   await api<void>('/api/trips', {
     method: 'POST',
-    body: JSON.stringify({ id: tripId, name, description, startDate, endDate }),
+    body: JSON.stringify({
+      id: tripId,
+      name,
+      description,
+      startDate,
+      endDate,
+    } satisfies CreateTripRequest),
   })
 }

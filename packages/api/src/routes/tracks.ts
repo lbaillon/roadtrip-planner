@@ -46,6 +46,7 @@ async function createTrack(
   const [track] = await db
     .insert(tracks)
     .values({
+      id: body.id,
       userId: user.userId,
       name: trackName,
       gpxFile: gpxPublicId,

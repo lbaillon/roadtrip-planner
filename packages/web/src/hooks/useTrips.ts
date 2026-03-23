@@ -6,6 +6,7 @@ import type {
   TripTrack,
   UpdateTripTracksOrderRequest,
 } from '@roadtrip/shared'
+import { v7 as uuidv7 } from 'uuid'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useApi } from './useApi'
 
@@ -39,10 +40,10 @@ export function useCreateTrip() {
   const queryClient = useQueryClient()
   const api = useApi()
   return useMutation({
-    mutationFn: (request: CreateTripRequest) =>
+    mutationFn: (request: Omit<CreateTripRequest, 'id'>) =>
       api<CreateResponse>('/api/trips', {
         method: 'POST',
-        body: JSON.stringify(request),
+        body: JSON.stringify({ id: uuidv7(), ...request }),
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips'] })
