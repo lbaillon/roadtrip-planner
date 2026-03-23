@@ -1,17 +1,13 @@
+import type { IdParams } from '@roadtrip/shared'
 import type { FlushHandler } from './types'
-
-interface DeleteTripPayload {
-  tripId: string
-}
 
 export interface DeleteTripMutation {
   type: 'DELETE_TRIP'
-  payload: DeleteTripPayload
+  payload: IdParams
 }
 
-export const flushDeleteTrip: FlushHandler<DeleteTripPayload> = async (
-  { tripId },
-  api
-) => {
-  await api<void>(`/api/trips/${tripId}`, { method: 'DELETE' })
+export const flushDeleteTrip: FlushHandler<
+  DeleteTripMutation['payload']
+> = async ({ id }, api) => {
+  await api<void>(`/api/trips/${id}`, { method: 'DELETE' })
 }

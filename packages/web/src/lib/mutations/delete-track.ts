@@ -1,17 +1,13 @@
+import type { IdParams } from '@roadtrip/shared'
 import type { FlushHandler } from './types'
-
-interface DeleteTrackPayload {
-  trackId: string
-}
 
 export interface DeleteTrackMutation {
   type: 'DELETE_TRACK'
-  payload: DeleteTrackPayload
+  payload: IdParams
 }
 
-export const flushDeleteTrack: FlushHandler<DeleteTrackPayload> = async (
-  { trackId },
-  api
-) => {
-  await api<void>(`/api/tracks/${trackId}`, { method: 'DELETE' })
+export const flushDeleteTrack: FlushHandler<
+  DeleteTrackMutation['payload']
+> = async ({ id }, api) => {
+  await api<void>(`/api/tracks/${id}`, { method: 'DELETE' })
 }

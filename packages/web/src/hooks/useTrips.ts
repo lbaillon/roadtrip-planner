@@ -48,7 +48,7 @@ export function useCreateTrip() {
       const tripId = uuidv7()
       await enqueueMutation({
         type: 'CREATE_TRIP',
-        payload: { ...request, tripId },
+        payload: { ...request, id: tripId },
       })
       return { id: tripId }
     },
@@ -69,7 +69,7 @@ export function useDeleteTrip() {
   return useMutation({
     mutationFn: async (id: string) => {
       await enqueueMutation(
-        { type: 'DELETE_TRIP', payload: { tripId: id } },
+        { type: 'DELETE_TRIP', payload: { id } },
         { dedupeKey: id }
       )
     },

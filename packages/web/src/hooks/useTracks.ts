@@ -29,7 +29,7 @@ export function useCreateTrack() {
       await saveGpxBlob(trackId, request.gpxContent)
       await enqueueMutation({
         type: 'CREATE_TRACK',
-        payload: { trackId, name: trackName },
+        payload: { id: trackId, name: trackName },
       })
       return { id: trackId }
     },
@@ -56,7 +56,7 @@ export function useDeleteTrack() {
   return useMutation({
     mutationFn: async (id: string) => {
       await enqueueMutation(
-        { type: 'DELETE_TRACK', payload: { trackId: id } },
+        { type: 'DELETE_TRACK', payload: { id } },
         { dedupeKey: id }
       )
     },
@@ -137,7 +137,7 @@ function useGpxMutation<TRequest>(
       const updatedGpx = transform(track.gpxContent, request)
       await saveGpxBlob(trackId, updatedGpx)
       await enqueueMutation(
-        { type: 'PUT_TRACK_GPX', payload: { trackId } },
+        { type: 'PUT_TRACK_GPX', payload: { id: trackId } },
         { dedupeKey: trackId }
       )
       return updatedGpx

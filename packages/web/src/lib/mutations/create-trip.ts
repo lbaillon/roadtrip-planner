@@ -1,7 +1,6 @@
 import type { CreateTripRequest } from '@roadtrip/shared'
 import type { FlushHandler } from './types'
 
-
 export interface CreateTripMutation {
   type: 'CREATE_TRIP'
   payload: CreateTripRequest

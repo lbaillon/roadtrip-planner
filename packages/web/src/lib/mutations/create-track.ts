@@ -1,29 +1,23 @@
 import type { CreateTrackRequest } from '@roadtrip/shared'
-import type { FlushHandler } from './types'
 import { getGpxBlob } from '../mutation-queue'
-
-interface CreateTrackPayload {
-  trackId: string
-  name: string
-}
+import type { FlushHandler } from './types'
 
 export interface CreateTrackMutation {
   type: 'CREATE_TRACK'
-  payload: CreateTrackPayload
+  payload: Omit<CreateTrackRequest, 'gpxContent'>
 }
 
-export const flushCreateTrack: FlushHandler<CreateTrackPayload> = async (
-  { trackId, name },
-  api
-) => {
-  const gpxContent = await getGpxBlob(trackId)
+export const flushCreateTrack: FlushHandler<
+  CreateTrackMutation['payload']
+> = async ({ id, name }, api) => {
+  const gpxContent = await getGpxBlob(id)
   if (gpxContent === undefined) {
     throw new Error('GPX data lost — please re-upload the track')
   }
   await api<void>('/api/tracks', {
     method: 'POST',
     body: JSON.stringify({
-      id: trackId,
+      id,
       name,
       gpxContent,
     } satisfies CreateTrackRequest),

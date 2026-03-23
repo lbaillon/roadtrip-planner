@@ -1,17 +1,13 @@
+import type { TrackOfTripParams } from '@roadtrip/shared'
 import type { FlushHandler } from './types'
-
-interface RemoveTrackFromTripPayload {
-  tripId: string
-  trackId: string
-}
 
 export interface RemoveTrackFromTripMutation {
   type: 'REMOVE_TRACK_FROM_TRIP'
-  payload: RemoveTrackFromTripPayload
+  payload: TrackOfTripParams
 }
 
 export const flushRemoveTrackFromTrip: FlushHandler<
-  RemoveTrackFromTripPayload
+  RemoveTrackFromTripMutation['payload']
 > = async ({ tripId, trackId }, api) => {
   await api<void>(`/api/trips/${tripId}/tracks/${trackId}`, {
     method: 'DELETE',
