@@ -50,14 +50,12 @@ export async function removeMutation(id: string): Promise<void> {
     QUEUE_KEY,
     mutations.filter((m) => m.id !== id)
   )
-  window.dispatchEvent(new Event('mutation-dequeued'))
 }
 
 export async function clearQueue(): Promise<void> {
   await set(QUEUE_KEY, [])
   await set(FAILED_KEY, [])
   await clearGpxBlobs()
-  window.dispatchEvent(new Event('mutation-dequeued'))
 }
 
 export async function getFailedMutations(): Promise<FailedMutation[]> {
@@ -97,7 +95,6 @@ export async function dismissFailedMutation(id: string): Promise<void> {
     FAILED_KEY,
     failed.filter((m) => m.id !== id)
   )
-  window.dispatchEvent(new Event('mutation-dequeued'))
 }
 
 export async function saveGpxBlob(
