@@ -1,6 +1,6 @@
 import { fetchApi, refreshAccessToken } from '#web/lib/api-client'
 import { clearQueue } from '#web/lib/mutation-queue'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { AuthContext } from './AuthContext'
 
@@ -44,19 +44,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
   }, [])
 
-  const { mutate: logout } = useMutation({
-    mutationFn: () =>
-      fetchApi(`/api/auth/logout`, {
-        method: 'POST',
-      }),
-    onSuccess: async () => {
-      setAccessTokenState(null)
-      setUserId(null)
-      localStorage.removeItem(USER_ID_KEY)
-      await clearQueue()
-      queryClient.clear()
-    },
-  })
+  const logout = async () => {
+    try {
+      // Request to clear refreshToken
+      await fetchApi('/api/auth/logout', { method: 'POST' })
+    } catch {
+      // Best-effort — clean up locally even if offline or server unreachable.
+    }
+    setAccessTokenState(null)
+    setUserId(null)
+    localStorage.removeItem(USER_ID_KEY)
+    await clearQueue()
+    queryClient.clear()
+  }
 
   return (
     <AuthContext.Provider
