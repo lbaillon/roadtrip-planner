@@ -214,7 +214,7 @@ export default function TrackDetails() {
               <HumidityChart
                 coordinates={parsed.coordinates}
                 weather={weather}
-                timepointIndex={timepointIndex}
+                timepointIndex={timepointIndices ?? timepointIndex}
               />
             </>
           )}
