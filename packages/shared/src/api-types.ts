@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { WeatherDataSchema } from './validators.js'
+import { number } from 'zod/v4'
 
 // Params schemas
 
@@ -53,6 +54,8 @@ export const CreateTripRequestSchema = z.object({
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/)
     .optional(),
+  departureTime: z.string().datetime().optional(),
+  speedKmh: z.number().positive().optional(),
 })
 
 export const AddTrackToTripRequestSchema = z.object({
