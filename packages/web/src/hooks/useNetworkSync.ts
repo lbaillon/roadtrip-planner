@@ -40,10 +40,12 @@ export function useNetworkSync() {
         } catch (error) {
           allSucceeded = false
           if (error instanceof ApiError) {
-            if ([401, 502, 503, 504].includes(error.status)) {
-              // 401: auth expired — useApi already handled refresh/logout.
-              // 502/503/504: server temporarily unavailable — preserve queue,
-              // retry on reconnection.
+            // 401: auth expired — useApi already handled refresh/logout so this needs new login.
+            if (error.status === 401) return
+            // 502/503/504: server temporarily unavailable — preserve queue,
+            // retry on reconnection.
+            if ([502, 503, 504].includes(error.status)) {
+              void queryClient.invalidateQueries({ queryKey: ['health'] })
               return
             }
             // Other HTTP errors (404, 409, 4xx, 5xx) — record as failed and continue.
@@ -67,27 +69,37 @@ export function useNetworkSync() {
     }
   }, [api, queryClient])
 
+  // Keep a ref to the latest flush so event listeners and the isReady effect
+  // always call the current version without being listed as dependencies
+  // (which would cause the effects to re-run — and re-trigger flush — on every
+  // render when api is recreated).
+  const flushRef = useRef(flush)
+  useEffect(() => {
+    flushRef.current = flush
+  }, [flush])
+
   useEffect(() => {
     // When the device comes online, force an immediate health re-check rather
     // than waiting for the next poll interval. The flush itself is triggered
     // below when isReady becomes true — navigator.onLine alone is not enough
     // since the server may still be starting up (cold start).
     const onOnline = async () => {
-      await queryClient.invalidateQueries({ queryKey: ['/health'] })
+      await queryClient.invalidateQueries({ queryKey: ['health'] })
     }
+    const onMutationEnqueued = async () => await flushRef.current()
     window.addEventListener('online', onOnline)
-    window.addEventListener('mutation-enqueued', flush)
+    window.addEventListener('mutation-enqueued', onMutationEnqueued)
     return () => {
       window.removeEventListener('online', onOnline)
-      window.removeEventListener('mutation-enqueued', flush)
+      window.removeEventListener('mutation-enqueued', onMutationEnqueued)
     }
-  }, [flush, queryClient])
+  }, [queryClient])
 
   // Flush when the server becomes ready (network back + health check passed).
   // This is the single trigger for syncing pending mutations on reconnection.
   useEffect(() => {
-    if (isReady) void flush()
-  }, [isReady, flush])
+    if (isReady) void flushRef.current()
+  }, [isReady])
 
   return { isSyncing }
 }

@@ -17,7 +17,7 @@ export function useHealth() {
   }, [])
 
   const query = useQuery({
-    queryKey: ['/health'],
+    queryKey: ['health'],
     queryFn: () =>
       fetchApi<{ status: 'ok' }>('/api/health', { cache: 'no-store' }),
     refetchInterval: (q) => {
