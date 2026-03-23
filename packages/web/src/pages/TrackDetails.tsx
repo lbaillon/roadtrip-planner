@@ -10,10 +10,11 @@ import {
   useGetTrack,
   useGetTrackWeather,
 } from '#web/hooks/useTracks'
-import { Button, message } from 'antd'
-import { Suspense, lazy, useState } from 'react'
+import { Button, InputNumber, message, TimePicker } from 'antd'
+import { Suspense, lazy, useState, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import styles from './TrackDetails.module.css'
+import { sampleRoutePointsWithCumulativeKm } from '#web/lib/gpx-utils'
 
 const MapView = lazy(() => import('#web/components/MapView'))
 
@@ -30,6 +31,8 @@ export default function TrackDetails() {
   } | null>(null)
   const [editingWaypoint, setEditingWaypoint] =
     useState<EditingWaypoint | null>(null)
+  const [departureTime, setDepartureTime] = useState<Date | null>(null)
+  const [speedKmh, setSpeedKmh] = useState<number | null>(50)
 
   const [messageApi, contextHolder] = message.useMessage()
   const { id } = useParams()
@@ -44,6 +47,28 @@ export default function TrackDetails() {
     id ?? ''
   )
   const { mutate: deleteWaypoint } = useDeleteWaypoint(id ?? '')
+
+  const timepointIndices = useMemo(() => {
+  if (!departureTime || !speedKmh || !weather || !parsed) return null
+
+  
+  const departureMs = departureTime.getTime()
+
+  const sampledWithKm = sampleRoutePointsWithCumulativeKm(parsed.coordinates)
+
+  return sampledWithKm.map((point, i) => {
+    const estimatedMs = departureMs + (point.cumulativeKm / speedKmh) * 3600 * 1000
+    const estimatedSec = estimatedMs / 1000
+    const timepoints = weather[i]?.timepoints ?? []
+    return timepoints.reduce(
+      (bestIdx, tp, idx) =>
+        Math.abs(tp.time - estimatedSec) < Math.abs(timepoints[bestIdx].time - estimatedSec)
+          ? idx
+          : bestIdx,
+      0
+    )
+  })
+}, [departureTime, speedKmh, weather, parsed])
 
   function handleMapClick(lat: number, lon: number) {
     setPendingClickCoords({ lat, lon })
@@ -134,6 +159,14 @@ export default function TrackDetails() {
               Distance: {(parsed.distance / 1000).toFixed(2)} km
             </p>
           )}
+          <div className={styles.speedAndTime}>
+            <label>Heure de départ</label>
+            <TimePicker onChange={(value)=>setDepartureTime(value?.toDate()??null)} format = 'HH:mm'/>
+          </div>
+          <div className={styles.speedAndTime}>
+            <label>Vitesse moyenne (km/h)</label>
+            <InputNumber min={1} defaultValue={50} onChange={(value) => setSpeedKmh(value)} />
+          </div>
 
           <div className={styles.trackActions}>
             <Button onClick={handleDownload}>Download GPX</Button>
@@ -143,7 +176,7 @@ export default function TrackDetails() {
             <MapView
               coordinates={parsed.coordinates}
               weather={weather ?? []}
-              timepointIndex={timepointIndex}
+              timepointIndex={timepointIndices ?? timepointIndex}
               waypoints={parsed.waypoints}
               isEditMode={isEditMode}
               showEditToggle={!!accessToken}

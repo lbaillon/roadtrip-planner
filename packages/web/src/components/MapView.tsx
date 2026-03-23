@@ -11,7 +11,7 @@ interface MapViewProps {
   coordinates: GpxCoordinate[]
   waypoints?: GpxWaypoint[]
   weather: WeatherData[]
-  timepointIndex: number
+  timepointIndex: number | number[]
   isEditMode?: boolean
   showEditToggle?: boolean
   onToggleEditMode?: () => void
@@ -38,6 +38,7 @@ export default function MapView({
   const [selectedWeather, setSelectedWeather] = useState<WeatherData | null>(
     null
   )
+  const [selectedWeatherTimepointIdx, setSelectedWeatherTimepointIdx] = useState(0)
   const [selectedWaypoint, setSelectedWaypoint] = useState<GpxWaypoint | null>(
     null
   )
@@ -51,6 +52,9 @@ export default function MapView({
     lat: number
     lon: number
   } | null>(null)
+
+  const getIdx = (i: number) =>
+  Array.isArray(timepointIndex) ? (timepointIndex[i] ?? 0) : timepointIndex
 
   const isGeolocationSupported =
     typeof navigator !== 'undefined' && !!navigator.geolocation
@@ -317,11 +321,12 @@ export default function MapView({
                 e.originalEvent.stopPropagation()
                 setSelectedWeather(w)
                 setSelectedWaypoint(null)
+                setSelectedWeatherTimepointIdx(getIdx(idx))
               }}
             >
               <img
-                src={`https://openweathermap.org/img/wn/${w.timepoints[timepointIndex].icon}@2x.png`}
-                alt={w.timepoints[timepointIndex].description}
+                src={`https://openweathermap.org/img/wn/${w.timepoints[getIdx(idx)].icon}@2x.png`}
+                alt={w.timepoints[getIdx(idx)].description}
                 className={styles.weatherIcons}
               />
             </Marker>
@@ -352,22 +357,22 @@ export default function MapView({
           >
             <div style={{ padding: '8px' }}>
               <strong>
-                {selectedWeather.timepoints[timepointIndex].description}
+                {selectedWeather.timepoints[selectedWeatherTimepointIdx].description}
               </strong>
               <br />
               🌡️{' '}
-              {selectedWeather.timepoints[timepointIndex].temperature.toFixed(
+              {selectedWeather.timepoints[selectedWeatherTimepointIdx].temperature.toFixed(
                 1
               )}
               °C
               <br />
               💨{' '}
-              {selectedWeather.timepoints[timepointIndex].windSpeed?.toFixed(
+              {selectedWeather.timepoints[selectedWeatherTimepointIdx].windSpeed?.toFixed(
                 1
               )}{' '}
               m/s
               <br />
-              💧 {selectedWeather.timepoints[timepointIndex].humidity}% humidity
+              💧 {selectedWeather.timepoints[selectedWeatherTimepointIdx].humidity}% humidity
             </div>
           </Popup>
         )}
