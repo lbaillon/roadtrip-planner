@@ -1,6 +1,7 @@
-import { type UpdateTrackGpxRequest } from '@roadtrip/shared'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { clearGpxBlobs } from '../lib/gpx-blob-store'
+import { applyFlushHandler } from '../lib/mutations'
 import { getMutations, removeMutation } from '../lib/mutation-queue'
 import { useApi } from './useApi'
 import { useHealth } from './useHealth'
@@ -27,19 +28,10 @@ export function useNetworkSync() {
     setIsSyncing(true)
     try {
       for (const mutation of mutations) {
-        // Only PUT_TRACK_GPX is implemented so far — unknown types are skipped.
-        // TODO: remove or log unknown mutations instead of leaving them in the queue forever.
-        if (mutation.type === 'PUT_TRACK_GPX') {
-          const { trackId, gpxContent } = mutation.payload
-          await api<void>(`/api/tracks/${trackId}`, {
-            method: 'PUT',
-            body: JSON.stringify({
-              gpxContent,
-            } satisfies UpdateTrackGpxRequest),
-          })
-          await removeMutation(mutation.id)
-        }
+        await applyFlushHandler(mutation, api)
+        await removeMutation(mutation.id)
       }
+      await clearGpxBlobs()
       // Reload fresh data from server after a successful sync
       await queryClient.invalidateQueries()
     } catch {

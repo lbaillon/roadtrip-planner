@@ -14,6 +14,7 @@ import {
   parseGpxFile,
   sampleRoutePoints,
 } from '../lib/gpx-utils'
+import { saveGpxBlob } from '../lib/gpx-blob-store'
 import { enqueueMutation } from '../lib/mutation-queue'
 import { useApi } from './useApi'
 
@@ -109,8 +110,9 @@ function useGpxMutation<TRequest>(
       ])
       if (!track?.gpxContent) throw new Error('Track GPX not available')
       const updatedGpx = transform(track.gpxContent, request)
+      await saveGpxBlob(trackId, updatedGpx)
       await enqueueMutation(
-        { type: 'PUT_TRACK_GPX', payload: { trackId, gpxContent: updatedGpx } },
+        { type: 'PUT_TRACK_GPX', payload: { trackId } },
         { dedupeKey: trackId }
       )
       return updatedGpx
