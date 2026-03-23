@@ -8,8 +8,13 @@ As a user while on a roadtrip, I want to use the app offline and be sure it will
 
 ## Description
 
-The user should be able to manipulate tracks and trips without being connected and everything should synchronize in the correct order once the backend comes back online. Not all features are critical for offline, for now we are mostly interested in tracks and trips (signing up for example is certainly NOT something that should work offline). But adding new tracks and GPX files, creating or modifying trips, adding or removing tracks to a trip, etc. should be possible even offline. For the weather data, it is only accessible online but we still want it to be cached for the next 48 hours.
+The user should be able to manipulate tracks and trips without being connected and everything should synchronize in the correct order once the backend comes back online. Not all features are critical for offline, for now we are mostly interested in tracks and trips (signing up for example is certainly NOT something that should work offline). But adding new tracks and GPX files, creating or modifying trips, adding or removing tracks to a trip, etc. should be possible even offline. For the weather data, it is only accessible online but we still want it to be cached for the next 48 hours. All mutable actions that are made offline should be replayed in correct order once server is back on. Some actions are idempotent and as such can be overwritten when added in the queue, we added a dedupeKey attribute to identify them. Tasks in the queue should be acknowledged and removed only once the server confirms that it has saved the new state (with 20x reponse status codes).
 
 ## Notes
 
 We already used uuids in the backend so it should not be an issue to generate uuids on the frontend to make it work offline. We could migrate to uuid-V7 since generation time is not sensitive. Make sure to write down any concern you have, especially security-related, and possible remediation.
+Existing work has been done, you can find the current implementation mostly in these files:
+
+- packages/web/src/lib/mutation-queue.ts
+- packages/web/src/hooks/useMutationQueue.ts
+- packages/web/src/hooks/useNetworkSync.ts
