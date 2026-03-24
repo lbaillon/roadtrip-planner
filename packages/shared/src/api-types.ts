@@ -32,7 +32,8 @@ export const LogInRequestSchema = z.object({
 })
 
 export const CreateTrackRequestSchema = z.object({
-  name: z.string().optional(),
+  id: z.uuidv7(),
+  name: z.string().min(1, 'Cannot be empty'),
   gpxContent: z.string().min(1, 'GPX content cannot be empty'),
 })
 
@@ -43,6 +44,7 @@ export const UpdateUserRequestSchema = z.object({
 })
 
 export const CreateTripRequestSchema = z.object({
+  id: z.uuidv7(),
   name: z.string().min(1, 'Cannot be empty'),
   description: z.string().optional(),
   startDate: z

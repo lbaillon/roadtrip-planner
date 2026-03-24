@@ -1,4 +1,12 @@
 import {
+  addWaypointToGpx,
+  deleteWaypointFromGpx,
+  editWaypointInGpx,
+  parseGpxFile,
+  sampleRoutePoints,
+} from '#web/lib/gpx-utils'
+import { enqueueMutation, saveGpxBlob } from '#web/lib/mutation-queue'
+import {
   type CreateResponse,
   type CreateTrackRequest,
   type GetTrackResponse,
@@ -7,41 +15,59 @@ import {
   type TrackSummary,
 } from '@roadtrip/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import {
-  addWaypointToGpx,
-  deleteWaypointFromGpx,
-  editWaypointInGpx,
-  parseGpxFile,
-  sampleRoutePoints,
-} from '../lib/gpx-utils'
-import { enqueueMutation } from '../lib/mutation-queue'
+import { v7 as uuidv7 } from 'uuid'
 import { useApi } from './useApi'
 
 export function useCreateTrack() {
   const queryClient = useQueryClient()
-  const api = useApi()
   return useMutation({
-    mutationFn: (request: CreateTrackRequest) =>
-      api<CreateResponse>('/api/tracks', {
-        method: 'POST',
-        body: JSON.stringify(request),
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tracks'] })
+    mutationFn: async (
+      request: Omit<CreateTrackRequest, 'id' | 'name'> & { name?: string }
+    ): Promise<CreateResponse> => {
+      const trackId = uuidv7()
+      const trackName = request.name ?? 'Unnamed Track'
+      await saveGpxBlob(trackId, request.gpxContent)
+      await enqueueMutation({
+        type: 'CREATE_TRACK',
+        payload: { id: trackId, name: trackName },
+      })
+      return { id: trackId }
+    },
+    onSuccess: async ({ id: trackId }, { name, gpxContent }) => {
+      const trackName = name ?? 'Unnamed Track'
+      queryClient.setQueryData<TrackSummary[]>(['tracks'], (old = []) => [
+        ...old,
+        { id: trackId, name: trackName },
+      ])
+      queryClient.setQueryData<GetTrackResponse>(['tracks', trackId], {
+        id: trackId,
+        name: trackName,
+        gpxContent,
+      })
+      await queryClient.invalidateQueries({
+        queryKey: ['mutation-queue', 'pending'],
+      })
     },
   })
 }
 
 export function useDeleteTrack() {
   const queryClient = useQueryClient()
-  const api = useApi()
   return useMutation({
-    mutationFn: (id: string) =>
-      api<void>(`/api/tracks/${id}`, {
-        method: 'DELETE',
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tracks'] })
+    mutationFn: async (id: string) => {
+      await enqueueMutation(
+        { type: 'DELETE_TRACK', payload: { id } },
+        { dedupeKey: id }
+      )
+    },
+    onSuccess: async (_, id) => {
+      queryClient.setQueryData<TrackSummary[]>(['tracks'], (old = []) =>
+        old.filter((t) => t.id !== id)
+      )
+      queryClient.removeQueries({ queryKey: ['tracks', id] })
+      await queryClient.invalidateQueries({
+        queryKey: ['mutation-queue', 'pending'],
+      })
     },
   })
 }
@@ -109,10 +135,11 @@ function useGpxMutation<TRequest>(
       ])
       if (!track?.gpxContent) throw new Error('Track GPX not available')
       const updatedGpx = transform(track.gpxContent, request)
-      await enqueueMutation('PUT_TRACK_GPX', {
-        trackId,
-        gpxContent: updatedGpx,
-      })
+      await saveGpxBlob(trackId, updatedGpx)
+      await enqueueMutation(
+        { type: 'PUT_TRACK_GPX', payload: { id: trackId } },
+        { dedupeKey: trackId }
+      )
       return updatedGpx
     },
     onSuccess: async (updatedGpx) => {
@@ -133,7 +160,9 @@ function useGpxMutation<TRequest>(
         ['tracks', trackId, 'parsed'],
         parseGpxFile(updatedGpx)
       )
-      await queryClient.invalidateQueries({ queryKey: ['mutation-queue'] })
+      await queryClient.invalidateQueries({
+        queryKey: ['mutation-queue', 'pending'],
+      })
     },
   })
 }

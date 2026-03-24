@@ -15,7 +15,7 @@ export default function SWUpdatePrompt() {
           <Button
             type="primary"
             size="small"
-            onClick={() => void updateServiceWorker(true)}
+            onClick={async () => await updateServiceWorker(true)}
           >
             Reload
           </Button>

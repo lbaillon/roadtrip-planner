@@ -1,8 +1,8 @@
+import alexandreImg from '#web/assets/alexandre.jpg'
+import lauryImg from '#web/assets/laury.jpg'
+import remiImg from '#web/assets/remi.jpg'
 import BoxTitle from '#web/components/BoxTitle'
 import { useState } from 'react'
-import alexandreImg from '../assets/alexandre.jpg'
-import lauryImg from '../assets/laury.jpg'
-import remiImg from '../assets/remi.jpg'
 import styles from './About.module.css'
 
 type MemberId = 'remi' | 'laury' | 'alexandre'

@@ -1,17 +1,19 @@
-import { get, set } from 'idb-keyval'
+import { clear, createStore, get, set } from 'idb-keyval'
+import type { MutationDefinition } from './mutations'
 
 const QUEUE_KEY = 'roadtrip:mutation-queue'
+const FAILED_KEY = 'roadtrip:failed-mutations'
+const gpxBlobStore = createStore('roadtrip-gpx-blobs', 'blobs')
 
-export interface PendingMutation<T = unknown> {
+export type PendingMutation = MutationDefinition & {
   id: string
-  type: string
-  payload: T
   enqueuedAt: number
+  dedupeKey?: string
 }
 
-export interface PutTrackGpxPayload {
-  trackId: string
-  gpxContent: string
+export type FailedMutation = PendingMutation & {
+  error: string
+  failedAt: number
 }
 
 export async function getMutations(): Promise<PendingMutation[]> {
@@ -19,31 +21,25 @@ export async function getMutations(): Promise<PendingMutation[]> {
 }
 
 export async function enqueueMutation(
-  type: string,
-  payload: unknown
+  definition: MutationDefinition,
+  options?: { dedupeKey?: string }
 ): Promise<void> {
   const mutations = await getMutations()
 
-  // PUT_TRACK_GPX: deduplicate by trackId — the new GPX supersedes the old
-  let filtered = mutations
-  if (type === 'PUT_TRACK_GPX') {
-    const { trackId } = payload as PutTrackGpxPayload
-    filtered = mutations.filter(
-      (m) =>
-        !(
-          m.type === 'PUT_TRACK_GPX' &&
-          (m.payload as PutTrackGpxPayload).trackId === trackId
+  const dedupeKey = options?.dedupeKey
+  const filtered =
+    dedupeKey !== undefined
+      ? mutations.filter(
+          (m) => !(m.type === definition.type && m.dedupeKey === dedupeKey)
         )
-    )
-  }
+      : mutations
 
   const mutation: PendingMutation = {
+    ...definition,
     id: crypto.randomUUID(),
-    type,
-    payload,
     enqueuedAt: Date.now(),
+    dedupeKey,
   }
-
   await set(QUEUE_KEY, [...filtered, mutation])
   window.dispatchEvent(new Event('mutation-enqueued'))
 }
@@ -54,10 +50,64 @@ export async function removeMutation(id: string): Promise<void> {
     QUEUE_KEY,
     mutations.filter((m) => m.id !== id)
   )
-  window.dispatchEvent(new Event('mutation-dequeued'))
 }
 
 export async function clearQueue(): Promise<void> {
   await set(QUEUE_KEY, [])
-  window.dispatchEvent(new Event('mutation-dequeued'))
+  await set(FAILED_KEY, [])
+  await clearGpxBlobs()
+}
+
+export async function getFailedMutations(): Promise<FailedMutation[]> {
+  return (await get<FailedMutation[]>(FAILED_KEY)) ?? []
+}
+
+export async function addFailedMutation(
+  mutation: PendingMutation,
+  error: string
+): Promise<void> {
+  const failed = await getFailedMutations()
+  const failedMutation: FailedMutation = {
+    ...mutation,
+    error,
+    failedAt: Date.now(),
+  }
+  await set(FAILED_KEY, [...failed, failedMutation])
+}
+
+export async function retryFailedMutation(id: string): Promise<void> {
+  const failed = await getFailedMutations()
+  const mutation = failed.find((m) => m.id === id)
+  if (!mutation) return
+  await set(
+    FAILED_KEY,
+    failed.filter((m) => m.id !== id)
+  )
+  await enqueueMutation(
+    { type: mutation.type, payload: mutation.payload } as MutationDefinition,
+    { dedupeKey: mutation.dedupeKey }
+  )
+}
+
+export async function dismissFailedMutation(id: string): Promise<void> {
+  const failed = await getFailedMutations()
+  await set(
+    FAILED_KEY,
+    failed.filter((m) => m.id !== id)
+  )
+}
+
+export async function saveGpxBlob(
+  trackId: string,
+  content: string
+): Promise<void> {
+  await set(trackId, content, gpxBlobStore)
+}
+
+export async function getGpxBlob(trackId: string): Promise<string | undefined> {
+  return get<string>(trackId, gpxBlobStore)
+}
+
+export async function clearGpxBlobs(): Promise<void> {
+  await clear(gpxBlobStore)
 }
