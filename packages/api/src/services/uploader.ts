@@ -8,7 +8,7 @@ cloudinary.config({
 })
 
 export async function uploadGpx(
-  trackName: string,
+  trackId: string,
   gpxContent: string
 ): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -16,7 +16,7 @@ export async function uploadGpx(
       {
         resource_type: 'raw',
         folder: 'gpx-tracks',
-        public_id: `${Date.now()}-${trackName.replace(/\s+/g, '-')}`,
+        public_id: `${Date.now()}-${trackId.replace(/\s+/g, '-')}`,
         format: 'gpx',
       },
       (error, result) => {

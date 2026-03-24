@@ -1,6 +1,6 @@
+import { fetchApi } from '#web/lib/api-client'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
-import { fetchApi } from '../lib/api-client'
 
 export function useHealth() {
   const [isOnline, setIsOnline] = useState(navigator.onLine)
@@ -17,12 +17,12 @@ export function useHealth() {
   }, [])
 
   const query = useQuery({
-    queryKey: ['/health'],
+    queryKey: ['health'],
     queryFn: () =>
       fetchApi<{ status: 'ok' }>('/api/health', { cache: 'no-store' }),
     refetchInterval: (q) => {
       if (!navigator.onLine) return false
-      return q.state.data?.status === 'ok' ? 30000 : 5000
+      return !q.state.error && q.state.data?.status === 'ok' ? 30000 : 5000
     },
     retry: 3,
     retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10000),

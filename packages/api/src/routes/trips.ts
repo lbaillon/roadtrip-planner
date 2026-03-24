@@ -41,6 +41,7 @@ async function createTrip(
   const [trip] = await db
     .insert(trips)
     .values({
+      id: body.id,
       userId: user.userId,
       name: body.name,
       description: body.description,
