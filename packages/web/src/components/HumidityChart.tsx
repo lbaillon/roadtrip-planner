@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo } from 'react'
+import { useEffect, useRef } from 'react'
 import * as d3 from 'd3'
 import type { GpxCoordinate, WeatherData } from '@roadtrip/shared'
 
@@ -64,17 +64,14 @@ export function HumidityChart({
     Array.isArray(timepointIndex) ? (timepointIndex[i] ?? 0) : timepointIndex
 
   // Filtrer les points météo qui ont une humidité définie
-  const weatherWithHumidity = useMemo(
-    () =>
-      weather.filter(
-        (w, i): w is WeatherData & { humidity: number } =>
-          w.timepoints[getIdx(i)].humidity !== undefined
-      ),
-    [weather, timepointIndex]
+  const weatherWithHumidity = weather.filter(
+    (w, i): w is WeatherData & { humidity: number } =>
+      w.timepoints[getIdx(i)].humidity !== undefined
   )
 
   // Construire les points enrichis : distance cumulée + humidité du point météo le plus proche
-  const data = useMemo<EnrichedPoint[]>(() => {
+
+  function getHumidityData() {
     if (coordinates.length === 0 || weatherWithHumidity.length === 0) return []
 
     let cumulatedDistance = 0
@@ -99,7 +96,9 @@ export function HumidityChart({
         humidity: nearest?.timepoints[getIdx(i)].humidity ?? 0,
       }
     })
-  }, [coordinates, weatherWithHumidity, timepointIndex])
+  }
+
+  const data = getHumidityData()
 
   useEffect(() => {
     if (!svgRef.current || data.length === 0) return
