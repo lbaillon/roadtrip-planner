@@ -7,7 +7,7 @@ import {
   useAddWaypoint,
   useDeleteWaypoint,
   useEditWaypoint,
-} from '#web/hooks/useTracks'
+} from '#web/hooks/mutations/usePutTrackGpx'
 import {
   sampleRoutePoints,
   sampleRoutePointsWithCumulativeKm,
