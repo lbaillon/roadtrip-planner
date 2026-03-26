@@ -1,6 +1,5 @@
 import { z } from 'zod'
 import { WeatherDataSchema } from './validators.js'
-import { number } from 'zod/v4'
 
 // Params schemas
 
