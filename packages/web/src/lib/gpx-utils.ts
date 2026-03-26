@@ -102,6 +102,41 @@ export function sampleRoutePoints(
   return coordinates.filter((_, index) => index % sampleEvery === 0)
 }
 
+export function haversineDistanceKm(
+  p1: { lat: number; lon: number },
+  p2: { lat: number; lon: number }
+): number {
+  const R = 6371
+  const dLat = ((p2.lat - p1.lat) * Math.PI) / 180
+  const dLon = ((p2.lon - p1.lon) * Math.PI) / 180
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((p1.lat * Math.PI) / 180) *
+      Math.cos((p2.lat * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2)
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+}
+
+export function sampleRoutePointsWithCumulativeKm(
+  coordinates: Array<{ lat: number; lon: number }>
+): Array<{ lat: number; lon: number; cumulativeKm: number }> {
+  if (coordinates.length === 0) return []
+  const totalPoints = coordinates.length
+  const sampleEvery = Math.max(1, Math.floor(totalPoints / 10))
+  const sampled: Array<{ lat: number; lon: number; cumulativeKm: number }> = []
+  let cumulativeKm = 0
+  let prevPoint = coordinates[0]
+  for (let i = 0; i < totalPoints; i++) {
+    cumulativeKm += haversineDistanceKm(prevPoint, coordinates[i])
+    prevPoint = coordinates[i]
+    if (i % sampleEvery === 0) {
+      sampled.push({ ...coordinates[i], cumulativeKm })
+    }
+  }
+  return sampled
+}
+
 function getAllWaypointRefs(
   parsed: ReturnType<typeof xmlParser.parse>
 ): { array: unknown[]; localIndex: number }[] {
