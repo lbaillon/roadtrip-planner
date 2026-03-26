@@ -4,6 +4,8 @@ import { parseGpxFile } from '#web/lib/gpx-utils'
 import { Button } from 'antd'
 import { useParams } from 'react-router-dom'
 import styles from './TrackDetails.module.css'
+import { faDownload } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 export default function TrackDetails() {
   const { id } = useParams()
@@ -29,11 +31,20 @@ export default function TrackDetails() {
           <p>Loading route...</p>
         </div>
       )}
-      <div className={styles.trackActions}>
-        <Button onClick={handleDownload}>Download GPX</Button>
-      </div>
 
-      {parsed && <TrackContent parsed={parsed} />}
+      {parsed && (
+        <TrackContent
+          parsed={parsed}
+          headerAction={
+            <Button onClick={handleDownload} className={styles.downloadButton}>
+              <FontAwesomeIcon
+                className={styles.downloadIcon}
+                icon={faDownload}
+              />
+            </Button>
+          }
+        />
+      )}
     </div>
   )
 }
