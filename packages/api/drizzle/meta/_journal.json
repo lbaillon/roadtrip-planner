@@ -22,20 +22,6 @@
       "when": 1773674712717,
       "tag": "0002_nosy_black_cat",
       "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1774274667081,
-      "tag": "0003_omniscient_tiger_shark",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "6",
-      "when": 1774275697533,
-      "tag": "0004_naive_kabuki",
-      "breakpoints": true
     }
   ]
 }
