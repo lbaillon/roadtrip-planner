@@ -34,11 +34,6 @@ export default function OfflineStatus({ isSyncing }: Props) {
       {(!isOnline || !isServerReady) && (
         <span className={styles.offline}>{label}</span>
       )}
-      {pendingCount > 0 && (
-        <span className={styles.pending}>
-          {pendingCount} change(s) pending sync
-        </span>
-      )}
       {failedMutations.length > 0 && (
         <button
           className={styles.errorToggle}

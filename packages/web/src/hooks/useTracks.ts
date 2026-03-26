@@ -2,7 +2,6 @@ import {
   addWaypointToGpx,
   deleteWaypointFromGpx,
   editWaypointInGpx,
-  parseGpxFile,
 } from '#web/lib/gpx-utils'
 import { enqueueMutation, saveGpxBlob } from '#web/lib/mutation-queue'
 import {
@@ -119,13 +118,6 @@ function useGpxMutation<TRequest>(
           gpxContent: updatedGpx,
         })
       }
-      // Set the parsed result directly instead of invalidating — invalidating
-      // would refetch using a stale closure of `track` in useGetParsedTrack
-      // (the component hasn't re-rendered yet with the new gpxContent).
-      queryClient.setQueryData(
-        ['tracks', trackId, 'parsed'],
-        parseGpxFile(updatedGpx)
-      )
       await queryClient.invalidateQueries({
         queryKey: ['mutation-queue', 'pending'],
       })
