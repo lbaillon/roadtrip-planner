@@ -1,10 +1,6 @@
 
 
-.trackActions {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
-}
+
 
 .contentBox {
   width: 100vw;
@@ -18,4 +14,16 @@
 }
 
 
+.downloadButton{
+background-color: var(--primary);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+}
 
+.downloadIcon{
+  color: var(--surface);
+  font-size: 20px;
+}

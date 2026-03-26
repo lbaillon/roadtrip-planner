@@ -14,9 +14,53 @@
 .routeName {
   text-align: center;
   color: var(--primary);
+  margin-bottom: 10px;
 }
 
 .humidityPlot {
   color: var(--primary);
   margin-top: 10%;
+}
+
+.hourSetup{
+  margin-top: 20px;
+  border-radius: 20px;
+  background-color: var(--primary);
+  color: var(--surface);
+}
+
+.startAndSpeed{
+  width: 85%;
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap : 12px;
+}
+
+.selectionBox{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  color: var(--primary);
+}
+
+
+:global(.ant-picker-time-panel-column) {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+:global(.ant-picker-time-panel-column li) {
+  touch-action: pan-y;
+}
+
+.mapHeader{
+  width: 90%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
 }
