@@ -7,7 +7,7 @@ import {
   type LogInRequest,
   type LogInResponse,
 } from '@roadtrip/shared'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from './useAuth'
@@ -66,14 +66,15 @@ export function useApi() {
   }
 }
 
-export function useGetWeather() {
+export function useGetWeather(request: GetWeatherRequest) {
   const api = useApi()
-  return useMutation({
-    mutationFn: (request: GetWeatherRequest) =>
+  return  useQuery({
+    queryKey:['weather', request],
+    queryFn: () => 
       api<GetWeatherResponse>('/api/weather', {
         method: 'POST',
-        body: JSON.stringify(request),
-      }),
+        body: JSON.stringify(request)}),
+    
   })
 }
 

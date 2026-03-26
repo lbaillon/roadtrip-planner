@@ -1,22 +1,4 @@
 
-.mapBox {
-  width: 100vw;
-  margin-top: 30px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.routeName {
-  text-align: center;
-  color: var(--primary);
-}
-
-.humidityPlot {
-  color: var(--primary);
-  margin-top: 10%;
-}
-
 
 .trackActions {
   display: flex;
@@ -35,7 +17,5 @@
   );
 }
 
-.speedAndTime{
-  width: 300px;
-}
+
 
