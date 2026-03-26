@@ -226,6 +226,4 @@ export function deleteWaypointFromGpx(
   ref.array.splice(ref.localIndex, 1)
 
   return xmlBuilder.build(parsed)
-
-
 }

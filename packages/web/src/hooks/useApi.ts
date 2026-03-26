@@ -68,13 +68,15 @@ export function useApi() {
 
 export function useGetWeather(request: GetWeatherRequest) {
   const api = useApi()
-  return  useQuery({
-    queryKey:['weather', request],
-    queryFn: () => 
+  return useQuery({
+    queryKey: ['weather', request],
+    queryFn: () =>
       api<GetWeatherResponse>('/api/weather', {
         method: 'POST',
-        body: JSON.stringify(request)}),
-    
+        body: JSON.stringify(request),
+      }),
+    gcTime: 48 * 60 * 60 * 1000,
+    staleTime: 60 * 60 * 1000,
   })
 }
 

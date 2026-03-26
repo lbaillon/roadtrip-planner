@@ -1,26 +1,15 @@
 import TrackContent from '#web/components/TrackContent'
-import {
-  useGetParsedTrack,
-  useGetTrack
-} from '#web/hooks/useTracks'
+import { useGetTrack } from '#web/hooks/useTracks'
+import { parseGpxFile } from '#web/lib/gpx-utils'
 import { Button } from 'antd'
 import { useParams } from 'react-router-dom'
 import styles from './TrackDetails.module.css'
 
-
-
 export default function TrackDetails() {
-
-
-
-  
   const { id } = useParams()
 
-  const { data: track } = useGetTrack(id)
-  const { data: parsed, isLoading: parsedLoading } = useGetParsedTrack(id)
-
-
-
+  const { data: track, isLoading } = useGetTrack(id)
+  const parsed = track ? parseGpxFile?.(track.gpxContent) : undefined
 
   function handleDownload() {
     if (!track) return
@@ -35,18 +24,16 @@ export default function TrackDetails() {
 
   return (
     <div className={styles.contentBox}>
-      {parsedLoading && (
+      {isLoading && (
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
           <p>Loading route...</p>
         </div>
       )}
-          <div className={styles.trackActions}>
-            <Button onClick={handleDownload}>Download GPX</Button>
-          </div>
+      <div className={styles.trackActions}>
+        <Button onClick={handleDownload}>Download GPX</Button>
+      </div>
 
-      {parsed && (
-        <TrackContent parsed={parsed}/>
-      )}
+      {parsed && <TrackContent parsed={parsed} />}
     </div>
   )
 }

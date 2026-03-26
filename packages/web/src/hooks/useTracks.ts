@@ -3,15 +3,12 @@ import {
   deleteWaypointFromGpx,
   editWaypointInGpx,
   parseGpxFile,
-  sampleRoutePoints,
 } from '#web/lib/gpx-utils'
 import { enqueueMutation, saveGpxBlob } from '#web/lib/mutation-queue'
 import {
   type CreateResponse,
   type CreateTrackRequest,
   type GetTrackResponse,
-  type GetWeatherRequest,
-  type GetWeatherResponse,
   type TrackSummary,
 } from '@roadtrip/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -86,39 +83,8 @@ export function useGetTrack(id: string | undefined) {
     queryKey: ['tracks', id],
     queryFn: () => api<GetTrackResponse>(`/api/tracks/${id}`),
     enabled: !!id,
-  })
-}
-
-export function useGetParsedTrack(trackId: string | undefined) {
-  const { data: track } = useGetTrack(trackId)
-  return useQuery({
-    queryKey: ['tracks', trackId, 'parsed'],
-    queryFn: () => {
-      if (!track?.gpxContent) throw new Error('GPX content not available')
-      return parseGpxFile(track.gpxContent)
-    },
-    enabled: !!trackId && !!track?.gpxContent,
     gcTime: 7 * 24 * 60 * 60 * 1000,
     staleTime: Infinity,
-  })
-}
-
-export function useGetTrackWeather(trackId: string | undefined) {
-  const { data: parsed } = useGetParsedTrack(trackId)
-  const api = useApi()
-  const sampled = parsed ? sampleRoutePoints(parsed.coordinates) : undefined
-  return useQuery({
-    queryKey: ['tracks', trackId, 'weather'],
-    queryFn: () =>
-      api<GetWeatherResponse>('/api/weather', {
-        method: 'POST',
-        body: JSON.stringify({
-          coordinates: sampled!,
-        } satisfies GetWeatherRequest),
-      }),
-    enabled: !!trackId && !!sampled && sampled.length > 0,
-    gcTime: 48 * 60 * 60 * 1000,
-    staleTime: 60 * 60 * 1000,
   })
 }
 

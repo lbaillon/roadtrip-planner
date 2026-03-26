@@ -13,8 +13,6 @@ export default function Home() {
   const [messageApi, contextHolder] = message.useMessage()
   const { isReady } = useHealth()
 
-
-
   const handleFileSelect = (content: string) => {
     try {
       const parsed = parseGpxFile(content)
@@ -39,9 +37,7 @@ export default function Home() {
           )}
         </div>
 
-        {parsedGpx && (
-          <TrackContent parsed={parsedGpx}/>
-        )}
+        {parsedGpx && <TrackContent parsed={parsedGpx} />}
       </div>
     </>
   )

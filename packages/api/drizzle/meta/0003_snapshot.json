@@ -53,9 +53,7 @@
       "indexes": {
         "tracks_user_id_idx": {
           "name": "tracks_user_id_idx",
-          "columns": [
-            "user_id"
-          ],
+          "columns": ["user_id"],
           "isUnique": false
         }
       },
@@ -64,12 +62,8 @@
           "name": "tracks_user_id_users_id_fk",
           "tableFrom": "tracks",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -116,12 +110,8 @@
           "name": "trip_tracks_trip_id_trips_id_fk",
           "tableFrom": "trip_tracks",
           "tableTo": "trips",
-          "columnsFrom": [
-            "trip_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["trip_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -129,22 +119,15 @@
           "name": "trip_tracks_track_id_tracks_id_fk",
           "tableFrom": "trip_tracks",
           "tableTo": "tracks",
-          "columnsFrom": [
-            "track_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["track_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
         "trip_tracks_trip_id_track_id_pk": {
-          "columns": [
-            "trip_id",
-            "track_id"
-          ],
+          "columns": ["trip_id", "track_id"],
           "name": "trip_tracks_trip_id_track_id_pk"
         }
       },
@@ -221,9 +204,7 @@
       "indexes": {
         "trips_user_id_idx": {
           "name": "trips_user_id_idx",
-          "columns": [
-            "user_id"
-          ],
+          "columns": ["user_id"],
           "isUnique": false
         }
       },
@@ -232,12 +213,8 @@
           "name": "trips_user_id_users_id_fk",
           "tableFrom": "trips",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -295,16 +272,12 @@
       "indexes": {
         "users_email_unique": {
           "name": "users_email_unique",
-          "columns": [
-            "email"
-          ],
+          "columns": ["email"],
           "isUnique": true
         },
         "users_username_unique": {
           "name": "users_username_unique",
-          "columns": [
-            "username"
-          ],
+          "columns": ["username"],
           "isUnique": true
         }
       },

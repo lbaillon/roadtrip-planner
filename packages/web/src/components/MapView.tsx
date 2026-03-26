@@ -38,7 +38,8 @@ export default function MapView({
   const [selectedWeather, setSelectedWeather] = useState<WeatherData | null>(
     null
   )
-  const [selectedWeatherTimepointIdx, setSelectedWeatherTimepointIdx] = useState(0)
+  const [selectedWeatherTimepointIdx, setSelectedWeatherTimepointIdx] =
+    useState(0)
   const [selectedWaypoint, setSelectedWaypoint] = useState<GpxWaypoint | null>(
     null
   )
@@ -54,7 +55,7 @@ export default function MapView({
   } | null>(null)
 
   const getIdx = (i: number) =>
-  Array.isArray(timepointIndex) ? (timepointIndex[i] ?? 0) : timepointIndex
+    Array.isArray(timepointIndex) ? (timepointIndex[i] ?? 0) : timepointIndex
 
   const isGeolocationSupported =
     typeof navigator !== 'undefined' && !!navigator.geolocation
@@ -357,22 +358,27 @@ export default function MapView({
           >
             <div style={{ padding: '8px' }}>
               <strong>
-                {selectedWeather.timepoints[selectedWeatherTimepointIdx].description}
+                {
+                  selectedWeather.timepoints[selectedWeatherTimepointIdx]
+                    .description
+                }
               </strong>
               <br />
               🌡️{' '}
-              {selectedWeather.timepoints[selectedWeatherTimepointIdx].temperature.toFixed(
-                1
-              )}
+              {selectedWeather.timepoints[
+                selectedWeatherTimepointIdx
+              ].temperature.toFixed(1)}
               °C
               <br />
               💨{' '}
-              {selectedWeather.timepoints[selectedWeatherTimepointIdx].windSpeed?.toFixed(
-                1
-              )}{' '}
+              {selectedWeather.timepoints[
+                selectedWeatherTimepointIdx
+              ].windSpeed?.toFixed(1)}{' '}
               m/s
               <br />
-              💧 {selectedWeather.timepoints[selectedWeatherTimepointIdx].humidity}% humidity
+              💧{' '}
+              {selectedWeather.timepoints[selectedWeatherTimepointIdx].humidity}
+              % humidity
             </div>
           </Popup>
         )}
