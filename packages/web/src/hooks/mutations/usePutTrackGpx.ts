@@ -3,7 +3,11 @@ import {
   deleteWaypointFromGpx,
   editWaypointInGpx,
 } from '#web/lib/gpx-utils'
-import { enqueueMutation, getGpxBlob, saveGpxBlob } from '#web/lib/mutation-queue'
+import {
+  enqueueMutation,
+  getGpxBlob,
+  saveGpxBlob,
+} from '#web/lib/mutation-queue'
 import type { IdParams, UpdateTrackGpxRequest } from '@roadtrip/shared'
 import { type GetTrackResponse } from '@roadtrip/shared'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
