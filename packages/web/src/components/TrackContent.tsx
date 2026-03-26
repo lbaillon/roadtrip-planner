@@ -22,7 +22,13 @@ const MapView = lazy(() => import('#web/components/MapView'))
 type WaypointFormData = { name: string; description?: string }
 type EditingWaypoint = { index: number } & WaypointFormData
 
-export default function TrackContent({ parsed }: { parsed: ParsedGpx }) {
+export default function TrackContent({
+  parsed,
+  headerAction,
+}: {
+  parsed: ParsedGpx
+  headerAction?: React.ReactNode
+}) {
   const [timepointIndex, setTimepointIndex] = useState(0)
   const [isEditMode, setIsEditMode] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -141,11 +147,14 @@ export default function TrackContent({ parsed }: { parsed: ParsedGpx }) {
     <div className={styles.mapBox}>
       {contextHolder}
       <h2 className={styles.routeName}>{parsed.name}</h2>
-      {parsed.distance && (
-        <p className={styles.routeName}>
-          Distance: {(parsed.distance / 1000).toFixed(2)} km
-        </p>
-      )}
+      <div className={styles.mapHeader}>
+        {parsed.distance && (
+          <p className={styles.routeName}>
+            Distance: {(parsed.distance / 1000).toFixed(2)} km
+          </p>
+        )}
+        {headerAction}
+      </div>
       {weatherLoading && (
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
           <p>Loading weather data...</p>
@@ -188,9 +197,9 @@ export default function TrackContent({ parsed }: { parsed: ParsedGpx }) {
       {weather && (
         <>
           {useCustomTime ? (
-            <>
-              <div style={{ width: '300px' }}>
-                <label>Heure de départ</label>
+            <div className={styles.startAndSpeed}>
+              <div className={styles.selectionBox}>
+                <label>Start hour</label>
                 <TimePicker
                   format="HH:mm"
                   onChange={(value) =>
@@ -198,15 +207,15 @@ export default function TrackContent({ parsed }: { parsed: ParsedGpx }) {
                   }
                 />
               </div>
-              <div style={{ width: '300px' }}>
-                <label>Vitesse moyenne (km/h)</label>
+              <div className={styles.selectionBox}>
+                <label>Average speed (km/h)</label>
                 <InputNumber
                   min={1}
                   defaultValue={50}
                   onChange={(value) => setSpeedKmh(value)}
                 />
               </div>
-            </>
+            </div>
           ) : (
             <TimeSelector
               weather={weather}
@@ -223,10 +232,9 @@ export default function TrackContent({ parsed }: { parsed: ParsedGpx }) {
               }
               setUseCustomTime((prev) => !prev)
             }}
+            className={styles.hourSetup}
           >
-            {useCustomTime
-              ? "Choisir l'heure manuellement"
-              : 'Utiliser heure de départ + vitesse'}
+            {useCustomTime ? 'Choose time slot' : 'Custom start hour and speed'}
           </Button>
 
           <h3 className={styles.humidityPlot}>Humidity Chart</h3>
