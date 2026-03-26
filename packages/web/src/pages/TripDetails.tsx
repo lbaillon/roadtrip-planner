@@ -3,12 +3,9 @@ import Box from '#web/components/Box'
 import BoxTitle from '#web/components/BoxTitle'
 import TracksList from '#web/components/TracksList'
 import UserGreeting from '#web/components/UserGreeting'
-import {
-  useGetTrip,
-  useGetTripTracks,
-  useRemoveTrackFromTrip,
-  useUpdateTripTracksOrder,
-} from '#web/hooks/useTrips'
+import { useRemoveTrackFromTrip } from '#web/hooks/mutations/useRemoveTrackFromTrip'
+import { useUpdateTripTracksOrder } from '#web/hooks/mutations/useReorderTripTracks'
+import { useGetTrip, useGetTripTracks } from '#web/hooks/useTrips'
 import { faArrowLeftLong } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Link, useParams } from 'react-router-dom'

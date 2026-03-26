@@ -1,5 +1,5 @@
 import { clear, createStore, get, set } from 'idb-keyval'
-import type { MutationDefinition } from './mutations'
+import type { MutationDefinition } from '#web/hooks/mutations/types'
 
 const QUEUE_KEY = 'roadtrip:mutation-queue'
 const FAILED_KEY = 'roadtrip:failed-mutations'
