@@ -5,14 +5,13 @@ import {
   getMutations,
   removeMutation,
 } from '#web/lib/mutation-queue'
-import { applyFlushHandler } from '#web/lib/mutations'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useApi } from './useApi'
+import { useFlushHandler } from './mutations/useFlushHandler'
 import { useHealth } from './useHealth'
 
 export function useNetworkSync() {
-  const api = useApi()
+  const applyFlush = useFlushHandler()
   const queryClient = useQueryClient()
   const [isSyncing, setIsSyncing] = useState(false)
   // Ref (not state) so the guard is visible synchronously on the next call,
@@ -35,7 +34,7 @@ export function useNetworkSync() {
     try {
       for (const mutation of mutations) {
         try {
-          await applyFlushHandler(mutation, api)
+          await applyFlush(mutation)
           await removeMutation(mutation.id)
         } catch (error) {
           allSucceeded = false
@@ -67,7 +66,7 @@ export function useNetworkSync() {
       setIsSyncing(false)
       await queryClient.invalidateQueries({ queryKey: ['mutation-queue'] })
     }
-  }, [api, queryClient])
+  }, [applyFlush, queryClient])
 
   // Keep a ref to the latest flush so event listeners and the isReady effect
   // always call the current version without being listed as dependencies

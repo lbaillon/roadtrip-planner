@@ -1,5 +1,6 @@
 import { useGetTracks } from '#web/hooks/useTracks'
-import { useAddTrackToTrip, useGetTripTracks } from '#web/hooks/useTrips'
+import { useAddTrackToTrip } from '#web/hooks/mutations/useAddTrackToTrip'
+import { useGetTripTracks } from '#web/hooks/useTrips'
 import { Button, Form, Modal, Select } from 'antd'
 import { useState } from 'react'
 import styles from './NewTripModal.module.css'

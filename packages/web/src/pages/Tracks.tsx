@@ -3,7 +3,8 @@ import BoxTitle from '#web/components/BoxTitle'
 import NewTrackModal from '#web/components/NewTrackModal'
 import TracksList from '#web/components/TracksList'
 import UserGreeting from '#web/components/UserGreeting'
-import { useDeleteTrack, useGetTracks } from '#web/hooks/useTracks'
+import { useDeleteTrack } from '#web/hooks/mutations/useDeleteTrack'
+import { useGetTracks } from '#web/hooks/useTracks'
 
 export default function Tracks() {
   const { data: tracks } = useGetTracks()

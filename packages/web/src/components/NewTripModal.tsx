@@ -1,4 +1,4 @@
-import { useCreateTrip } from '#web/hooks/useTrips'
+import { useCreateTrip } from '#web/hooks/mutations/useCreateTrip'
 import { Button, Form, Input, Modal } from 'antd'
 import { useState } from 'react'
 import styles from './NewTripModal.module.css'
