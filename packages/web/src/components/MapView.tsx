@@ -113,7 +113,6 @@ export default function MapView({
             checked={startflagEnable}
             onChange={(checked) => {
               setStartFlagEnable(checked)
-              if (!checked) setStartFlagEnable(false)
             }}
           />
         </div>
@@ -132,7 +131,6 @@ export default function MapView({
             checked={directionEnable}
             onChange={(checked) => {
               setDirectionEnable(checked)
-              if (!checked) setDirectionEnable(false)
             }}
           />
         </div>
