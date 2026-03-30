@@ -53,8 +53,8 @@ export default function MapView({
     lat: number
     lon: number
   } | null>(null)
-  const [startflagEnable, setStartFlagEnable] = useState(true)
-  const [directionEnable, setDirectionEnable] = useState(true)
+  const [startflagEnable, setStartFlagEnable] = useState(false)
+  const [directionEnable, setDirectionEnable] = useState(false)
 
   const getIdx = (i: number) =>
     Array.isArray(timepointIndex) ? (timepointIndex[i] ?? 0) : timepointIndex
@@ -100,6 +100,44 @@ export default function MapView({
   }
 
   const dropdownItems: MenuProps['items'] = [
+        {
+      key: 'departure',
+      label: (
+        <div
+          className={styles.dropdownItem}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <span>🚩 Départ</span>
+          <Switch
+            size="small"
+            checked={startflagEnable}
+            onChange={(checked) => {
+              setStartFlagEnable(checked)
+              if (!checked) setStartFlagEnable(false)
+            }}
+          />
+        </div>
+      ),
+    },
+    {
+      key: 'direction',
+      label: (
+        <div
+          className={styles.dropdownItem}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <span>➡️ Sens du trajet</span>
+          <Switch
+            size="small"
+            checked={directionEnable}
+            onChange={(checked) => {
+              setDirectionEnable(checked)
+              if (!checked) setDirectionEnable(false)
+            }}
+          />
+        </div>
+      ),
+    },
     {
       key: 'location',
       label: (
@@ -252,7 +290,20 @@ export default function MapView({
             }}
           />
         </Source>
-
+        {startflagEnable && 
+          <Marker
+          key="departure point"
+              longitude={coordinates[0].lon}
+              latitude={coordinates[0].lat}
+              anchor="bottom"
+          >              <div
+                className={styles.waypointMarker}
+                title="Départ"
+              >
+                🚩
+              </div>
+              </Marker>
+        }    
         {/* Waypoints markers */}
         {waypointsEnabled &&
           waypoints.map((wp, idx) => (
