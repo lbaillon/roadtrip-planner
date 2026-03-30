@@ -81,9 +81,11 @@ export default function MapView({
   const latitudes = coordinates.map((c) => c.lat)
   const longitudes = coordinates.map((c) => c.lon)
   const initialViewState = {
-    longitude: (Math.max(...longitudes) + Math.min(...longitudes)) / 2,
-    latitude: (Math.max(...latitudes) + Math.min(...latitudes)) / 2,
-    zoom: 8,
+    bounds: [
+      [Math.min(...longitudes), Math.min(...latitudes)],
+      [Math.max(...longitudes), Math.max(...latitudes)],
+    ] as [[number, number], [number, number]],
+    fitBoundsOptions: { padding: 50 },
   }
 
   const routeGeoJSON = {
