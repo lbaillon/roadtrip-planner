@@ -47,12 +47,14 @@ export default function MapView({
     number | null
   >(null)
   const [locationEnabled, setLocationEnabled] = useState(false)
-  const [waypointsEnabled, setWaypointsEnabled] = useState(true)
+  const [waypointsEnabled, setWaypointsEnabled] = useState(false)
   const [weatherEnabled, setWeatherEnabled] = useState(true)
   const [rawPosition, setRawPosition] = useState<{
     lat: number
     lon: number
   } | null>(null)
+  const [startflagEnable, setStartFlagEnable] = useState(false)
+  const [directionEnable, setDirectionEnable] = useState(false)
 
   const getIdx = (i: number) =>
     Array.isArray(timepointIndex) ? (timepointIndex[i] ?? 0) : timepointIndex
@@ -98,6 +100,42 @@ export default function MapView({
   }
 
   const dropdownItems: MenuProps['items'] = [
+    {
+      key: 'departure',
+      label: (
+        <div
+          className={styles.dropdownItem}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <span>🚩 Départ</span>
+          <Switch
+            size="small"
+            checked={startflagEnable}
+            onChange={(checked) => {
+              setStartFlagEnable(checked)
+            }}
+          />
+        </div>
+      ),
+    },
+    {
+      key: 'direction',
+      label: (
+        <div
+          className={styles.dropdownItem}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <span>➡️ Sens du trajet</span>
+          <Switch
+            size="small"
+            checked={directionEnable}
+            onChange={(checked) => {
+              setDirectionEnable(checked)
+            }}
+          />
+        </div>
+      ),
+    },
     {
       key: 'location',
       label: (
@@ -249,8 +287,35 @@ export default function MapView({
               'line-opacity': 0.8,
             }}
           />
+          {directionEnable && (
+            <Layer
+              id="direction-signs"
+              type="symbol"
+              layout={{
+                'symbol-placement': 'line',
+                'text-field': '>',
+                'text-size': 20,
+                'symbol-spacing': 5,
+                'text-keep-upright': false,
+                'text-font': ['Open Sans Bold'],
+              }}
+              paint={{ 'text-color': '#239182' }}
+            />
+          )}
         </Source>
-
+        {startflagEnable && (
+          <Marker
+            key="departure point"
+            longitude={coordinates[0].lon}
+            latitude={coordinates[0].lat}
+            anchor="bottom"
+          >
+            {' '}
+            <div className={styles.waypointMarker} title="Départ">
+              🚩
+            </div>
+          </Marker>
+        )}
         {/* Waypoints markers */}
         {waypointsEnabled &&
           waypoints.map((wp, idx) => (
