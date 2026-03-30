@@ -100,7 +100,7 @@ export default function MapView({
   }
 
   const dropdownItems: MenuProps['items'] = [
-        {
+    {
       key: 'departure',
       label: (
         <div
@@ -289,21 +289,35 @@ export default function MapView({
               'line-opacity': 0.8,
             }}
           />
+          {directionEnable && (
+            <Layer
+              id="direction-signs"
+              type="symbol"
+              layout={{
+                'symbol-placement': 'line',
+                'text-field': '>',
+                'text-size': 20,
+                'symbol-spacing': 5,
+                'text-keep-upright': false,
+                'text-font': ['Open Sans Bold'],
+              }}
+              paint={{ 'text-color': '#239182' }}
+            />
+          )}
         </Source>
-        {startflagEnable && 
+        {startflagEnable && (
           <Marker
-          key="departure point"
-              longitude={coordinates[0].lon}
-              latitude={coordinates[0].lat}
-              anchor="bottom"
-          >              <div
-                className={styles.waypointMarker}
-                title="Départ"
-              >
-                🚩
-              </div>
-              </Marker>
-        }    
+            key="departure point"
+            longitude={coordinates[0].lon}
+            latitude={coordinates[0].lat}
+            anchor="bottom"
+          >
+            {' '}
+            <div className={styles.waypointMarker} title="Départ">
+              🚩
+            </div>
+          </Marker>
+        )}
         {/* Waypoints markers */}
         {waypointsEnabled &&
           waypoints.map((wp, idx) => (
