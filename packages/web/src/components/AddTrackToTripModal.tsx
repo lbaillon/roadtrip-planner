@@ -52,7 +52,9 @@ export default function AddTrackToTripModal({ tripId }: Props) {
           <Form.Item<AddTrackInput>
             label="Tracks"
             name="trackIds"
-            rules={[{ required: true, message: 'Please select at least one track' }]}
+            rules={[
+              { required: true, message: 'Please select at least one track' },
+            ]}
           >
             <Select
               mode="multiple"
