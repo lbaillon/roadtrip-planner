@@ -23,12 +23,7 @@ export default function TripDetails() {
       <Box>
         <div style={{ display: 'flex', gap: '10px' }}>
           <Link to={'/trips'}>
-            <FontAwesomeIcon
-              icon={faArrowLeftLong}
-              onClick={(e) => {
-                e.stopPropagation()
-              }}
-            />
+            <FontAwesomeIcon icon={faArrowLeftLong} />
           </Link>
           <BoxTitle>{trip?.name ?? 'No trip found'}</BoxTitle>
         </div>
