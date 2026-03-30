@@ -26,12 +26,12 @@ function useGpxMutation<TRequest>(
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (request: TRequest) => {
-      const track = queryClient.getQueryData<GetTrackResponse>([
-        'tracks',
-        trackId,
-      ])
-      if (!track?.gpxContent) throw new Error('Track GPX not available')
-      const updatedGpx = transform(track.gpxContent, request)
+      const gpxContent =
+        (await getGpxBlob(trackId)) ??
+        queryClient.getQueryData<GetTrackResponse>(['tracks', trackId])
+          ?.gpxContent
+      if (!gpxContent) throw new Error('Track GPX not available')
+      const updatedGpx = transform(gpxContent, request)
       await saveGpxBlob(trackId, updatedGpx)
       await enqueueMutation(
         { type: 'PUT_TRACK_GPX', payload: { id: trackId } },

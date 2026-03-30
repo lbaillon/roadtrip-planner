@@ -25,7 +25,6 @@ export async function enqueueMutation(
   options?: { dedupeKey?: string }
 ): Promise<void> {
   const mutations = await getMutations()
-
   const dedupeKey = options?.dedupeKey
   const filtered =
     dedupeKey !== undefined
@@ -33,7 +32,6 @@ export async function enqueueMutation(
           (m) => !(m.type === definition.type && m.dedupeKey === dedupeKey)
         )
       : mutations
-
   const mutation: PendingMutation = {
     ...definition,
     id: crypto.randomUUID(),
