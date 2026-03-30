@@ -1,5 +1,5 @@
 import type { TripSummary, TripTrack } from '@roadtrip/shared'
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useApi } from './useApi'
 
 export function useGetTrips() {
@@ -7,6 +7,7 @@ export function useGetTrips() {
   return useQuery({
     queryKey: ['trips'],
     queryFn: () => api<TripSummary[]>('/api/trips'),
+    placeholderData: keepPreviousData,
   })
 }
 
@@ -16,6 +17,7 @@ export function useGetTrip(id: string | undefined) {
     queryKey: ['trips', id],
     queryFn: () => api<TripSummary>(`/api/trips/${id}`),
     enabled: !!id,
+    placeholderData: keepPreviousData,
   })
 }
 
@@ -25,5 +27,6 @@ export function useGetTripTracks(id: string | undefined) {
     queryKey: ['trips', id, 'tracks'],
     queryFn: () => api<TripTrack[]>(`/api/trips/${id}/tracks`),
     enabled: !!id,
+    placeholderData: keepPreviousData,
   })
 }
