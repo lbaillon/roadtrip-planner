@@ -26,8 +26,6 @@ export default function WaypointFormModal({
   useEffect(() => {
     if (open) {
       form.setFieldsValue(initialValues ?? { name: '', description: '' })
-    } else {
-      form.resetFields()
     }
   }, [open, initialValues, form])
 
