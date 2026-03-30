@@ -47,7 +47,7 @@ export default function MapView({
     number | null
   >(null)
   const [locationEnabled, setLocationEnabled] = useState(false)
-  const [waypointsEnabled, setWaypointsEnabled] = useState(true)
+  const [waypointsEnabled, setWaypointsEnabled] = useState(false)
   const [weatherEnabled, setWeatherEnabled] = useState(true)
   const [rawPosition, setRawPosition] = useState<{
     lat: number
