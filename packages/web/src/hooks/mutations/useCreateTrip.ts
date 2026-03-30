@@ -17,6 +17,7 @@ export interface CreateTripMutation {
 export function useCreateTrip() {
   const queryClient = useQueryClient()
   return useMutation({
+    networkMode: 'offlineFirst',
     mutationFn: async (
       request: Omit<CreateTripRequest, 'id'>
     ): Promise<CreateResponse> => {

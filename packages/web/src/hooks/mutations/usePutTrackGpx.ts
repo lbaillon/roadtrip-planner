@@ -25,6 +25,7 @@ function useGpxMutation<TRequest>(
 ) {
   const queryClient = useQueryClient()
   return useMutation({
+    networkMode: 'offlineFirst',
     mutationFn: async (request: TRequest) => {
       const gpxContent =
         (await getGpxBlob(trackId)) ??
