@@ -12,6 +12,7 @@ export interface DeleteTrackMutation {
 export function useDeleteTrack() {
   const queryClient = useQueryClient()
   return useMutation({
+    networkMode: 'offlineFirst',
     mutationFn: async (id: string) => {
       await enqueueMutation(
         { type: 'DELETE_TRACK', payload: { id } },

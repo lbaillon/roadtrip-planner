@@ -12,6 +12,7 @@ export interface RemoveTrackFromTripMutation {
 export function useRemoveTrackFromTrip(tripId: string) {
   const queryClient = useQueryClient()
   return useMutation({
+    networkMode: 'offlineFirst',
     mutationFn: async (trackId: string) => {
       await enqueueMutation({
         type: 'REMOVE_TRACK_FROM_TRIP',

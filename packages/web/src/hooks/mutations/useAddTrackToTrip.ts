@@ -17,6 +17,7 @@ export interface AddTrackToTripMutation {
 export function useAddTrackToTrip(tripId: string) {
   const queryClient = useQueryClient()
   return useMutation({
+    networkMode: 'offlineFirst',
     mutationFn: async ({
       trackId,
       order,
