@@ -53,6 +53,8 @@ export default function MapView({
     lat: number
     lon: number
   } | null>(null)
+  const [startflagEnable, setStartFlagEnable] = useState(true)
+  const [directionEnable, setDirectionEnable] = useState(true)
 
   const getIdx = (i: number) =>
     Array.isArray(timepointIndex) ? (timepointIndex[i] ?? 0) : timepointIndex
