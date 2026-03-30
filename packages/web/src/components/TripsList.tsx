@@ -19,10 +19,7 @@ export default function TripsList({
       <FontAwesomeIcon
         icon={faXmark}
         className={styles.deleteIcon}
-        onClick={(e) => {
-          e.stopPropagation()
-          onDelete(trip.id)
-        }}
+        onClick={() => onDelete(trip.id)}
       />
     </p>
   ))

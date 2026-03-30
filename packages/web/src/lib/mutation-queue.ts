@@ -20,34 +20,48 @@ export async function getMutations(): Promise<PendingMutation[]> {
   return (await get<PendingMutation[]>(QUEUE_KEY)) ?? []
 }
 
-export async function enqueueMutation(
+// Serializes concurrent enqueueMutation calls to prevent IDB read-write races.
+// Without this, concurrent calls all read the same queue state before any write,
+// causing subsequent writes to overwrite each other.
+let enqueueLock: Promise<void> = Promise.resolve()
+
+export function enqueueMutation(
   definition: MutationDefinition,
   options?: { dedupeKey?: string }
 ): Promise<void> {
-  const mutations = await getMutations()
-  const dedupeKey = options?.dedupeKey
-  const filtered =
-    dedupeKey !== undefined
-      ? mutations.filter(
-          (m) => !(m.type === definition.type && m.dedupeKey === dedupeKey)
-        )
-      : mutations
-  const mutation: PendingMutation = {
-    ...definition,
-    id: crypto.randomUUID(),
-    enqueuedAt: Date.now(),
-    dedupeKey,
-  }
-  await set(QUEUE_KEY, [...filtered, mutation])
-  window.dispatchEvent(new Event('mutation-enqueued'))
+  const next = enqueueLock.then(async () => {
+    const mutations = await getMutations()
+    const dedupeKey = options?.dedupeKey
+    const filtered =
+      dedupeKey !== undefined
+        ? mutations.filter(
+            (m) => !(m.type === definition.type && m.dedupeKey === dedupeKey)
+          )
+        : mutations
+    const mutation: PendingMutation = {
+      ...definition,
+      id: crypto.randomUUID(),
+      enqueuedAt: Date.now(),
+      dedupeKey,
+    }
+    await set(QUEUE_KEY, [...filtered, mutation])
+    window.dispatchEvent(new Event('mutation-enqueued'))
+  })
+  // Swallow errors on the lock chain so a failed enqueue doesn't block future ones.
+  enqueueLock = next.catch(() => {})
+  return next
 }
 
-export async function removeMutation(id: string): Promise<void> {
-  const mutations = await getMutations()
-  await set(
-    QUEUE_KEY,
-    mutations.filter((m) => m.id !== id)
-  )
+export function removeMutation(id: string): Promise<void> {
+  const next = enqueueLock.then(async () => {
+    const mutations = await getMutations()
+    await set(
+      QUEUE_KEY,
+      mutations.filter((m) => m.id !== id)
+    )
+  })
+  enqueueLock = next.catch(() => {})
+  return next
 }
 
 export async function clearQueue(): Promise<void> {

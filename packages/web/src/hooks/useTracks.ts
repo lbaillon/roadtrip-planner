@@ -1,5 +1,5 @@
 import { type GetTrackResponse, type TrackSummary } from '@roadtrip/shared'
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useApi } from './useApi'
 
 export function useGetTracks() {
@@ -7,6 +7,7 @@ export function useGetTracks() {
   return useQuery({
     queryKey: ['tracks'],
     queryFn: () => api<TrackSummary[]>('/api/tracks'),
+    placeholderData: keepPreviousData,
   })
 }
 
@@ -18,5 +19,6 @@ export function useGetTrack(id: string | undefined) {
     enabled: !!id,
     gcTime: 7 * 24 * 60 * 60 * 1000,
     staleTime: Infinity,
+    placeholderData: keepPreviousData,
   })
 }

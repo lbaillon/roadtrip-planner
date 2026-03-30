@@ -1,4 +1,6 @@
+import { useAddTrackToTrip } from '#web/hooks/mutations/useAddTrackToTrip'
 import { useCreateTrack } from '#web/hooks/mutations/useCreateTrack'
+import { useGetTripTracks } from '#web/hooks/useTrips'
 import {
   Button,
   Form,
@@ -15,10 +17,17 @@ type FormValues = {
   name?: string
   file: UploadFile[]
 }
-export default function NewTrackModal() {
+
+type Props = {
+  tripId?: string
+}
+
+export default function NewTrackModal({ tripId }: Props) {
   const [form] = Form.useForm<FormValues>()
   const [open, setOpen] = useState(false)
   const { mutate: createTrack, isPending } = useCreateTrack()
+  const { mutate: addToTrip } = useAddTrackToTrip(tripId ?? '')
+  const { data: tripTracks } = useGetTripTracks(tripId)
   const [messageApi, contextHolder] = message.useMessage()
 
   const handleSubmit = async (values: FormValues) => {
@@ -36,7 +45,10 @@ export default function NewTrackModal() {
         gpxContent,
       },
       {
-        onSuccess: () => {
+        onSuccess: ({ id: trackId }) => {
+          if (tripId) {
+            addToTrip({ trackId, order: tripTracks?.length ?? 0 })
+          }
           setOpen(false)
           form.resetFields()
         },

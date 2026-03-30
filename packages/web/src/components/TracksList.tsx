@@ -41,10 +41,7 @@ function TrackItem({
       <FontAwesomeIcon
         icon={faXmark}
         className={styles.deleteIcon}
-        onClick={(e) => {
-          e.stopPropagation()
-          onDelete(track.id)
-        }}
+        onClick={() => onDelete(track.id)}
       />
     </>
   )

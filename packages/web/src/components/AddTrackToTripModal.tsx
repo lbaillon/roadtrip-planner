@@ -6,7 +6,7 @@ import { useState } from 'react'
 import styles from './NewTripModal.module.css'
 
 type AddTrackInput = {
-  trackId: string
+  trackIds: string[]
 }
 type Props = {
   tripId: string | undefined
@@ -14,7 +14,7 @@ type Props = {
 export default function AddTrackToTripModal({ tripId }: Props) {
   const [form] = Form.useForm<AddTrackInput>()
   const [open, setOpen] = useState(false)
-  const { mutate: add, isPending } = useAddTrackToTrip(tripId ?? '')
+  const { mutate: add } = useAddTrackToTrip(tripId ?? '')
   const { data: tracks } = useGetTracks()
   const { data: tripTracks } = useGetTripTracks(tripId)
 
@@ -36,24 +36,28 @@ export default function AddTrackToTripModal({ tripId }: Props) {
           form.resetFields()
         }}
         onOk={() => form.submit()}
-        confirmLoading={isPending}
       >
         <Form<AddTrackInput>
           form={form}
           layout="vertical"
           onFinish={(values: AddTrackInput) => {
-            add({ trackId: values.trackId, order: tripTracks?.length ?? 0 })
+            const baseOrder = tripTracks?.length ?? 0
+            values.trackIds.forEach((trackId, i) => {
+              add({ trackId, order: baseOrder + i })
+            })
             setOpen(false)
             form.resetFields()
           }}
         >
           <Form.Item<AddTrackInput>
-            label="Track"
-            name="trackId"
-            rules={[{ required: true, message: 'Please select a track' }]}
+            label="Tracks"
+            name="trackIds"
+            rules={[
+              { required: true, message: 'Please select at least one track' },
+            ]}
           >
             <Select
-              style={{ width: 120 }}
+              mode="multiple"
               options={tracks
                 ?.filter(
                   (track) =>
