@@ -12,6 +12,7 @@ export interface DeleteTripMutation {
 export function useDeleteTrip() {
   const queryClient = useQueryClient()
   return useMutation({
+    networkMode: 'offlineFirst',
     mutationFn: async (id: string) => {
       await enqueueMutation(
         { type: 'DELETE_TRIP', payload: { id } },

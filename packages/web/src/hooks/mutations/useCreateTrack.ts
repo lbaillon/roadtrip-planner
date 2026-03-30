@@ -19,6 +19,7 @@ export interface CreateTrackMutation {
 export function useCreateTrack() {
   const queryClient = useQueryClient()
   return useMutation({
+    networkMode: 'offlineFirst',
     mutationFn: async (
       request: Omit<CreateTrackRequest, 'id' | 'name'> & { name?: string }
     ): Promise<CreateResponse> => {

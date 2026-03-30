@@ -12,6 +12,7 @@ export interface ReorderTripTracksMutation {
 export function useUpdateTripTracksOrder(tripId: string) {
   const queryClient = useQueryClient()
   return useMutation({
+    networkMode: 'offlineFirst',
     mutationFn: async (trackIds: UpdateTripTracksOrderRequest['trackIds']) => {
       await enqueueMutation(
         { type: 'REORDER_TRIP_TRACKS', payload: { tripId, trackIds } },
