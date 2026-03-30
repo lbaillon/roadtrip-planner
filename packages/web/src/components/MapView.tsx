@@ -166,6 +166,9 @@ export default function MapView({
   ]
 
   function handleMapClick(e: MapMouseEvent) {
+    setSelectedWaypoint(null)
+    setSelectedWaypointIndex(null)
+    setSelectedWeather(null)
     if (!isEditMode || !onMapClick) return
     onMapClick(e.lngLat.lat, e.lngLat.lng)
   }
