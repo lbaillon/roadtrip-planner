@@ -14,7 +14,7 @@ type AlertState = {
 
 export default function Header() {
   const [alert, setAlert] = useState<AlertState>(null)
-  const { accessToken, logout } = useAuth()
+  const { userId, logout } = useAuth()
 
   useEffect(() => {
     if (!alert) return
@@ -49,7 +49,7 @@ export default function Header() {
     setAlert({ type: 'success', message: 'Logout successful' })
   }
 
-  if (accessToken) {
+  if (userId) {
     userMenu = [
       {
         label: (
