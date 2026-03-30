@@ -56,16 +56,21 @@ export function useNetworkSync() {
           }
         }
       }
-      if (allSucceeded) {
-        await clearGpxBlobs()
-      }
       // Reload fresh data from server after a successful sync
       await queryClient.invalidateQueries()
     } finally {
+      // Only clear blobs if the queue is truly empty — mutations enqueued
+      // during this flush must still be able to read their blob.
+      const remaining = await getMutations()
+      if (allSucceeded && remaining.length === 0) {
+        await clearGpxBlobs()
+      }
       isSyncingRef.current = false
       setIsSyncing(false)
       await queryClient.invalidateQueries({ queryKey: ['mutation-queue'] })
     }
+    // Re-flush if new mutations were enqueued while this flush was running.
+    await flushRef.current()
   }, [applyFlush, queryClient])
 
   // Keep a ref to the latest flush so event listeners and the isReady effect

@@ -171,19 +171,18 @@ export function addWaypointToGpx(
     name: waypoint.name,
     ...(waypoint.description ? { desc: waypoint.description } : {}),
   }
-
   const rtes: unknown[] = Array.isArray(parsed.gpx?.rte) ? parsed.gpx.rte : []
   if (
     rtes.length > 0 &&
     Array.isArray((rtes[0] as Record<string, unknown>).rtept)
   ) {
-    ;((rtes[0] as Record<string, unknown>).rtept as unknown[]).push(newPoint)
+    const rtept = (rtes[0] as Record<string, unknown>).rtept as unknown[]
+    rtept.push(newPoint)
   } else if (Array.isArray(parsed.gpx?.wpt)) {
     parsed.gpx.wpt.push(newPoint)
   } else {
     parsed.gpx.wpt = [newPoint]
   }
-
   return xmlBuilder.build(parsed)
 }
 
