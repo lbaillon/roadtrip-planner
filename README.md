@@ -83,6 +83,9 @@ pnpm format
 
 # Linter
 pnpm lint
+
+# Tests
+pnpm test
 ```
 
 ## Base de données
