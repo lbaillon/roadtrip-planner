@@ -63,7 +63,7 @@ router.post(
   })
 )
 
-async function deleteTrack(id: string, user?: JWTPayload) {
+export async function deleteTrack(id: string, user?: JWTPayload) {
   if (!user) {
     throw new UnauthorizedError('Missing user', codes.MISSING_USER)
   }

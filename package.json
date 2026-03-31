@@ -10,7 +10,8 @@
     "type-check": "pnpm -r --bail exec tsc --noEmit",
     "format": "pnpm exec prettier --write \"packages/**/*.{ts,tsx,js,jsx,json}\"",
     "format:check": "pnpm exec prettier --check \"packages/**/*.{ts,tsx,js,jsx,json,md}\"",
-    "lint": "pnpm -r --bail run lint"
+    "lint": "pnpm -r --bail run lint",
+    "test": "pnpm -r --bail run test"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
