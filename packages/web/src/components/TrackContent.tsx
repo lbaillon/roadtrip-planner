@@ -23,9 +23,11 @@ type WaypointFormData = { name: string; description?: string }
 type EditingWaypoint = { index: number } & WaypointFormData
 
 export default function TrackContent({
+  trackName,
   parsed,
   headerAction,
 }: {
+  trackName?:string,
   parsed: ParsedGpx
   headerAction?: React.ReactNode
 }) {
@@ -146,7 +148,7 @@ export default function TrackContent({
   return (
     <div className={styles.mapBox}>
       {contextHolder}
-      <h2 className={styles.routeName}>{parsed.name}</h2>
+      <h2 className={styles.routeName}>{trackName ?? parsed.name ?? 'Unnamed Track'}</h2>
       <div className={styles.mapHeader}>
         {parsed.distance && (
           <p className={styles.routeName}>
@@ -169,7 +171,7 @@ export default function TrackContent({
         <MapView
           coordinates={parsed.coordinates}
           weather={weather ?? []}
-          timepointIndex={timepointIndices ?? timepointIndex}
+          timepointIndex={timepointIndices ?? new Array(parsed.coordinates.length).fill(timepointIndex)}
           waypoints={parsed.waypoints}
           isEditMode={isEditMode}
           showEditToggle={!!accessToken && !!id}
@@ -242,7 +244,7 @@ export default function TrackContent({
           <HumidityChart
             coordinates={parsed.coordinates}
             weather={weather}
-            timepointIndex={timepointIndices ?? timepointIndex}
+            timepointIndex={timepointIndices ?? new Array(parsed.coordinates.length).fill(timepointIndex)}
           />
         </>
       )}
