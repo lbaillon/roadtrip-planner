@@ -11,7 +11,7 @@ interface MapViewProps {
   coordinates: GpxCoordinate[]
   waypoints?: GpxWaypoint[]
   weather: WeatherData[]
-  timepointIndex: number | number[]
+  timepointIndex: number[]
   isEditMode?: boolean
   showEditToggle?: boolean
   onToggleEditMode?: () => void
@@ -55,9 +55,6 @@ export default function MapView({
   } | null>(null)
   const [startflagEnable, setStartFlagEnable] = useState(false)
   const [directionEnable, setDirectionEnable] = useState(false)
-
-  const getIdx = (i: number) =>
-    Array.isArray(timepointIndex) ? (timepointIndex[i] ?? 0) : timepointIndex
 
   const isGeolocationSupported =
     typeof navigator !== 'undefined' && !!navigator.geolocation
@@ -392,12 +389,12 @@ export default function MapView({
                 e.originalEvent.stopPropagation()
                 setSelectedWeather(w)
                 setSelectedWaypoint(null)
-                setSelectedWeatherTimepointIdx(getIdx(idx))
+                setSelectedWeatherTimepointIdx(timepointIndex[idx] ?? 0)
               }}
             >
               <img
-                src={`https://openweathermap.org/img/wn/${w.timepoints[getIdx(idx)].icon}@2x.png`}
-                alt={w.timepoints[getIdx(idx)].description}
+                src={`https://openweathermap.org/img/wn/${w.timepoints[timepointIndex[idx] ?? 0].icon}@2x.png`}
+                alt={w.timepoints[timepointIndex[idx] ?? 0].description}
                 className={styles.weatherIcons}
               />
             </Marker>
