@@ -14,7 +14,7 @@ import {
 } from '#web/lib/gpx-utils'
 import type { ParsedGpx } from '@roadtrip/shared'
 import { Button, InputNumber, message, TimePicker } from 'antd'
-import { lazy, Suspense, useMemo, useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import styles from './TrackContent.module.css'
 
@@ -74,7 +74,7 @@ export default function TrackContent({
   )
   const { mutate: deleteWaypoint } = useDeleteWaypoint(id ?? '')
 
-  const timepointIndices = useMemo(() => {
+  const getTimepointIndices = () => {
     if (!departureTime || !speedKmh || !weather || !parsed) return null
 
     const departureMs = departureTime.getTime()
@@ -93,7 +93,9 @@ export default function TrackContent({
         0
       )
     })
-  }, [departureTime, speedKmh, weather, parsed])
+  }
+
+  const timepointIndices = getTimepointIndices()
 
   function handleMapClick(lat: number, lon: number) {
     setPendingClickCoords({ lat, lon })
