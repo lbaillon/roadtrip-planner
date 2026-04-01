@@ -87,7 +87,7 @@ export default function MapView({
       { enableHighAccuracy: true }
     )
     return () => navigator.geolocation.clearWatch(watchId)
-  }, [locationEnabled, isGeolocationSupported])
+  }, [locationEnabled, isGeolocationSupported, setUserPosition])
 
   if (coordinates.length === 0) return null
 
