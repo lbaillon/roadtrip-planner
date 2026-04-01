@@ -4,9 +4,9 @@
     "composite": true,
     "outDir": "./dist",
     "rootDir": "./src",
-    "baseUrl": ".",
+    "types": ["node", "jest"],
     "paths": {
-      "#api/*": ["src/*"]
+      "#api/*": ["./src/*"]
     }
   },
   "include": ["src", "@types"],
