@@ -26,13 +26,13 @@ interface MapViewProps {
     lat: number
     lon: number
   } | null
-  setUserPosition: (position: {
-    lat: number
-    lon: number
-  } | null)=>void
+  setUserPosition: (
+    position: {
+      lat: number
+      lon: number
+    } | null
+  ) => void
 }
-
-
 
 export default function MapView({
   coordinates,
@@ -46,7 +46,7 @@ export default function MapView({
   onEditWaypoint,
   onDeleteWaypoint,
   userPosition,
-  setUserPosition
+  setUserPosition,
 }: MapViewProps) {
   const [selectedWeather, setSelectedWeather] = useState<WeatherData | null>(
     null
@@ -75,10 +75,14 @@ export default function MapView({
   useEffect(() => {
     if (!locationEnabled || !isGeolocationSupported) {
       setUserPosition(null)
-      return }
+      return
+    }
     const watchId = navigator.geolocation.watchPosition(
       (pos) =>
-        setUserPosition({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+        setUserPosition({
+          lat: pos.coords.latitude,
+          lon: pos.coords.longitude,
+        }),
       () => {},
       { enableHighAccuracy: true }
     )

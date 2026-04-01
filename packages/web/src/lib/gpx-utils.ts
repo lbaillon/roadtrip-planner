@@ -62,7 +62,7 @@ export function parseGpxFile(gpxContent: string): ParsedGpx {
   return ParsedGpxSchema.parse({
     name,
     coordinates,
-    distance: distanceM || undefined,
+    distance: distanceM,
     waypoints,
   })
 }
@@ -113,15 +113,6 @@ function extractWaypoints(gpxContent: string): GpxWaypoint[] {
   return results
 }
 
-export function sampleRoutePoints(
-  coordinates: Array<{ lat: number; lon: number }>
-): Array<{ lat: number; lon: number }> {
-  if (coordinates.length === 0) return []
-  const totalPoints = coordinates.length
-  const sampleEvery = Math.max(1, Math.floor(totalPoints / 10))
-  return coordinates.filter((_, index) => index % sampleEvery === 0)
-}
-
 export function haversineDistanceKm(
   p1: { lat: number; lon: number },
   p2: { lat: number; lon: number }
@@ -139,25 +130,32 @@ export function haversineDistanceKm(
 }
 
 export function sampleRoutePointsWithCumulativeKm(
-  coordinates: Array<{ lat: number; lon: number }>
+  coordinates: Array<{ lat: number; lon: number }>,
+  totalDistanceKm: number
 ): Array<{ lat: number; lon: number; cumulativeKm: number }> {
   if (coordinates.length === 0) return []
   const totalPoints = coordinates.length
-  const sampleEvery = Math.max(1, Math.floor(totalPoints / 10))
+  const intervalKm = Math.max(10, totalDistanceKm / 17)
+  let nextThreshold = 0
   const sampled: Array<{ lat: number; lon: number; cumulativeKm: number }> = []
   let cumulativeKm = 0
   let prevPoint = coordinates[0]
   for (let i = 0; i < totalPoints; i++) {
     cumulativeKm += haversineDistanceKm(prevPoint, coordinates[i])
     prevPoint = coordinates[i]
-    if (i % sampleEvery === 0) {
+    if (cumulativeKm >= nextThreshold) {
       sampled.push({ ...coordinates[i], cumulativeKm })
+      nextThreshold += intervalKm
     }
   }
   return sampled
 }
 
-export function findNearestIndex(coords: GpxCoordinate[], lat: number, lon: number) {
+export function findNearestIndex(
+  coords: GpxCoordinate[],
+  lat: number,
+  lon: number
+) {
   let minDist = Infinity
   let nearest = 0
   for (let i = 0; i < coords.length; i++) {
@@ -260,7 +258,6 @@ export function deleteWaypointFromGpx(
   return xmlBuilder.build(parsed)
 }
 
-
 export function isLoop(
   coordinates: Array<{ lat: number; lon: number }>,
   thresholdKm = 0.5
@@ -269,4 +266,21 @@ export function isLoop(
   const first = coordinates[0]
   const last = coordinates[coordinates.length - 1]
   return haversineDistanceKm(first, last) <= thresholdKm
+}
+
+export function remapCoordinatesFrom(
+  coordinates: Array<{ lat: number; lon: number }>,
+  from: { lat: number; lon: number }
+) {
+  const remappedCoords = []
+  const startIndex = findNearestIndex(coordinates, from.lat, from.lon)
+  for (let i = startIndex; i < coordinates.length; i++) {
+    remappedCoords.push(coordinates[i])
+  }
+  if (isLoop(coordinates)) {
+    for (let i = 0; i < startIndex; i++) {
+      remappedCoords.push(coordinates[i])
+    }
+  }
+  return remappedCoords
 }

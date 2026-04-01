@@ -75,6 +75,7 @@ export function useGetWeather(request: GetWeatherRequest) {
         method: 'POST',
         body: JSON.stringify(request),
       }),
+
     gcTime: 48 * 60 * 60 * 1000,
     staleTime: 60 * 60 * 1000,
     placeholderData: keepPreviousData,
