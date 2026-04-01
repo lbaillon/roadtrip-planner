@@ -6,6 +6,7 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 import { useEffect, useState } from 'react'
 import Map, { Layer, Marker, Popup, Source } from 'react-map-gl/maplibre'
 import styles from './MapView.module.css'
+import { findNearestIndex } from '#web/lib/gpx-utils'
 
 interface MapViewProps {
   coordinates: GpxCoordinate[]
@@ -21,6 +22,16 @@ interface MapViewProps {
     waypoint: { name: string; description?: string }
   ) => void
   onDeleteWaypoint?: (index: number) => void
+  userPosition: {
+    lat: number
+    lon: number
+  } | null
+  setUserPosition: (
+    position: {
+      lat: number
+      lon: number
+    } | null
+  ) => void
 }
 
 export default function MapView({
@@ -34,6 +45,8 @@ export default function MapView({
   onMapClick,
   onEditWaypoint,
   onDeleteWaypoint,
+  userPosition,
+  setUserPosition,
 }: MapViewProps) {
   const [selectedWeather, setSelectedWeather] = useState<WeatherData | null>(
     null
@@ -49,31 +62,32 @@ export default function MapView({
   const [locationEnabled, setLocationEnabled] = useState(false)
   const [waypointsEnabled, setWaypointsEnabled] = useState(false)
   const [weatherEnabled, setWeatherEnabled] = useState(true)
-  const [rawPosition, setRawPosition] = useState<{
-    lat: number
-    lon: number
-  } | null>(null)
   const [startflagEnable, setStartFlagEnable] = useState(false)
   const [directionEnable, setDirectionEnable] = useState(false)
 
   const isGeolocationSupported =
     typeof navigator !== 'undefined' && !!navigator.geolocation
-  const userPosition = locationEnabled ? rawPosition : null
   const locationError =
     locationEnabled && !isGeolocationSupported
       ? 'Géolocalisation non supportée'
       : null
 
   useEffect(() => {
-    if (!locationEnabled || !isGeolocationSupported) return
+    if (!locationEnabled || !isGeolocationSupported) {
+      setUserPosition(null)
+      return
+    }
     const watchId = navigator.geolocation.watchPosition(
       (pos) =>
-        setRawPosition({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+        setUserPosition({
+          lat: pos.coords.latitude,
+          lon: pos.coords.longitude,
+        }),
       () => {},
       { enableHighAccuracy: true }
     )
     return () => navigator.geolocation.clearWatch(watchId)
-  }, [locationEnabled, isGeolocationSupported])
+  }, [locationEnabled, isGeolocationSupported, setUserPosition])
 
   if (coordinates.length === 0) return null
 
@@ -146,7 +160,6 @@ export default function MapView({
             checked={locationEnabled}
             onChange={(checked) => {
               setLocationEnabled(checked)
-              if (!checked) setRawPosition(null)
             }}
           />
         </div>
@@ -199,6 +212,11 @@ export default function MapView({
         ]
       : []),
   ]
+
+  const startIndex =
+    locationEnabled && userPosition
+      ? findNearestIndex(coordinates, userPosition.lat, userPosition.lon)
+      : 0
 
   function handleMapClick(e: MapMouseEvent) {
     setSelectedWaypoint(null)
@@ -303,8 +321,8 @@ export default function MapView({
         {startflagEnable && (
           <Marker
             key="departure point"
-            longitude={coordinates[0].lon}
-            latitude={coordinates[0].lat}
+            longitude={coordinates[startIndex].lon}
+            latitude={coordinates[startIndex].lat}
             anchor="bottom"
           >
             {' '}

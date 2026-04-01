@@ -1,20 +1,20 @@
 import { HumidityChart } from '#web/components/HumidityChart'
 import { TimeSelector } from '#web/components/TimeSelector'
 import WaypointFormModal from '#web/components/WaypointFormModal'
-import { useGetWeather } from '#web/hooks/useApi'
-import { useAuth } from '#web/hooks/useAuth'
 import {
   useAddWaypoint,
   useDeleteWaypoint,
   useEditWaypoint,
 } from '#web/hooks/mutations/usePutTrackGpx'
+import { useGetWeather } from '#web/hooks/useApi'
+import { useAuth } from '#web/hooks/useAuth'
 import {
-  sampleRoutePoints,
+  remapCoordinatesFrom,
   sampleRoutePointsWithCumulativeKm,
 } from '#web/lib/gpx-utils'
 import type { ParsedGpx } from '@roadtrip/shared'
 import { Button, InputNumber, message, TimePicker } from 'antd'
-import { lazy, Suspense, useMemo, useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import styles from './TrackContent.module.css'
 
@@ -43,17 +43,30 @@ export default function TrackContent({
   const [useCustomTime, setUseCustomTime] = useState(false)
   const [departureTime, setDepartureTime] = useState<Date | null>(null)
   const [speedKmh, setSpeedKmh] = useState<number | null>(50)
+  const [userPosition, setUserPosition] = useState<{
+    lat: number
+    lon: number
+  } | null>(null)
 
   const [messageApi, contextHolder] = message.useMessage()
   const { id } = useParams()
   const { accessToken } = useAuth()
+
+  const actualCoords = userPosition
+    ? remapCoordinatesFrom(parsed.coordinates, userPosition)
+    : parsed.coordinates
+
+  const sampledWithKm = sampleRoutePointsWithCumulativeKm(
+    actualCoords,
+    parsed.distance / 1000
+  )
 
   const {
     data: weather,
     isPending: weatherLoading,
     isError,
     error,
-  } = useGetWeather({ coordinates: sampleRoutePoints(parsed.coordinates) })
+  } = useGetWeather({ coordinates: sampledWithKm })
 
   const { mutate: addWaypoint, isPending: isAdding } = useAddWaypoint(id ?? '')
   const { mutate: editWaypoint, isPending: isEditing } = useEditWaypoint(
@@ -61,12 +74,10 @@ export default function TrackContent({
   )
   const { mutate: deleteWaypoint } = useDeleteWaypoint(id ?? '')
 
-  const timepointIndices = useMemo(() => {
+  const getTimepointIndices = () => {
     if (!departureTime || !speedKmh || !weather || !parsed) return null
 
     const departureMs = departureTime.getTime()
-
-    const sampledWithKm = sampleRoutePointsWithCumulativeKm(parsed.coordinates)
 
     return sampledWithKm.map((point, i) => {
       const estimatedMs =
@@ -82,7 +93,9 @@ export default function TrackContent({
         0
       )
     })
-  }, [departureTime, speedKmh, weather, parsed])
+  }
+
+  const timepointIndices = getTimepointIndices()
 
   function handleMapClick(lat: number, lon: number) {
     setPendingClickCoords({ lat, lon })
@@ -184,6 +197,8 @@ export default function TrackContent({
           onMapClick={handleMapClick}
           onEditWaypoint={handleEditWaypoint}
           onDeleteWaypoint={handleDeleteWaypoint}
+          userPosition={userPosition}
+          setUserPosition={setUserPosition}
         />
       </Suspense>
 
