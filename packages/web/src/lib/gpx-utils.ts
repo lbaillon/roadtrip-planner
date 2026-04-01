@@ -1,5 +1,6 @@
 import {
   ParsedGpxSchema,
+  type GpxCoordinate,
   type GpxWaypoint,
   type ParsedGpx,
 } from '@roadtrip/shared'
@@ -156,6 +157,19 @@ export function sampleRoutePointsWithCumulativeKm(
   return sampled
 }
 
+export function findNearestIndex(coords: GpxCoordinate[], lat: number, lon: number) {
+  let minDist = Infinity
+  let nearest = 0
+  for (let i = 0; i < coords.length; i++) {
+    const d = (coords[i].lat - lat) ** 2 + (coords[i].lon - lon) ** 2
+    if (d < minDist) {
+      minDist = d
+      nearest = i
+    }
+  }
+  return nearest
+}
+
 function getAllWaypointRefs(
   parsed: ReturnType<typeof xmlParser.parse>
 ): { array: unknown[]; localIndex: number }[] {
@@ -244,4 +258,15 @@ export function deleteWaypointFromGpx(
   ref.array.splice(ref.localIndex, 1)
 
   return xmlBuilder.build(parsed)
+}
+
+
+export function isLoop(
+  coordinates: Array<{ lat: number; lon: number }>,
+  thresholdKm = 0.5
+): boolean {
+  if (coordinates.length < 2) return false
+  const first = coordinates[0]
+  const last = coordinates[coordinates.length - 1]
+  return haversineDistanceKm(first, last) <= thresholdKm
 }
