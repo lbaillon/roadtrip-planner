@@ -43,6 +43,10 @@ export default function TrackContent({
   const [useCustomTime, setUseCustomTime] = useState(false)
   const [departureTime, setDepartureTime] = useState<Date | null>(null)
   const [speedKmh, setSpeedKmh] = useState<number | null>(50)
+  const [userPosition, setUserPosition] = useState<{
+    lat: number
+    lon: number
+  } | null>(null)
 
   const [messageApi, contextHolder] = message.useMessage()
   const { id } = useParams()
@@ -184,6 +188,8 @@ export default function TrackContent({
           onMapClick={handleMapClick}
           onEditWaypoint={handleEditWaypoint}
           onDeleteWaypoint={handleDeleteWaypoint}
+          userPosition= {userPosition} 
+          setUserPosition = {setUserPosition}
         />
       </Suspense>
 
