@@ -23,6 +23,19 @@ interface MapViewProps {
   onDeleteWaypoint?: (index: number) => void
 }
 
+function findNearestIndex(coords: GpxCoordinate[], lat: number, lon: number) {
+  let minDist = Infinity
+  let nearest = 0
+  for (let i = 0; i < coords.length; i++) {
+    const d = (coords[i].lat - lat) ** 2 + (coords[i].lon - lon) ** 2
+    if (d < minDist) {
+      minDist = d
+      nearest = i
+    }
+  }
+  return nearest
+}
+
 export default function MapView({
   coordinates,
   waypoints = [],
@@ -200,6 +213,11 @@ export default function MapView({
       : []),
   ]
 
+  const startIndex =
+    locationEnabled && userPosition
+      ? findNearestIndex(coordinates, userPosition.lat, userPosition.lon)
+      : 0
+
   function handleMapClick(e: MapMouseEvent) {
     setSelectedWaypoint(null)
     setSelectedWaypointIndex(null)
@@ -303,8 +321,8 @@ export default function MapView({
         {startflagEnable && (
           <Marker
             key="departure point"
-            longitude={coordinates[0].lon}
-            latitude={coordinates[0].lat}
+            longitude={coordinates[startIndex].lon}
+            latitude={coordinates[startIndex].lat}
             anchor="bottom"
           >
             {' '}
