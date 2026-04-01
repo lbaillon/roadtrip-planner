@@ -24,7 +24,12 @@ const { deleteGpx } = jest.requireMock('#api/services/uploader.js') as {
   deleteGpx: jest.Mock
 }
 
-const mockUser = { userId: 'user-1', email: 'alice@example.com', username: 'Alice', role: 'user' }
+const mockUser = {
+  userId: 'user-1',
+  email: 'alice@example.com',
+  username: 'Alice',
+  role: 'user',
+}
 
 describe('deleteTrack', () => {
   it('throws UnauthorizedError when no user is provided', async () => {
@@ -35,7 +40,12 @@ describe('deleteTrack', () => {
   })
 
   it('deletes the track and its GPX file when found', async () => {
-    const mockTrack = { id: 'track-1', gpxFile: 'gpx-public-id', userId: 'user-1', name: 'My track' }
+    const mockTrack = {
+      id: 'track-1',
+      gpxFile: 'gpx-public-id',
+      userId: 'user-1',
+      name: 'My track',
+    }
     const returning = jest.fn().mockResolvedValue([mockTrack])
     const where = jest.fn().mockReturnValue({ returning })
     db.delete.mockReturnValue({ where })
