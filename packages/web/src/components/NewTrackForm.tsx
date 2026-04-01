@@ -74,8 +74,8 @@ export function NewTrackForm({ form, tripId, onSuccess }: Props) {
                 messageApi.error('Only GPX files allowed')
                 return Upload.LIST_IGNORE
               }
-              if (file.size > 500_000) {
-                messageApi.error('File too large (max 500KB)')
+              if (file.size > 2_000_000) {
+                messageApi.error('File too large (max 2MB)')
                 return Upload.LIST_IGNORE
               }
               return false // necessary, it prevents automatic upload
