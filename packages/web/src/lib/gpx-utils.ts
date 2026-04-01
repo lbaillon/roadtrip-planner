@@ -3,13 +3,18 @@ import {
   type GpxWaypoint,
   type ParsedGpx,
 } from '@roadtrip/shared'
-import GpxParser from 'gpxparser'
 import { XMLBuilder, XMLParser } from 'fast-xml-parser'
 
 const xmlParser = new XMLParser({
   ignoreAttributes: false,
   attributeNamePrefix: '@_',
-  isArray: (name) => name === 'rtept' || name === 'wpt' || name === 'rte',
+  isArray: (name) =>
+    name === 'rtept' ||
+    name === 'wpt' ||
+    name === 'rte' ||
+    name === 'trk' ||
+    name === 'trkseg' ||
+    name === 'trkpt',
 })
 
 const xmlBuilder = new XMLBuilder({
@@ -18,34 +23,45 @@ const xmlBuilder = new XMLBuilder({
   format: true,
 })
 
-function decodeXmlEntities(str: string): string {
-  const doc = new DOMParser().parseFromString(str, 'text/html')
-  return doc.documentElement.textContent ?? str
-}
-
 export function parseGpxFile(gpxContent: string): ParsedGpx {
-  const gpx = new GpxParser()
-  gpx.parse(gpxContent)
+  const parsed = xmlParser.parse(gpxContent)
+  const gpxData = parsed?.gpx
 
-  if (!gpx.tracks || gpx.tracks.length === 0) {
+  const trks: unknown[] = gpxData?.trk ?? []
+  if (trks.length === 0) {
     throw new Error('No tracks found in GPX file')
   }
 
-  const track = gpx.tracks[0]
-  const coordinates = track.points.map(
-    (point: { lat: number; lon: number; ele?: number }) => ({
-      lat: point.lat,
-      lon: point.lon,
-      ele: point.ele,
-    })
-  )
+  const trk = trks[0] as Record<string, unknown>
+  const trksegs: unknown[] = (trk.trkseg as unknown[]) ?? []
 
+  const coordinates: Array<{ lat: number; lon: number; ele?: number }> = []
+  for (const seg of trksegs) {
+    const trkpts: unknown[] =
+      ((seg as Record<string, unknown>).trkpt as unknown[]) ?? []
+    for (const pt of trkpts) {
+      const p = pt as Record<string, unknown>
+      coordinates.push({
+        lat: parseFloat(String(p['@_lat'])),
+        lon: parseFloat(String(p['@_lon'])),
+        ele: p.ele != null ? parseFloat(String(p.ele)) : undefined,
+      })
+    }
+  }
+  let distanceM = 0
+  for (let i = 1; i < coordinates.length; i++) {
+    distanceM += haversineDistanceKm(coordinates[i - 1], coordinates[i]) * 1000
+  }
+  const name = String(
+    trk.name ??
+      (gpxData?.metadata as Record<string, unknown> | undefined)?.name ??
+      'Unnamed Route'
+  )
   const waypoints = extractWaypoints(gpxContent)
-  const rawName = track.name || gpx.metadata?.name || 'Unnamed Route'
   return ParsedGpxSchema.parse({
-    name: decodeXmlEntities(rawName),
+    name,
     coordinates,
-    distance: track.distance?.total,
+    distance: distanceM || undefined,
     waypoints,
   })
 }
@@ -70,7 +86,6 @@ function extractWaypoints(gpxContent: string): GpxWaypoint[] {
     ele: el['ele'] != null ? parseFloat(String(el['ele'])) : undefined,
     type,
   })
-
   const wpts: unknown[] = Array.isArray(gpxData.wpt)
     ? gpxData.wpt
     : gpxData.wpt
@@ -79,7 +94,6 @@ function extractWaypoints(gpxContent: string): GpxWaypoint[] {
   wpts.forEach((w) =>
     results.push(toWaypoint(w as Record<string, unknown>, 'wpt'))
   )
-
   const rtes = Array.isArray(gpxData.rte)
     ? gpxData.rte
     : gpxData.rte
@@ -95,7 +109,6 @@ function extractWaypoints(gpxContent: string): GpxWaypoint[] {
       results.push(toWaypoint(pt as Record<string, unknown>, 'rtept'))
     )
   })
-
   return results
 }
 
