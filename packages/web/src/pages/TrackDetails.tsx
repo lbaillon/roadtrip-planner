@@ -34,7 +34,7 @@ export default function TrackDetails() {
 
       {parsed && (
         <TrackContent
-        trackName={track?.name}
+          trackName={track?.name}
           parsed={parsed}
           headerAction={
             <Button onClick={handleDownload} className={styles.downloadButton}>

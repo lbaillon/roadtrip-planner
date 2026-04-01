@@ -35,13 +35,16 @@ export function AddTrackToTripForm({ form, tripId, onSuccess }: Props) {
       <Form.Item<AddTrackToTripFormValues>
         label="Tracks"
         name="trackIds"
-        rules={[{ required: true, message: 'Please select at least one track' }]}
+        rules={[
+          { required: true, message: 'Please select at least one track' },
+        ]}
       >
         <Select
           mode="multiple"
           options={tracks
             ?.filter(
-              (track) => !tripTracks?.find((tripTrack) => tripTrack.id === track.id)
+              (track) =>
+                !tripTracks?.find((tripTrack) => tripTrack.id === track.id)
             )
             ?.map((track) => ({ value: track.id, label: track.name }))}
         />

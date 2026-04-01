@@ -1,5 +1,11 @@
-import { AddTrackToTripForm, type AddTrackToTripFormValues } from '#web/components/AddTrackToTripForm'
-import { NewTrackForm, type NewTrackFormValues } from '#web/components/NewTrackForm'
+import {
+  AddTrackToTripForm,
+  type AddTrackToTripFormValues,
+} from '#web/components/AddTrackToTripForm'
+import {
+  NewTrackForm,
+  type NewTrackFormValues,
+} from '#web/components/NewTrackForm'
 import { Button, Form, Modal, Segmented } from 'antd'
 import { useState } from 'react'
 import styles from './AddTrackToTripModal.module.css'

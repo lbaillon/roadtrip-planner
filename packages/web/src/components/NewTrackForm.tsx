@@ -1,7 +1,15 @@
 import { useAddTrackToTrip } from '#web/hooks/mutations/useAddTrackToTrip'
 import { useCreateTrack } from '#web/hooks/mutations/useCreateTrack'
 import { useGetTripTracks } from '#web/hooks/useTrips'
-import { Button, Form, Input, message, Upload, type FormInstance, type UploadFile } from 'antd'
+import {
+  Button,
+  Form,
+  Input,
+  message,
+  Upload,
+  type FormInstance,
+  type UploadFile,
+} from 'antd'
 import styles from './NewTrackForm.module.css'
 
 export type NewTrackFormValues = {
@@ -20,7 +28,6 @@ export function NewTrackForm({ form, tripId, onSuccess }: Props) {
   const { mutate: addToTrip } = useAddTrackToTrip(tripId ?? '')
   const { data: tripTracks } = useGetTripTracks(tripId)
   const [messageApi, contextHolder] = message.useMessage()
-
 
   const handleSubmit = async (values: NewTrackFormValues) => {
     const file = values.file?.[0]?.originFileObj
@@ -61,7 +68,8 @@ export function NewTrackForm({ form, tripId, onSuccess }: Props) {
           <Upload
             beforeUpload={(file) => {
               const isGpx =
-                file.type === 'application/gpx+xml' || file.name.endsWith('.gpx')
+                file.type === 'application/gpx+xml' ||
+                file.name.endsWith('.gpx')
               if (!isGpx) {
                 messageApi.error('Only GPX files allowed')
                 return Upload.LIST_IGNORE
