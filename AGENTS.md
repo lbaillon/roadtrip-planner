@@ -26,7 +26,8 @@ cp packages/api/.env.example packages/api/.env  # then fill in values
 pnpm dev           # start all packages (recommended)
 pnpm type-check    # must pass before any PR
 pnpm format        # auto-format with Prettier
-pnpm lint          # ESLint
+pnpm lint          # ESLint, must pass before any PR
+pnpm test          # unit tests, must pass before any PR
 ```
 
 ## Code Style
