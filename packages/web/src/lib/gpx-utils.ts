@@ -18,6 +18,11 @@ const xmlBuilder = new XMLBuilder({
   format: true,
 })
 
+function decodeXmlEntities(str: string): string {
+  const doc = new DOMParser().parseFromString(str, 'text/html')
+  return doc.documentElement.textContent ?? str
+}
+
 export function parseGpxFile(gpxContent: string): ParsedGpx {
   const gpx = new GpxParser()
   gpx.parse(gpxContent)
@@ -36,8 +41,9 @@ export function parseGpxFile(gpxContent: string): ParsedGpx {
   )
 
   const waypoints = extractWaypoints(gpxContent)
+  const rawName = track.name || gpx.metadata?.name || 'Unnamed Route'
   return ParsedGpxSchema.parse({
-    name: track.name || gpx.metadata?.name || 'Unnamed Route',
+    name: decodeXmlEntities(rawName),
     coordinates,
     distance: track.distance?.total,
     waypoints,
