@@ -1,4 +1,7 @@
-import { NewTrackForm, type NewTrackFormValues } from '#web/components/NewTrackForm'
+import {
+  NewTrackForm,
+  type NewTrackFormValues,
+} from '#web/components/NewTrackForm'
 import { Button, Form, Modal } from 'antd'
 import { useState } from 'react'
 import styles from './NewTrackModal.module.css'
@@ -27,7 +30,7 @@ export default function NewTrackModal() {
         onCancel={handleClose}
         onOk={() => form.submit()}
       >
-        <NewTrackForm form={form} onSuccess={handleClose}  />
+        <NewTrackForm form={form} onSuccess={handleClose} />
       </Modal>
     </>
   )

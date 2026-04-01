@@ -49,10 +49,7 @@ export function HumidityChart({
 
     return coordinates.map((coord, i) => {
       if (i > 0) {
-        cumulatedDistance += haversineDistanceKm(
-          coordinates[i - 1],
-          coord
-        )
+        cumulatedDistance += haversineDistanceKm(coordinates[i - 1], coord)
       }
 
       const nearest = findNearestWeather(coord, weatherWithHumidity)
