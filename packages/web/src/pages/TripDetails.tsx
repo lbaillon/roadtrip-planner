@@ -1,5 +1,4 @@
 import AddTrackToTripModal from '#web/components/AddTrackToTripModal'
-import NewTrackModal from '#web/components/NewTrackModal'
 import Box from '#web/components/Box'
 import BoxTitle from '#web/components/BoxTitle'
 import TracksList from '#web/components/TracksList'
@@ -28,10 +27,7 @@ export default function TripDetails() {
           </Link>
           <BoxTitle>{trip?.name ?? 'No trip found'}</BoxTitle>
         </div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-          <AddTrackToTripModal tripId={id} />
-          <NewTrackModal tripId={id} />
-        </div>
+        <AddTrackToTripModal tripId={id} />
         <TracksList
           tracks={tracks ?? []}
           onDelete={removeTrackFromTrip}
