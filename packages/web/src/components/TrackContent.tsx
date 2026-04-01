@@ -1,15 +1,15 @@
 import { HumidityChart } from '#web/components/HumidityChart'
 import { TimeSelector } from '#web/components/TimeSelector'
 import WaypointFormModal from '#web/components/WaypointFormModal'
-import { useGetWeather } from '#web/hooks/useApi'
-import { useAuth } from '#web/hooks/useAuth'
 import {
   useAddWaypoint,
   useDeleteWaypoint,
   useEditWaypoint,
 } from '#web/hooks/mutations/usePutTrackGpx'
+import { useGetWeather } from '#web/hooks/useApi'
+import { useAuth } from '#web/hooks/useAuth'
 import {
-  sampleRoutePoints,
+  remapCoordinatesFrom,
   sampleRoutePointsWithCumulativeKm,
 } from '#web/lib/gpx-utils'
 import type { ParsedGpx } from '@roadtrip/shared'
@@ -52,12 +52,21 @@ export default function TrackContent({
   const { id } = useParams()
   const { accessToken } = useAuth()
 
+  const actualCoords = userPosition
+    ? remapCoordinatesFrom(parsed.coordinates, userPosition)
+    : parsed.coordinates
+
+  const sampledWithKm = sampleRoutePointsWithCumulativeKm(
+    actualCoords,
+    parsed.distance / 1000
+  )
+
   const {
     data: weather,
     isPending: weatherLoading,
     isError,
     error,
-  } = useGetWeather({ coordinates: sampleRoutePoints(parsed.coordinates) })
+  } = useGetWeather({ coordinates: sampledWithKm })
 
   const { mutate: addWaypoint, isPending: isAdding } = useAddWaypoint(id ?? '')
   const { mutate: editWaypoint, isPending: isEditing } = useEditWaypoint(
@@ -69,8 +78,6 @@ export default function TrackContent({
     if (!departureTime || !speedKmh || !weather || !parsed) return null
 
     const departureMs = departureTime.getTime()
-
-    const sampledWithKm = sampleRoutePointsWithCumulativeKm(parsed.coordinates)
 
     return sampledWithKm.map((point, i) => {
       const estimatedMs =
@@ -188,8 +195,8 @@ export default function TrackContent({
           onMapClick={handleMapClick}
           onEditWaypoint={handleEditWaypoint}
           onDeleteWaypoint={handleDeleteWaypoint}
-          userPosition= {userPosition} 
-          setUserPosition = {setUserPosition}
+          userPosition={userPosition}
+          setUserPosition={setUserPosition}
         />
       </Suspense>
 

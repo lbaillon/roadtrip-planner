@@ -33,7 +33,7 @@ export const GpxWaypointSchema = z.object({
 export const ParsedGpxSchema = z.object({
   name: z.string().optional(),
   coordinates: z.array(GpxCoordinateSchema),
-  distance: z.number().optional(),
+  distance: z.number(),
   waypoints: z.array(GpxWaypointSchema).default([]),
 })
 
