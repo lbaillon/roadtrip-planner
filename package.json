@@ -37,7 +37,8 @@
     "peerDependencyRules": {
       "allowedVersions": {
         "eslint-plugin-react-hooks>eslint": "10",
-        "vite-plugin-pwa>vite": "8"
+        "vite-plugin-pwa>vite": "8",
+        "ts-jest>typescript": "6"
       }
     }
   }
