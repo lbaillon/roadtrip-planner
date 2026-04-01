@@ -1,11 +1,12 @@
 import { useEffect, useRef } from 'react'
 import * as d3 from 'd3'
 import type { GpxCoordinate, WeatherData } from '@roadtrip/shared'
+import { haversineDistanceKm } from '#web/lib/gpx-utils'
 
 interface HumidityChartProps {
   coordinates: GpxCoordinate[]
   weather: WeatherData[]
-  timepointIndex: number | number[]
+  timepointIndex: number[]
 }
 
 interface EnrichedPoint {
@@ -16,42 +17,15 @@ interface EnrichedPoint {
   humidity: number
 }
 
-const haversineDistance = (
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number
-): number => {
-  const R = 6371
-  const dLat = ((lat2 - lat1) * Math.PI) / 180
-  const dLon = ((lon2 - lon1) * Math.PI) / 180
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) ** 2
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-}
-
 const findNearestWeather = (
   coord: GpxCoordinate,
   weatherPoints: WeatherData[]
 ): WeatherData | undefined =>
-  weatherPoints.reduce((nearest, current) => {
-    const distCurrent = haversineDistance(
-      coord.lat,
-      coord.lon,
-      current.lat,
-      current.lon
-    )
-    const distNearest = haversineDistance(
-      coord.lat,
-      coord.lon,
-      nearest.lat,
-      nearest.lon
-    )
-    return distCurrent < distNearest ? current : nearest
-  })
+  weatherPoints.reduce((nearest, current) =>
+    haversineDistanceKm(coord, current) < haversineDistanceKm(coord, nearest)
+      ? current
+      : nearest
+  )
 
 export function HumidityChart({
   coordinates,
@@ -60,16 +34,13 @@ export function HumidityChart({
 }: HumidityChartProps) {
   const svgRef = useRef<SVGSVGElement>(null)
 
-  const getIdx = (i: number) =>
-    Array.isArray(timepointIndex) ? (timepointIndex[i] ?? 0) : timepointIndex
-
-  // Filtrer les points météo qui ont une humidité définie
+  // Filter weather points that have a defined humidity
   const weatherWithHumidity = weather.filter(
     (w, i): w is WeatherData & { humidity: number } =>
-      w.timepoints[getIdx(i)].humidity !== undefined
+      w.timepoints[timepointIndex[i] ?? 0].humidity !== undefined
   )
 
-  // Construire les points enrichis : distance cumulée + humidité du point météo le plus proche
+  // Build enriched points: cumulative distance + humidity from the nearest weather point
 
   function getHumidityData() {
     if (coordinates.length === 0 || weatherWithHumidity.length === 0) return []
@@ -78,12 +49,7 @@ export function HumidityChart({
 
     return coordinates.map((coord, i) => {
       if (i > 0) {
-        cumulatedDistance += haversineDistance(
-          coordinates[i - 1].lat,
-          coordinates[i - 1].lon,
-          coord.lat,
-          coord.lon
-        )
+        cumulatedDistance += haversineDistanceKm(coordinates[i - 1], coord)
       }
 
       const nearest = findNearestWeather(coord, weatherWithHumidity)
@@ -93,7 +59,7 @@ export function HumidityChart({
         lon: coord.lon,
         ele: coord.ele,
         distanceKm: parseFloat(cumulatedDistance.toFixed(2)),
-        humidity: nearest?.timepoints[getIdx(i)].humidity ?? 0,
+        humidity: nearest?.timepoints[timepointIndex[i] ?? 0].humidity ?? 0,
       }
     })
   }
@@ -115,7 +81,7 @@ export function HumidityChart({
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`)
 
-    // Échelles
+    // Scales
     const xScale = d3
       .scaleLinear()
       .domain([0, d3.max(data, (d) => d.distanceKm) ?? 0])
@@ -129,7 +95,7 @@ export function HumidityChart({
       .domain([Math.max(0, humidityMin - 5), Math.min(100, humidityMax + 5)])
       .range([height, 0])
 
-    // Grille horizontale
+    // Horizontal grid
     svg
       .append('g')
       .attr('class', 'grid')
@@ -183,7 +149,7 @@ export function HumidityChart({
           .attr('font-size', '11px')
       )
 
-    // Labels axes
+    // Axis labels
     svg
       .append('text')
       .attr('x', width / 2)
@@ -203,7 +169,7 @@ export function HumidityChart({
       .attr('font-size', '12px')
       .text('Humidité (%)')
 
-    // Dégradé sous la courbe
+    // Gradient fill under the curve
     const defs = svg.append('defs')
 
     const gradient = defs
@@ -227,7 +193,7 @@ export function HumidityChart({
       .attr('stop-color', '#2563eb')
       .attr('stop-opacity', 0.02)
 
-    // Zone sous la courbe
+    // Area under the curve
     const area = d3
       .area<EnrichedPoint>()
       .x((d) => xScale(d.distanceKm))
@@ -241,7 +207,7 @@ export function HumidityChart({
       .attr('fill', 'url(#humidityGradient)')
       .attr('d', area)
 
-    // Courbe principale
+    // Main line
     const line = d3
       .line<EnrichedPoint>()
       .x((d) => xScale(d.distanceKm))
@@ -272,7 +238,7 @@ export function HumidityChart({
       .style('opacity', 0)
       .style('transition', 'opacity 0.15s ease')
 
-    // Ligne verticale de survol
+    // Vertical hover line
     const hoverLine = svg
       .append('line')
       .attr('stroke', '#94a3b8')
@@ -282,7 +248,7 @@ export function HumidityChart({
       .attr('y2', height)
       .style('opacity', 0)
 
-    // Point de survol
+    // Hover dot
     const hoverDot = svg
       .append('circle')
       .attr('r', 5)
@@ -291,7 +257,7 @@ export function HumidityChart({
       .attr('stroke-width', 2)
       .style('opacity', 0)
 
-    // Zone de capture des événements souris
+    // Mouse event capture area
     svg
       .append('rect')
       .attr('width', width)

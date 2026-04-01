@@ -17,6 +17,7 @@ pnpm type-check       # Vérification TypeScript sur tous les packages
 pnpm format           # Formate le code avec Prettier
 pnpm format:check     # Vérifie le formatage sans modifier
 pnpm lint             # ESLint sur tous les packages
+pnpm test             # Tests unitaires sur tous les packages
 ```
 
 ## Conventions de code
