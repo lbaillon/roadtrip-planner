@@ -11,6 +11,7 @@ jest.mock('#api/services/uploader.js', () => ({
   deleteGpx: jest.fn(),
 }))
 
+// Not used in test but mock to avoid importing unnecessary code
 jest.mock('#api/middlewares/auth.js', () => ({
   authenticate: jest.fn(),
   authorize: jest.fn(() => jest.fn()),
