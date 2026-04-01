@@ -8,10 +8,7 @@ jest.mock('#api/db/client.js', () => ({
 }))
 
 jest.mock('#api/services/uploader.js', () => ({
-  uploadGpx: jest.fn(),
   deleteGpx: jest.fn(),
-  getGpxFile: jest.fn(),
-  overwriteGpx: jest.fn(),
 }))
 
 jest.mock('#api/middlewares/auth.js', () => ({
