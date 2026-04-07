@@ -95,6 +95,14 @@ export default function TrackContent({
     })
   }
 
+  const arrivalTime =
+    departureTime && speedKmh && parsed.distance
+      ? new Date(
+          departureTime.getTime() +
+            (parsed.distance / 1000 / speedKmh) * 3600 * 1000
+        )
+      : null
+
   const timepointIndices = getTimepointIndices()
 
   function handleMapClick(lat: number, lon: number) {
@@ -168,6 +176,15 @@ export default function TrackContent({
         {parsed.distance && (
           <p className={styles.routeName}>
             Distance: {(parsed.distance / 1000).toFixed(2)} km
+          </p>
+        )}
+        {arrivalTime && (
+          <p className={styles.routeName}>
+            Estimated arrival:{' '}
+            {arrivalTime.toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
           </p>
         )}
         {headerAction}
