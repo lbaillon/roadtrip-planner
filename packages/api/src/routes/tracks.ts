@@ -33,14 +33,14 @@ import { Router } from 'express'
 const router: Router = Router()
 router.use(authenticate)
 
-async function createTrack(
+export async function createTrack(
   body: CreateTrackRequest,
   user?: JWTPayload
 ): Promise<CreateResponse> {
   if (!user) {
     throw new UnauthorizedError('Missing user', codes.MISSING_USER)
   }
-  const gpxPublicId = await uploadGpx(body.id, body.gpxContent)
+  const gpxPublicId = await uploadGpx(body.id, body.gpxContent) 
 
   const [track] = await db
     .insert(tracks)

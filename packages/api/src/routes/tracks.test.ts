@@ -1,14 +1,16 @@
 import { NotFoundError, UnauthorizedError } from '#api/errors/app-errors.js'
-import { deleteTrack } from './tracks.js'
+import { deleteTrack, createTrack } from './tracks.js'
 
 jest.mock('#api/db/client.js', () => ({
   db: {
     delete: jest.fn(),
+    insert: jest.fn(),
   },
 }))
 
 jest.mock('#api/services/uploader.js', () => ({
   deleteGpx: jest.fn(),
+  uploadGpx: jest.fn(),
 }))
 
 // Not used in test but mock to avoid importing unnecessary code
@@ -18,10 +20,13 @@ jest.mock('#api/middlewares/auth.js', () => ({
 }))
 
 const { db } = jest.requireMock('#api/db/client.js') as {
-  db: { delete: jest.Mock }
+  db: { delete: jest.Mock; insert: jest.Mock }
 }
-const { deleteGpx } = jest.requireMock('#api/services/uploader.js') as {
+const { deleteGpx, uploadGpx } = jest.requireMock(
+  '#api/services/uploader.js'
+) as {
   deleteGpx: jest.Mock
+  uploadGpx: jest.Mock
 }
 
 const mockUser = {
@@ -66,4 +71,27 @@ describe('deleteTrack', () => {
     )
     expect(deleteGpx).not.toHaveBeenCalled()
   })
+})
+
+
+describe('createTrack', () => {
+  it('creates track and uploads its GPX', async () => {
+        const mockTrack = {
+      id: 'track-1',
+      gpxContent:'<p>gpxContent<p>',
+      name: 'My track',
+    }
+    const values = jest.fn()
+    const returning = jest.fn()
+    values.mockReturnValue({returning})
+    returning.mockResolvedValue([{id: mockTrack.id}])
+    db.insert.mockReturnValue({values})
+    
+    const result = await createTrack (mockTrack, mockUser)
+
+    expect(db.insert).toHaveBeenCalled()
+    expect(uploadGpx).toHaveBeenCalledWith("track-1", "<p>gpxContent<p>")
+    expect(result).toEqual({id: mockTrack.id})
+  })
+
 })
