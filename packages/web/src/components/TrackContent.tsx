@@ -95,11 +95,16 @@ export default function TrackContent({
     })
   }
 
+  const remainingDistanceKm =
+    sampledWithKm.length > 0
+      ? sampledWithKm[sampledWithKm.length - 1].cumulativeKm
+      : parsed.distance / 1000
+
   const arrivalTime =
-    departureTime && speedKmh && parsed.distance
+    departureTime && speedKmh && remainingDistanceKm
       ? new Date(
           departureTime.getTime() +
-            (parsed.distance / 1000 / speedKmh) * 3600 * 1000
+            (remainingDistanceKm / speedKmh) * 3600 * 1000
         )
       : null
 
