@@ -95,11 +95,10 @@ export async function updateTrackGpx(
     throw new UnauthorizedError('Missing user', codes.MISSING_USER)
   }
 
-
-
   const [track] = await db
     .select()
-    .from(tracks).where(and(eq(tracks.id, id), eq(tracks.userId, user.userId)))
+    .from(tracks)
+    .where(and(eq(tracks.id, id), eq(tracks.userId, user.userId)))
   if (!track) {
     throw new NotFoundError('track not found', codes.MISSING_TRACK)
   }

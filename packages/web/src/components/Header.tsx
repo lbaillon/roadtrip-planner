@@ -84,13 +84,21 @@ export default function Header() {
   return (
     <div className={styles.header}>
       <Dropdown menu={{ items: barsMenu }} trigger={['click']}>
-        <FontAwesomeIcon className={styles.headerIcon} icon={faBars} />
+        <FontAwesomeIcon
+          className={styles.headerIcon}
+          icon={faBars}
+          aria-label="Navigation menu"
+        />
       </Dropdown>
       {alert && (
         <Alert description={alert.message} type={alert.type} showIcon />
       )}
       <Dropdown menu={{ items: userMenu }} trigger={['click']}>
-        <FontAwesomeIcon className={styles.headerIcon} icon={faUser} />
+        <FontAwesomeIcon
+          className={styles.headerIcon}
+          icon={faUser}
+          aria-label="User menu"
+        />
       </Dropdown>
     </div>
   )

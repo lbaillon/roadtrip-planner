@@ -23,7 +23,7 @@ jest.mock('#api/middlewares/auth.js', () => ({
 }))
 
 const { db } = jest.requireMock('#api/db/client.js') as {
-  db: { delete: jest.Mock; insert: jest.Mock, select: jest.Mock }
+  db: { delete: jest.Mock; insert: jest.Mock; select: jest.Mock }
 }
 const { deleteGpx, uploadGpx } = jest.requireMock(
   '#api/services/uploader.js'
@@ -115,18 +115,19 @@ describe('updateTrackGpx', () => {
     }
 
     const mockNewGpxContent = {
-      gpxContent: '<p>gpxContent<p>'
+      gpxContent: '<p>gpxContent<p>',
     }
 
     const where = jest.fn().mockResolvedValue([mockTrack])
-    const from = jest.fn().mockReturnValue({where})
+    const from = jest.fn().mockReturnValue({ where })
     db.select.mockReturnValue({ from })
 
-    await updateTrackGpx('track-1', mockNewGpxContent, mockUser )
+    await updateTrackGpx('track-1', mockNewGpxContent, mockUser)
 
     expect(db.select).toHaveBeenCalled()
-    expect(overwriteGpx).toHaveBeenCalledWith('gpx-public-id', '<p>gpxContent<p>')
+    expect(overwriteGpx).toHaveBeenCalledWith(
+      'gpx-public-id',
+      '<p>gpxContent<p>'
+    )
   })
-
-  
 })
