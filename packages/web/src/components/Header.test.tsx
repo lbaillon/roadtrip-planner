@@ -36,7 +36,6 @@ describe('Header', () => {
     expect(await screen.findByText('My trips')).toBeInTheDocument()
     expect(await screen.findByText('About')).toBeInTheDocument()
 
-
     await user.click(userIcon)
     expect(await screen.findByText('Log out')).toBeInTheDocument()
   })
