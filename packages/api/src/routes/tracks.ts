@@ -86,7 +86,7 @@ router.delete(
   })
 )
 
-async function updateTrackGpx(
+export async function updateTrackGpx(
   id: string,
   body: UpdateTrackGpxRequest,
   user?: JWTPayload
@@ -94,10 +94,12 @@ async function updateTrackGpx(
   if (!user) {
     throw new UnauthorizedError('Missing user', codes.MISSING_USER)
   }
+
+
+
   const [track] = await db
     .select()
-    .from(tracks)
-    .where(and(eq(tracks.id, id), eq(tracks.userId, user.userId)))
+    .from(tracks).where(and(eq(tracks.id, id), eq(tracks.userId, user.userId)))
   if (!track) {
     throw new NotFoundError('track not found', codes.MISSING_TRACK)
   }
