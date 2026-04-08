@@ -31,8 +31,11 @@ describe('Header', () => {
 
     await user.click(barsIcon)
 
+    expect(await screen.findByText('Home')).toBeInTheDocument()
     expect(await screen.findByText('My tracks')).toBeInTheDocument()
     expect(await screen.findByText('My trips')).toBeInTheDocument()
+    expect(await screen.findByText('About')).toBeInTheDocument()
+
 
     await user.click(userIcon)
     expect(await screen.findByText('Log out')).toBeInTheDocument()
@@ -60,8 +63,10 @@ describe('Header', () => {
 
     await user.click(barsIcon)
 
+    expect(await screen.findByText('Home')).toBeInTheDocument()
     expect(screen.queryByText('My tracks')).not.toBeInTheDocument()
     expect(screen.queryByText('My trips')).not.toBeInTheDocument()
+    expect(await screen.findByText('About')).toBeInTheDocument()
 
     await user.click(userIcon)
     expect(await screen.findByText('Log in')).toBeInTheDocument()
