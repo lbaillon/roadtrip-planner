@@ -18,6 +18,34 @@ describe('Header', () => {
       setAccessToken: vi.fn(),
       logout: vi.fn(),
     })
+    const user = userEvent.setup()
+
+    render(
+      <MemoryRouter>
+        <Header />
+      </MemoryRouter>
+    )
+
+    const barsIcon = screen.getByRole('img', { name: 'Navigation menu' })
+    const userIcon = screen.getByRole('img', { name: 'User menu' })
+
+    await user.click(barsIcon)
+
+    expect(await screen.findByText('My tracks')).toBeInTheDocument()
+    expect(await screen.findByText('My trips')).toBeInTheDocument()
+
+    await user.click(userIcon)
+    expect(await screen.findByText('Log out')).toBeInTheDocument()
+  })
+
+  it('displays log in, sign up and not my trips/ my tracks when logged out', async () => {
+    mockUseAuth.mockReturnValue({
+      username: null,
+      accessToken: null,
+      userId: null,
+      setAccessToken: vi.fn(),
+      logout: vi.fn(),
+    })
 
     const user = userEvent.setup()
 
@@ -29,12 +57,14 @@ describe('Header', () => {
 
     const barsIcon = screen.getByRole('img', { name: 'Navigation menu' })
     const userIcon = screen.getByRole('img', { name: 'User menu' })
+
     await user.click(barsIcon)
 
-    expect(await screen.findByText('My tracks')).toBeInTheDocument()
-    expect(await screen.findByText('My trips')).toBeInTheDocument()
+    expect(screen.queryByText('My tracks')).not.toBeInTheDocument()
+    expect(screen.queryByText('My trips')).not.toBeInTheDocument()
 
     await user.click(userIcon)
-    expect(await screen.findByText('Log out')).toBeInTheDocument()
+    expect(await screen.findByText('Log in')).toBeInTheDocument()
+    expect(await screen.findByText('Sign up')).toBeInTheDocument()
   })
 })
