@@ -1,14 +1,19 @@
 import { NotFoundError, UnauthorizedError } from '#api/errors/app-errors.js'
-import { deleteTrack } from './tracks.js'
+import { overwriteGpx } from '#api/services/uploader.js'
+import { deleteTrack, createTrack, updateTrackGpx } from './tracks.js'
 
 jest.mock('#api/db/client.js', () => ({
   db: {
     delete: jest.fn(),
+    insert: jest.fn(),
+    select: jest.fn(),
   },
 }))
 
 jest.mock('#api/services/uploader.js', () => ({
   deleteGpx: jest.fn(),
+  uploadGpx: jest.fn(),
+  overwriteGpx: jest.fn(),
 }))
 
 // Not used in test but mock to avoid importing unnecessary code
@@ -18,10 +23,14 @@ jest.mock('#api/middlewares/auth.js', () => ({
 }))
 
 const { db } = jest.requireMock('#api/db/client.js') as {
-  db: { delete: jest.Mock }
+  db: { delete: jest.Mock; insert: jest.Mock; select: jest.Mock }
 }
-const { deleteGpx } = jest.requireMock('#api/services/uploader.js') as {
+const { deleteGpx, uploadGpx } = jest.requireMock(
+  '#api/services/uploader.js'
+) as {
   deleteGpx: jest.Mock
+  uploadGpx: jest.Mock
+  overwriteGpx: jest.Mock
 }
 
 const mockUser = {
@@ -65,5 +74,78 @@ describe('deleteTrack', () => {
       NotFoundError
     )
     expect(deleteGpx).not.toHaveBeenCalled()
+  })
+})
+
+describe('createTrack', () => {
+  const mockTrack = {
+    id: 'track-1',
+    gpxContent: '<p>gpxContent<p>',
+    name: 'My track',
+  }
+  it('creates track and uploads its GPX', async () => {
+    const values = jest.fn()
+    const returning = jest.fn()
+    values.mockReturnValue({ returning })
+    returning.mockResolvedValue([{ id: mockTrack.id }])
+    db.insert.mockReturnValue({ values })
+
+    const result = await createTrack(mockTrack, mockUser)
+
+    expect(db.insert).toHaveBeenCalled()
+    expect(uploadGpx).toHaveBeenCalledWith('track-1', '<p>gpxContent<p>')
+    expect(result).toEqual({ id: mockTrack.id })
+  })
+
+  it('throws UnauthorizedError when no user is provided', async () => {
+    await expect(createTrack(mockTrack, undefined)).rejects.toThrow(
+      UnauthorizedError
+    )
+    expect(db.insert).not.toHaveBeenCalled()
+  })
+})
+
+describe('updateTrackGpx', () => {
+  const mockTrack = {
+    id: 'track-1',
+    gpxFile: 'gpx-public-id',
+    userId: 'user-1',
+    name: 'My track',
+  }
+
+  const mockNewGpxContent = {
+    gpxContent: '<p>gpxContent<p>',
+  }
+
+  it('updates an existing track by overwriting its GPX', async () => {
+    const where = jest.fn().mockResolvedValue([mockTrack])
+    const from = jest.fn().mockReturnValue({ where })
+    db.select.mockReturnValue({ from })
+
+    await updateTrackGpx('track-1', mockNewGpxContent, mockUser)
+
+    expect(db.select).toHaveBeenCalled()
+    expect(overwriteGpx).toHaveBeenCalledWith(
+      'gpx-public-id',
+      '<p>gpxContent<p>'
+    )
+  })
+
+  it('throws UnauthorizedError when no user is provided', async () => {
+    await expect(
+      updateTrackGpx('track-1', mockNewGpxContent, undefined)
+    ).rejects.toThrow(UnauthorizedError)
+    expect(db.select).not.toHaveBeenCalled()
+  })
+
+  it('throws NotFoundError when track does not exist', async () => {
+    const where = jest.fn().mockResolvedValue([])
+    const from = jest.fn().mockReturnValue({ where })
+    db.select.mockReturnValue({ from })
+
+    await expect(
+      updateTrackGpx('missing-track', mockNewGpxContent, mockUser)
+    ).rejects.toThrow(NotFoundError)
+    expect(overwriteGpx).not.toHaveBeenCalled()
   })
 })

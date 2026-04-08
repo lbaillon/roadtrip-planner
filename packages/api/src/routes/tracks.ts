@@ -33,7 +33,7 @@ import { Router } from 'express'
 const router: Router = Router()
 router.use(authenticate)
 
-async function createTrack(
+export async function createTrack(
   body: CreateTrackRequest,
   user?: JWTPayload
 ): Promise<CreateResponse> {
@@ -86,7 +86,7 @@ router.delete(
   })
 )
 
-async function updateTrackGpx(
+export async function updateTrackGpx(
   id: string,
   body: UpdateTrackGpxRequest,
   user?: JWTPayload
@@ -94,6 +94,7 @@ async function updateTrackGpx(
   if (!user) {
     throw new UnauthorizedError('Missing user', codes.MISSING_USER)
   }
+
   const [track] = await db
     .select()
     .from(tracks)
