@@ -73,25 +73,30 @@ describe('deleteTrack', () => {
   })
 })
 
-
 describe('createTrack', () => {
+  const mockTrack = {
+    id: 'track-1',
+    gpxContent: '<p>gpxContent<p>',
+    name: 'My track',
+  }
   it('creates track and uploads its GPX', async () => {
-        const mockTrack = {
-      id: 'track-1',
-      gpxContent:'<p>gpxContent<p>',
-      name: 'My track',
-    }
     const values = jest.fn()
     const returning = jest.fn()
-    values.mockReturnValue({returning})
-    returning.mockResolvedValue([{id: mockTrack.id}])
-    db.insert.mockReturnValue({values})
-    
-    const result = await createTrack (mockTrack, mockUser)
+    values.mockReturnValue({ returning })
+    returning.mockResolvedValue([{ id: mockTrack.id }])
+    db.insert.mockReturnValue({ values })
+
+    const result = await createTrack(mockTrack, mockUser)
 
     expect(db.insert).toHaveBeenCalled()
-    expect(uploadGpx).toHaveBeenCalledWith("track-1", "<p>gpxContent<p>")
-    expect(result).toEqual({id: mockTrack.id})
+    expect(uploadGpx).toHaveBeenCalledWith('track-1', '<p>gpxContent<p>')
+    expect(result).toEqual({ id: mockTrack.id })
   })
 
+  it('throws UnauthorizedError when no user is provided', async () => {
+    await expect(createTrack(mockTrack, undefined)).rejects.toThrow(
+      UnauthorizedError
+    )
+    expect(db.insert).not.toHaveBeenCalled()
+  })
 })
