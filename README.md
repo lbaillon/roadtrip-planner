@@ -13,7 +13,7 @@ Application web full-stack pour planifier des road trips : upload de fichiers GP
 ## Stack technique
 
 | Couche | Technologies |
-|--------|-------------|
+| ------ | ------------ |
 | Frontend | React 19, React Router 7, Ant Design, React Query, MapLibre GL, D3.js, Vite |
 | Backend | Express.js, Drizzle ORM, SQLite (dev) / Turso (prod) |
 | Auth | JWT (jose), bcrypt |
@@ -23,7 +23,7 @@ Application web full-stack pour planifier des road trips : upload de fichiers GP
 
 ## Structure du projet
 
-```
+```text
 roadtrip-planner/
 ├── packages/
 │   ├── shared/     # Types et schémas Zod partagés

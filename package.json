@@ -8,8 +8,8 @@
     "build": "tsc -b && pnpm --filter @roadtrip/web build",
     "build:clean": "tsc -b --clean",
     "type-check": "pnpm -r --bail exec tsc --noEmit",
-    "format": "pnpm exec prettier --write \"packages/**/*.{ts,tsx,js,jsx,json}\"",
-    "format:check": "pnpm exec prettier --check \"packages/**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format": "pnpm exec prettier --write \"packages/**/*.{ts,tsx,js,jsx,json}\" && markdownlint-cli2 --fix \"**/*.md\" \"!**/node_modules/**\"",
+    "format:check": "pnpm exec prettier --check \"packages/**/*.{ts,tsx,js,jsx,json,md}\" && markdownlint-cli2 \"**/*.md\" \"!**/node_modules/**\"",
     "lint": "pnpm -r --bail run lint",
     "test": "pnpm -r --bail run test"
   },
@@ -19,6 +19,7 @@
     "@types/node": "^25.5.0",
     "concurrently": "^9.2.1",
     "eslint": "^10.1.0",
+    "markdownlint-cli2": "^0.22.0",
     "prettier": "^3.8.1",
     "typescript": "^6.0.2",
     "typescript-eslint": "^8.58.0"

@@ -5,6 +5,7 @@ Instructions pour Claude Code sur ce projet.
 ## Structure du projet
 
 Monorepo pnpm avec 3 packages :
+
 - `packages/shared` — Types et schémas Zod communs (`@roadtrip/shared`)
 - `packages/api` — Serveur Express (`@roadtrip/api`)
 - `packages/web` — Frontend React (`@roadtrip/web`)

@@ -50,7 +50,7 @@ Before proceeding, I need clarification on:
 
 ### Overview of Changes
 
-```
+```text
 packages/shared/    → Update schemas (description, edit, delete)
 packages/api/       → 2 new endpoints (edit + delete waypoint)
                     → Update addWaypointToGpx (+ description)
@@ -134,7 +134,7 @@ const newPoint = {
 
 **3b.** Add `PATCH /:id/waypoints/:index` — edit an existing waypoint:
 
-```
+```http
 PATCH /api/tracks/:id/waypoints/:index
 Body: { name, description? }
 Auth: required
@@ -147,7 +147,7 @@ Auth: required
 
 **3c.** Add `DELETE /:id/waypoints/:index` — delete a waypoint:
 
-```
+```http
 DELETE /api/tracks/:id/waypoints/:index
 Auth: required
 ```
