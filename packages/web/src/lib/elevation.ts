@@ -9,7 +9,9 @@ async function fetchElevationBatch(
   const url = `${OPEN_METEO_ELEVATION_URL}?latitude=${latitudes}&longitude=${longitudes}`
 
   const response = await fetch(url)
-  if (!response.ok) throw new Error(`Open-Meteo elevation error: ${response.status}`)
+  if (!response.ok) {
+    throw new Error(`Open-Meteo elevation error: ${response.status}`)
+  }
   const data = (await response.json()) as { elevation: number[] }
   return data.elevation
 }

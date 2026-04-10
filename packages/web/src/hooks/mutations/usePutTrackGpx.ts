@@ -96,7 +96,8 @@ export function useEnrichTrackElevation() {
   return async (trackId: string): Promise<void> => {
     const gpxContent =
       (await getGpxBlob(trackId)) ??
-      queryClient.getQueryData<GetTrackResponse>(['tracks', trackId])?.gpxContent
+      queryClient.getQueryData<GetTrackResponse>(['tracks', trackId])
+        ?.gpxContent
     if (!gpxContent) return
 
     const allTrkpts = getAllTrkpts(gpxContent)
@@ -105,10 +106,7 @@ export function useEnrichTrackElevation() {
 
     const totalDistanceKm = allTrkpts
       .slice(1)
-      .reduce(
-        (sum, pt, i) => sum + haversineDistanceKm(allTrkpts[i], pt),
-        0
-      )
+      .reduce((sum, pt, i) => sum + haversineDistanceKm(allTrkpts[i], pt), 0)
     const sampleCount = Math.min(300, Math.max(100, allTrkpts.length))
     const intervalKm = Math.max(1, totalDistanceKm / sampleCount)
     const samples = sampleTrkptsByIntervalKm(allTrkpts, intervalKm)
@@ -126,9 +124,10 @@ export function useEnrichTrackElevation() {
     const elevationsMap = new Map<number, number>()
     for (let i = 0; i < missingSamples.length; i++) {
       const elevation = elevationValues[i]
-      if (elevation != null) elevationsMap.set(missingSamples[i].index, elevation)
+      if (elevation != null)
+        elevationsMap.set(missingSamples[i].index, elevation)
     }
-  if (elevationsMap.size === 0) return
+    if (elevationsMap.size === 0) return
 
     const enriched = applyTrkptElevations(gpxContent, elevationsMap)
 
@@ -137,14 +136,19 @@ export function useEnrichTrackElevation() {
       { type: 'PUT_TRACK_GPX', payload: { id: trackId } },
       { dedupeKey: trackId }
     )
-    const track = queryClient.getQueryData<GetTrackResponse>(['tracks', trackId])
+    const track = queryClient.getQueryData<GetTrackResponse>([
+      'tracks',
+      trackId,
+    ])
     if (track) {
       queryClient.setQueryData<GetTrackResponse>(['tracks', trackId], {
         ...track,
         gpxContent: enriched,
       })
     }
-    await queryClient.invalidateQueries({ queryKey: ['mutation-queue', 'pending'] })
+    await queryClient.invalidateQueries({
+      queryKey: ['mutation-queue', 'pending'],
+    })
     await queryClient.invalidateQueries({ queryKey: ['weather'] })
   }
 }

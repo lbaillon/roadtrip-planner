@@ -215,8 +215,12 @@ export function getAllTrkpts(
   gpxContent: string
 ): Array<{ index: number; lat: number; lon: number; ele?: number }> {
   const parsed = xmlParser.parse(gpxContent) as Record<string, unknown>
-  const result: Array<{ index: number; lat: number; lon: number; ele?: number }> =
-    []
+  const result: Array<{
+    index: number
+    lat: number
+    lon: number
+    ele?: number
+  }> = []
   forEachTrkpt(parsed, (pt, flatIndex) => {
     result.push({
       index: flatIndex,
@@ -236,10 +240,9 @@ export function getMissingElevationPoints(
     .map(({ index, lat, lon }) => ({ index, lat, lon }))
 }
 
-export function sampleTrkptsByIntervalKm<T extends { lat: number; lon: number }>(
-  trkpts: T[],
-  intervalKm: number
-): T[] {
+export function sampleTrkptsByIntervalKm<
+  T extends { lat: number; lon: number },
+>(trkpts: T[], intervalKm: number): T[] {
   if (trkpts.length === 0) return []
   const sampled: T[] = [trkpts[0]]
   let cumulativeKm = 0
