@@ -190,6 +190,63 @@ function getAllWaypointRefs(
   return refs
 }
 
+export function getMissingElevationPoints(
+  gpxContent: string
+): Array<{ index: number; lat: number; lon: number }> {
+  const parsed = xmlParser.parse(gpxContent)
+  const trks: unknown[] = parsed?.gpx?.trk ?? []
+  const missing: Array<{ index: number; lat: number; lon: number }> = []
+  let flatIndex = 0
+
+  for (const trk of trks) {
+    const trksegs =
+      ((trk as Record<string, unknown>).trkseg as unknown[]) ?? []
+    for (const seg of trksegs) {
+      const trkpts =
+        ((seg as Record<string, unknown>).trkpt as unknown[]) ?? []
+      for (const pt of trkpts) {
+        const p = pt as Record<string, unknown>
+        if (p['ele'] == null) {
+          missing.push({
+            index: flatIndex,
+            lat: parseFloat(String(p['@_lat'])),
+            lon: parseFloat(String(p['@_lon'])),
+          })
+        }
+        flatIndex++
+      }
+    }
+  }
+  return missing
+}
+
+export function applyTrkptElevations(
+  gpxContent: string,
+  elevations: Map<number, number>
+): string {
+  if (elevations.size === 0) return gpxContent
+  const parsed = xmlParser.parse(gpxContent)
+  const trks: unknown[] = parsed?.gpx?.trk ?? []
+  let flatIndex = 0
+
+  for (const trk of trks) {
+    const trksegs =
+      ((trk as Record<string, unknown>).trkseg as unknown[]) ?? []
+    for (const seg of trksegs) {
+      const trkpts =
+        ((seg as Record<string, unknown>).trkpt as unknown[]) ?? []
+      for (const pt of trkpts) {
+        const elevation = elevations.get(flatIndex)
+        if (elevation !== undefined) {
+          ;(pt as Record<string, unknown>)['ele'] = elevation
+        }
+        flatIndex++
+      }
+    }
+  }
+  return xmlBuilder.build(parsed) as string
+}
+
 export function addWaypointToGpx(
   gpxContent: string,
   waypoint: { lat: number; lon: number; name: string; description?: string }

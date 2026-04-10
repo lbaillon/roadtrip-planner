@@ -7,6 +7,7 @@ import type {
 } from '@roadtrip/shared'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { v7 as uuidv7 } from 'uuid'
+import { useEnrichTrackElevation } from './usePutTrackGpx'
 import { useApi } from '../useApi'
 import type { FlushFn } from './types'
 import { getGpxBlob } from '#web/lib/mutation-queue'
@@ -52,6 +53,7 @@ export function useCreateTrack() {
 
 export function useFlushCreateTrack(): FlushFn<CreateTrackMutation['payload']> {
   const api = useApi()
+  const enrichElevation = useEnrichTrackElevation()
   return async ({ id, name }) => {
     const gpxContent = await getGpxBlob(id)
     if (gpxContent === undefined) {
@@ -65,5 +67,6 @@ export function useFlushCreateTrack(): FlushFn<CreateTrackMutation['payload']> {
         gpxContent,
       } satisfies CreateTrackRequest),
     })
+    void enrichElevation(id)
   }
 }
