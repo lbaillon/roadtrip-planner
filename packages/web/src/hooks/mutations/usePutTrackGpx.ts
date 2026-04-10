@@ -6,6 +6,7 @@ import {
   getAllTrkpts,
   haversineDistanceKm,
   sampleTrkptsByIntervalKm,
+  invertGpxTrack,
 } from '#web/lib/gpx-utils'
 import { fetchElevations } from '#web/lib/elevation'
 import {
@@ -90,6 +91,10 @@ export function useDeleteWaypoint(trackId: string) {
   )
 }
 
+export function useInvertTrack(trackId: string) {
+  return useGpxMutation<void>(trackId, (gpx) => invertGpxTrack(gpx))
+}
+
 export function useEnrichTrackElevation() {
   const queryClient = useQueryClient()
 
@@ -166,3 +171,4 @@ export function useFlushPutTrackGpx(): FlushFn<PutTrackGpxMutation['payload']> {
     })
   }
 }
+

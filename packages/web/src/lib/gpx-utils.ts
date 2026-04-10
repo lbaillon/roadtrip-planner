@@ -363,3 +363,21 @@ export function remapCoordinatesFrom(
   }
   return remappedCoords
 }
+
+export function invertGpxTrack(gpxContent: string): string {
+  const parsed = xmlParser.parse(gpxContent)
+
+  parsed.gpx?.trk?.reverse()
+  for (const trk of parsed.gpx?.trk ?? []) {
+    trk.trkseg.reverse()
+    for (const seg of trk.trkseg) {
+      seg.trkpt.reverse()
+    }
+  }
+
+  for (const rte of parsed.gpx?.rte ?? []) {
+    rte.rtept.reverse()
+  }
+
+  return xmlBuilder.build(parsed)
+}
