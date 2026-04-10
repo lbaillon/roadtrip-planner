@@ -3,7 +3,9 @@ import {
   applyTrkptElevations,
   deleteWaypointFromGpx,
   editWaypointInGpx,
-  getMissingElevationPoints,
+  getAllTrkpts,
+  haversineDistanceKm,
+  sampleTrkptsByIntervalKm,
 } from '#web/lib/gpx-utils'
 import { fetchElevations } from '#web/lib/elevation'
 import {
@@ -97,24 +99,38 @@ export function useEnrichTrackElevation() {
       queryClient.getQueryData<GetTrackResponse>(['tracks', trackId])?.gpxContent
     if (!gpxContent) return
 
-    const missingPoints = getMissingElevationPoints(gpxContent)
-    if (missingPoints.length === 0) return
+    const allTrkpts = getAllTrkpts(gpxContent)
+    const missingTrkpts = allTrkpts.filter((p) => p.ele == null)
+    if (missingTrkpts.length === 0) return
+
+    const totalDistanceKm = allTrkpts
+      .slice(1)
+      .reduce(
+        (sum, pt, i) => sum + haversineDistanceKm(allTrkpts[i], pt),
+        0
+      )
+    const sampleCount = Math.min(300, Math.max(100, allTrkpts.length))
+    const intervalKm = Math.max(1, totalDistanceKm / sampleCount)
+    const samples = sampleTrkptsByIntervalKm(allTrkpts, intervalKm)
+
+    const missingSamples = samples.filter((s) => s.ele == null)
+    if (missingSamples.length === 0) return
 
     let elevationValues: number[]
     try {
-      elevationValues = await fetchElevations(missingPoints)
+      elevationValues = await fetchElevations(missingSamples)
     } catch {
       return
     }
 
     const elevationsMap = new Map<number, number>()
-    for (let i = 0; i < missingPoints.length; i++) {
+    for (let i = 0; i < missingSamples.length; i++) {
       const elevation = elevationValues[i]
-      if (elevation != null) elevationsMap.set(missingPoints[i].index, elevation)
+      if (elevation != null) elevationsMap.set(missingSamples[i].index, elevation)
     }
+  if (elevationsMap.size === 0) return
 
     const enriched = applyTrkptElevations(gpxContent, elevationsMap)
-    if (elevationsMap.size === 0) return
 
     await saveGpxBlob(trackId, enriched)
     await enqueueMutation(

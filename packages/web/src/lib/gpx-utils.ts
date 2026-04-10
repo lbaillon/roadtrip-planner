@@ -190,60 +190,79 @@ function getAllWaypointRefs(
   return refs
 }
 
-export function getMissingElevationPoints(
-  gpxContent: string
-): Array<{ index: number; lat: number; lon: number }> {
-  const parsed = xmlParser.parse(gpxContent)
-  const trks: unknown[] = parsed?.gpx?.trk ?? []
-  const missing: Array<{ index: number; lat: number; lon: number }> = []
+function forEachTrkpt(
+  parsed: Record<string, unknown>,
+  callback: (pt: Record<string, unknown>, flatIndex: number) => void
+): void {
+  const trks =
+    ((parsed['gpx'] as Record<string, unknown>)?.['trk'] as unknown[]) ?? []
   let flatIndex = 0
-
   for (const trk of trks) {
     const trksegs =
-      ((trk as Record<string, unknown>).trkseg as unknown[]) ?? []
+      ((trk as Record<string, unknown>)['trkseg'] as unknown[]) ?? []
     for (const seg of trksegs) {
       const trkpts =
-        ((seg as Record<string, unknown>).trkpt as unknown[]) ?? []
+        ((seg as Record<string, unknown>)['trkpt'] as unknown[]) ?? []
       for (const pt of trkpts) {
-        const p = pt as Record<string, unknown>
-        if (p['ele'] == null) {
-          missing.push({
-            index: flatIndex,
-            lat: parseFloat(String(p['@_lat'])),
-            lon: parseFloat(String(p['@_lon'])),
-          })
-        }
+        callback(pt as Record<string, unknown>, flatIndex)
         flatIndex++
       }
     }
   }
-  return missing
+}
+
+export function getAllTrkpts(
+  gpxContent: string
+): Array<{ index: number; lat: number; lon: number; ele?: number }> {
+  const parsed = xmlParser.parse(gpxContent) as Record<string, unknown>
+  const result: Array<{ index: number; lat: number; lon: number; ele?: number }> =
+    []
+  forEachTrkpt(parsed, (pt, flatIndex) => {
+    result.push({
+      index: flatIndex,
+      lat: parseFloat(String(pt['@_lat'])),
+      lon: parseFloat(String(pt['@_lon'])),
+      ele: pt['ele'] != null ? parseFloat(String(pt['ele'])) : undefined,
+    })
+  })
+  return result
+}
+
+export function getMissingElevationPoints(
+  gpxContent: string
+): Array<{ index: number; lat: number; lon: number }> {
+  return getAllTrkpts(gpxContent)
+    .filter((p) => p.ele == null)
+    .map(({ index, lat, lon }) => ({ index, lat, lon }))
+}
+
+export function sampleTrkptsByIntervalKm<T extends { lat: number; lon: number }>(
+  trkpts: T[],
+  intervalKm: number
+): T[] {
+  if (trkpts.length === 0) return []
+  const sampled: T[] = [trkpts[0]]
+  let cumulativeKm = 0
+  let nextThreshold = intervalKm
+  for (let i = 1; i < trkpts.length; i++) {
+    cumulativeKm += haversineDistanceKm(trkpts[i - 1], trkpts[i])
+    if (cumulativeKm >= nextThreshold) {
+      sampled.push(trkpts[i])
+      nextThreshold += intervalKm
+    }
+  }
+  return sampled
 }
 
 export function applyTrkptElevations(
   gpxContent: string,
   elevations: Map<number, number>
 ): string {
-  if (elevations.size === 0) return gpxContent
-  const parsed = xmlParser.parse(gpxContent)
-  const trks: unknown[] = parsed?.gpx?.trk ?? []
-  let flatIndex = 0
-
-  for (const trk of trks) {
-    const trksegs =
-      ((trk as Record<string, unknown>).trkseg as unknown[]) ?? []
-    for (const seg of trksegs) {
-      const trkpts =
-        ((seg as Record<string, unknown>).trkpt as unknown[]) ?? []
-      for (const pt of trkpts) {
-        const elevation = elevations.get(flatIndex)
-        if (elevation !== undefined) {
-          ;(pt as Record<string, unknown>)['ele'] = elevation
-        }
-        flatIndex++
-      }
-    }
-  }
+  const parsed = xmlParser.parse(gpxContent) as Record<string, unknown>
+  forEachTrkpt(parsed, (pt, flatIndex) => {
+    const elevation = elevations.get(flatIndex)
+    if (elevation !== undefined) pt['ele'] = elevation
+  })
   return xmlBuilder.build(parsed) as string
 }
 
