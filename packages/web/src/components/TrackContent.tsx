@@ -5,6 +5,7 @@ import {
   useAddWaypoint,
   useDeleteWaypoint,
   useEditWaypoint,
+  useInvertTrack,
 } from '#web/hooks/mutations/usePutTrackGpx'
 import { useGetWeather } from '#web/hooks/useApi'
 import { useAuth } from '#web/hooks/useAuth'
@@ -73,6 +74,9 @@ export default function TrackContent({
     id ?? ''
   )
   const { mutate: deleteWaypoint } = useDeleteWaypoint(id ?? '')
+  const { mutate: invertTrack, isPending: isInverting } = useInvertTrack(
+    id ?? ''
+  )
 
   const getTimepointIndices = () => {
     if (!departureTime || !speedKmh || !weather || !parsed) return null
@@ -182,6 +186,18 @@ export default function TrackContent({
           <p className={styles.routeName}>
             Distance: {(parsed.distance / 1000).toFixed(2)} km
           </p>
+        )}
+        {accessToken && id && (
+          <Button
+            onClick={() =>
+              invertTrack(undefined, {
+                onError: () => messageApi.error('Failed to invert track'),
+              })
+            }
+            loading={isInverting}
+          >
+            Invert start and arrival
+          </Button>
         )}
         {arrivalTime && (
           <p className={styles.routeName}>

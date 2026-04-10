@@ -2,6 +2,7 @@ import {
   addWaypointToGpx,
   deleteWaypointFromGpx,
   editWaypointInGpx,
+  invertGpxTrack,
 } from '#web/lib/gpx-utils'
 import {
   enqueueMutation,
@@ -97,4 +98,8 @@ export function useFlushPutTrackGpx(): FlushFn<PutTrackGpxMutation['payload']> {
       body: JSON.stringify({ gpxContent } satisfies UpdateTrackGpxRequest),
     })
   }
+}
+
+export function useInvertTrack(trackId: string) {
+  return useGpxMutation<void>(trackId, (gpx) => invertGpxTrack(gpx))
 }
