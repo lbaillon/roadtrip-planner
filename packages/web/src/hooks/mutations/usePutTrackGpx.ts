@@ -106,12 +106,12 @@ export function useEnrichTrackElevation() {
     if (!gpxContent) return
 
     const allTrkpts = getAllTrkpts(gpxContent)
-    const missingTrkpts = allTrkpts.filter((p) => p.ele == null)
-    if (missingTrkpts.length === 0) return
+    if (!allTrkpts.some((p) => p.ele == null)) return
 
-    const totalDistanceKm = allTrkpts
-      .slice(1)
-      .reduce((sum, pt, i) => sum + haversineDistanceKm(allTrkpts[i], pt), 0)
+    let totalDistanceKm = 0
+    for (let i = 1; i < allTrkpts.length; i++) {
+      totalDistanceKm += haversineDistanceKm(allTrkpts[i - 1], allTrkpts[i])
+    }
     const sampleCount = Math.min(300, Math.max(100, allTrkpts.length))
     const intervalKm = Math.max(1, totalDistanceKm / sampleCount)
     const samples = sampleTrkptsByIntervalKm(allTrkpts, intervalKm)
