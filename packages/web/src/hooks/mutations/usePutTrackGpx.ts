@@ -4,7 +4,6 @@ import {
   deleteWaypointFromGpx,
   editWaypointInGpx,
   getAllTrkpts,
-  haversineDistanceKm,
   sampleTrkptsByIntervalKm,
   invertGpxTrack,
 } from '#web/lib/gpx-utils'
@@ -108,10 +107,7 @@ export function useEnrichTrackElevation() {
     const allTrkpts = getAllTrkpts(gpxContent)
     if (!allTrkpts.some((p) => p.ele == null)) return
 
-    let totalDistanceKm = 0
-    for (let i = 1; i < allTrkpts.length; i++) {
-      totalDistanceKm += haversineDistanceKm(allTrkpts[i - 1], allTrkpts[i])
-    }
+    const totalDistanceKm = allTrkpts.at(-1)?.cumulativeKm ?? 0
     const sampleCount = Math.min(300, Math.max(100, allTrkpts.length))
     const intervalKm = Math.max(1, totalDistanceKm / sampleCount)
     const samples = sampleTrkptsByIntervalKm(allTrkpts, intervalKm)

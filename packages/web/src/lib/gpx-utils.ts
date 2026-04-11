@@ -129,26 +129,23 @@ export function haversineDistanceKm(
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
+function withCumulativeKm<T extends { lat: number; lon: number }>(
+  items: T[]
+): Array<T & { cumulativeKm: number }> {
+  let cumulativeKm = 0
+  return items.map((item, i) => {
+    if (i > 0) cumulativeKm += haversineDistanceKm(items[i - 1], item)
+    return { ...item, cumulativeKm }
+  })
+}
+
 export function sampleRoutePointsWithCumulativeKm(
   coordinates: Array<{ lat: number; lon: number }>,
   totalDistanceKm: number
 ): Array<{ lat: number; lon: number; cumulativeKm: number }> {
   if (coordinates.length === 0) return []
-  const totalPoints = coordinates.length
   const intervalKm = Math.max(10, totalDistanceKm / 17)
-  let nextThreshold = 0
-  const sampled: Array<{ lat: number; lon: number; cumulativeKm: number }> = []
-  let cumulativeKm = 0
-  let prevPoint = coordinates[0]
-  for (let i = 0; i < totalPoints; i++) {
-    cumulativeKm += haversineDistanceKm(prevPoint, coordinates[i])
-    prevPoint = coordinates[i]
-    if (cumulativeKm >= nextThreshold) {
-      sampled.push({ ...coordinates[i], cumulativeKm })
-      nextThreshold += intervalKm
-    }
-  }
-  return sampled
+  return sampleTrkptsByIntervalKm(withCumulativeKm(coordinates), intervalKm)
 }
 
 export function findNearestIndex(
@@ -211,42 +208,52 @@ function forEachTrkpt(
   }
 }
 
-export function getAllTrkpts(
-  gpxContent: string
-): Array<{ index: number; lat: number; lon: number; ele?: number }> {
+export function getAllTrkpts(gpxContent: string): Array<{
+  index: number
+  lat: number
+  lon: number
+  ele?: number
+  cumulativeKm: number
+}> {
   const parsed = xmlParser.parse(gpxContent) as Record<string, unknown>
   const result: Array<{
     index: number
     lat: number
     lon: number
     ele?: number
+    cumulativeKm: number
   }> = []
+  let cumulativeKm = 0
   forEachTrkpt(parsed, (pt, flatIndex) => {
+    const lat = parseFloat(String(pt['@_lat']))
+    const lon = parseFloat(String(pt['@_lon']))
+    if (result.length > 0) {
+      const prev = result[result.length - 1]
+      cumulativeKm += haversineDistanceKm(prev, { lat, lon })
+    }
     result.push({
       index: flatIndex,
-      lat: parseFloat(String(pt['@_lat'])),
-      lon: parseFloat(String(pt['@_lon'])),
+      lat,
+      lon,
       ele: pt['ele'] != null ? parseFloat(String(pt['ele'])) : undefined,
+      cumulativeKm,
     })
   })
   return result
 }
 
-export function sampleTrkptsByIntervalKm<
-  T extends { lat: number; lon: number },
->(trkpts: T[], intervalKm: number): T[] {
-  if (trkpts.length === 0) return []
-  const sampled: T[] = [trkpts[0]]
-  let cumulativeKm = 0
-  let nextThreshold = intervalKm
-  for (let i = 1; i < trkpts.length; i++) {
-    cumulativeKm += haversineDistanceKm(trkpts[i - 1], trkpts[i])
-    if (cumulativeKm >= nextThreshold) {
-      sampled.push(trkpts[i])
+export function sampleTrkptsByIntervalKm<T extends { cumulativeKm: number }>(
+  trkpts: T[],
+  intervalKm: number
+): T[] {
+  let nextThreshold = 0
+  return trkpts.filter((pt) => {
+    if (pt.cumulativeKm >= nextThreshold) {
       nextThreshold += intervalKm
+      return true
     }
-  }
-  return sampled
+    return false
+  })
 }
 
 export function applyTrkptElevations(
