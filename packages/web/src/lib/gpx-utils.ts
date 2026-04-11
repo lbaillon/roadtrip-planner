@@ -232,14 +232,6 @@ export function getAllTrkpts(
   return result
 }
 
-export function getMissingElevationPoints(
-  gpxContent: string
-): Array<{ index: number; lat: number; lon: number }> {
-  return getAllTrkpts(gpxContent)
-    .filter((p) => p.ele == null)
-    .map(({ index, lat, lon }) => ({ index, lat, lon }))
-}
-
 export function sampleTrkptsByIntervalKm<
   T extends { lat: number; lon: number },
 >(trkpts: T[], intervalKm: number): T[] {
