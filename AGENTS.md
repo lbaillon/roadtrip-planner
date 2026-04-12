@@ -6,7 +6,7 @@ Instructions for AI coding agents working on this repository.
 
 Full-stack road trip planning app. Monorepo with pnpm workspaces:
 
-```
+```text
 packages/
   shared/   # Zod schemas & shared TypeScript types (@roadtrip/shared)
   api/      # Express.js REST API (@roadtrip/api)
@@ -40,16 +40,19 @@ pnpm test          # unit tests, must pass before any PR
 ## Architecture Rules
 
 ### Shared package
+
 - Only pure TypeScript: types, Zod schemas, validators
 - No runtime dependencies on Node or browser APIs
 
 ### API package
+
 - Each resource has its own route file in `src/routes/`
 - Use the existing error handling middleware (`src/middleware/errorHandler.ts`)
 - All authenticated routes use the auth middleware
 - Database access only through Drizzle ORM — no raw SQL
 
 ### Web package
+
 - Data fetching via React Query (`@tanstack/react-query`)
 - UI components from Ant Design — prefer existing components over custom ones
 - Map rendering with MapLibre GL via `react-map-gl`
@@ -67,6 +70,7 @@ pnpm --filter @roadtrip/api db:migrate    # apply migration
 ## CI Checks
 
 All three must pass before merging:
+
 1. `pnpm type-check`
 2. `pnpm format:check`
 3. `pnpm lint`

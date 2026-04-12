@@ -1,6 +1,7 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
   testEnvironment: 'node',
+  testPathIgnorePatterns: ['<rootDir>/dist/'],
   clearMocks: true,
   moduleNameMapper: {
     '^@roadtrip/shared$': '<rootDir>/../shared/src/index.ts',

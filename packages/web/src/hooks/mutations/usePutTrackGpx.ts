@@ -1,9 +1,13 @@
 import {
   addWaypointToGpx,
+  applyTrkptElevations,
   deleteWaypointFromGpx,
   editWaypointInGpx,
+  getAllTrkpts,
+  sampleTrkptsByIntervalKm,
   invertGpxTrack,
 } from '#web/lib/gpx-utils'
+import { fetchElevations } from '#web/lib/elevation'
 import {
   enqueueMutation,
   getGpxBlob,
@@ -86,6 +90,70 @@ export function useDeleteWaypoint(trackId: string) {
   )
 }
 
+export function useInvertTrack(trackId: string) {
+  return useGpxMutation<void>(trackId, (gpx) => invertGpxTrack(gpx))
+}
+
+export function useEnrichTrackElevation() {
+  const queryClient = useQueryClient()
+
+  return async (trackId: string): Promise<void> => {
+    const gpxContent =
+      (await getGpxBlob(trackId)) ??
+      queryClient.getQueryData<GetTrackResponse>(['tracks', trackId])
+        ?.gpxContent
+    if (!gpxContent) return
+
+    const allTrkpts = getAllTrkpts(gpxContent)
+    if (!allTrkpts.some((p) => p.ele == null)) return
+
+    const totalDistanceKm = allTrkpts.at(-1)?.cumulativeKm ?? 0
+    const sampleCount = Math.min(300, Math.max(100, allTrkpts.length))
+    const intervalKm = Math.max(1, totalDistanceKm / sampleCount)
+    const samples = sampleTrkptsByIntervalKm(allTrkpts, intervalKm)
+
+    const missingSamples = samples.filter((s) => s.ele == null)
+    if (missingSamples.length === 0) return
+
+    let elevationValues: number[]
+    try {
+      elevationValues = await fetchElevations(missingSamples)
+    } catch {
+      return
+    }
+
+    const elevationsMap = new Map<number, number>()
+    for (let i = 0; i < missingSamples.length; i++) {
+      const elevation = elevationValues[i]
+      if (elevation != null)
+        elevationsMap.set(missingSamples[i].index, elevation)
+    }
+    if (elevationsMap.size === 0) return
+
+    const enriched = applyTrkptElevations(gpxContent, elevationsMap)
+
+    await saveGpxBlob(trackId, enriched)
+    await enqueueMutation(
+      { type: 'PUT_TRACK_GPX', payload: { id: trackId } },
+      { dedupeKey: trackId }
+    )
+    const track = queryClient.getQueryData<GetTrackResponse>([
+      'tracks',
+      trackId,
+    ])
+    if (track) {
+      queryClient.setQueryData<GetTrackResponse>(['tracks', trackId], {
+        ...track,
+        gpxContent: enriched,
+      })
+    }
+    await queryClient.invalidateQueries({
+      queryKey: ['mutation-queue', 'pending'],
+    })
+    await queryClient.invalidateQueries({ queryKey: ['weather'] })
+  }
+}
+
 export function useFlushPutTrackGpx(): FlushFn<PutTrackGpxMutation['payload']> {
   const api = useApi()
   return async ({ id }) => {
@@ -98,8 +166,4 @@ export function useFlushPutTrackGpx(): FlushFn<PutTrackGpxMutation['payload']> {
       body: JSON.stringify({ gpxContent } satisfies UpdateTrackGpxRequest),
     })
   }
-}
-
-export function useInvertTrack(trackId: string) {
-  return useGpxMutation<void>(trackId, (gpx) => invertGpxTrack(gpx))
 }
