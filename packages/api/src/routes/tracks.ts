@@ -47,7 +47,6 @@ export async function createTrack(
     .values({
       id: body.id,
       userId: user.userId,
-      name: body.name,
       gpxFile: gpxPublicId,
     })
     .returning()
@@ -139,7 +138,7 @@ async function getTrack(
   }
   const gpxContent = await getGpxFile(track.gpxFile)
 
-  return { id: track.id, name: track.name, gpxContent }
+  return { id: track.id, gpxContent }
 }
 
 router.get(
