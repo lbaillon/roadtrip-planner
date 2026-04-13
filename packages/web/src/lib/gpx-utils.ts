@@ -54,8 +54,8 @@ export function parseGpxFile(gpxContent: string): ParsedGpx {
     distanceM += haversineDistanceKm(coordinates[i - 1], coordinates[i]) * 1000
   }
   const name = String(
-    trk.name ??
-      (gpxData?.metadata as Record<string, unknown> | undefined)?.name ??
+    gpxData?.metadata ??
+      (trk.name as Record<string, unknown> | undefined)?.name ??
       'Unnamed Route'
   )
   const waypoints = extractWaypoints(gpxContent)
@@ -265,6 +265,14 @@ export function applyTrkptElevations(
     const elevation = elevations.get(flatIndex)
     if (elevation !== undefined) pt['ele'] = elevation
   })
+  return xmlBuilder.build(parsed) as string
+}
+
+export function setGpxName(gpxContent: string, name: string): string {
+  const parsed = xmlParser.parse(gpxContent) as Record<string, unknown>
+  const gpx = parsed['gpx'] as Record<string, unknown>
+  if (!gpx['metadata']) gpx['metadata'] = {}
+  ;(gpx['metadata'] as Record<string, unknown>)['name'] = name
   return xmlBuilder.build(parsed) as string
 }
 

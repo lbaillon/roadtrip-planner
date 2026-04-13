@@ -37,7 +37,7 @@ export function NewTrackForm({ form, tripId, onSuccess }: Props) {
     // create function in gpx-utils to rewrite name in metadata.name
     createTrack(
       // remove values.name
-      { ...(values.name && { name: values.name }), gpxContent },
+      { gpxContent },
       {
         onSuccess: ({ id: trackId }) => {
           if (tripId) {
