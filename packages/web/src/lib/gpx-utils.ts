@@ -297,7 +297,8 @@ export function setGpxName(gpxContent: string, name: string): string {
 }
 
 export function getGpxName(gpxContent: string): string | undefined {
-  return xmlParser.parse(gpxContent)?.gpx?.metadata?.name
+  const parsed = xmlParser.parse(gpxContent)
+  return parsed?.gpx?.metadata?.name ?? parsed?.gpx?.trk?.at(0)?.name
 }
 
 export function addWaypointToGpx(
