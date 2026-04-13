@@ -37,7 +37,7 @@ export function useAddTrackToTrip(tripId: string) {
         .getQueryData<TrackSummary[]>(['tracks'])
         ?.find((t) => t.id === trackId)
       const name =
-        getGpxName(full?.gpxContent ?? '') ?? summary?.name ?? 'Unknown Track'
+        getGpxName(full?.gpxContent ?? '') ?? summary?.name ?? 'Route inconnue'
       queryClient.setQueryData<TripTrack[]>(
         ['trips', tripId, 'tracks'],
         (old = []) => [...old, { id: trackId, name, order }]

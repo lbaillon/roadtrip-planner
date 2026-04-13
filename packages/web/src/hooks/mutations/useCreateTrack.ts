@@ -37,7 +37,7 @@ export function useCreateTrack() {
     onSuccess: async ({ id: trackId }, { gpxContent }) => {
       queryClient.setQueryData<TrackSummary[]>(['tracks'], (old = []) => [
         ...old,
-        { id: trackId, name: getGpxName(gpxContent) ?? 'Unnamed Route' },
+        { id: trackId, name: getGpxName(gpxContent) ?? 'Route inconnue' },
       ])
       queryClient.setQueryData<GetTrackResponse>(['tracks', trackId], {
         id: trackId,

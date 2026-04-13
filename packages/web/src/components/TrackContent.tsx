@@ -179,7 +179,7 @@ export default function TrackContent({
   return (
     <div className={styles.mapBox}>
       {contextHolder}
-      <h2 className={styles.routeName}>{parsed.name ?? 'Circuit inconnu'}</h2>
+      <h2 className={styles.routeName}>{parsed.name ?? 'Route inconnue'}</h2>
       <div className={styles.mapHeader}>
         {parsed.distance && (
           <p className={styles.routeName}>

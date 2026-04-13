@@ -44,7 +44,7 @@ export function parseGpxFile(gpxContent: string): ParsedGpx {
   const subTracks = []
   for (const trk of trks) {
     const trkRecord = trk as Record<string, unknown>
-    const trkName = String(trkRecord.name ?? 'Unnamed Route')
+    const trkName = String(trkRecord.name ?? 'Route inconnue')
     const trksegs: unknown[] = (trkRecord.trkseg as unknown[]) ?? []
     const trkCoordinates: Array<{ lat: number; lon: number; ele?: number }> = []
     for (const seg of trksegs) {
@@ -73,7 +73,7 @@ export function parseGpxFile(gpxContent: string): ParsedGpx {
   const name = String(
     (gpxData?.metadata as Record<string, unknown> | undefined)?.name ??
       firstTrk.name ??
-      'Unnamed Route'
+      'Route inconnue'
   )
 
   const waypoints = extractWaypoints(gpxContent)

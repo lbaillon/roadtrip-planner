@@ -62,7 +62,7 @@ export async function createTrack(
       gpxFile: gpxPublicId,
       name:
         xmlParser.parse(body.gpxContent)?.gpx?.metadata?.name ??
-        'Unnamed Route',
+        'Route inconnue',
     })
     .returning()
   return { id: track.id }

@@ -34,7 +34,7 @@ export function NewTrackForm({ form, tripId, onSuccess }: Props) {
     const file = values.file?.[0]?.originFileObj
     if (!file) return
     const gpxContent = await file.text()
-    const name  = values.name ?? getGpxName(gpxContent) ?? 'Unnamed Route'
+    const name = values.name ?? getGpxName(gpxContent) ?? 'Route inconnue'
     createTrack(
       { gpxContent: setGpxName(gpxContent, name) },
       {
