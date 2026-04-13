@@ -176,7 +176,7 @@ export default function MapView({
                 className={styles.dropdownItem}
                 onClick={(e) => e.stopPropagation()}
               >
-                <span>🗺️ Waypoints</span>
+                <span>🗺️ Points d'intérêt</span>
                 <Switch
                   size="small"
                   checked={waypointsEnabled}
