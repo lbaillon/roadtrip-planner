@@ -24,7 +24,6 @@ type WaypointFormData = { name: string; description?: string }
 type EditingWaypoint = { index: number } & WaypointFormData
 
 export default function TrackContent({
-  trackName,
   parsed,
   headerAction,
 }: {
@@ -179,7 +178,7 @@ export default function TrackContent({
     <div className={styles.mapBox}>
       {contextHolder}
       <h2 className={styles.routeName}>
-        {trackName ?? parsed.name ?? 'Unnamed Track'}
+        {parsed.name ?? 'Unnamed Track'}
       </h2>
       <div className={styles.mapHeader}>
         {parsed.distance && (

@@ -53,11 +53,12 @@ export function parseGpxFile(gpxContent: string): ParsedGpx {
   for (let i = 1; i < coordinates.length; i++) {
     distanceM += haversineDistanceKm(coordinates[i - 1], coordinates[i]) * 1000
   }
-  const name = String(
-    gpxData?.metadata ??
-      (trk.name as Record<string, unknown> | undefined)?.name ??
-      'Unnamed Route'
-  )
+const name = String(
+  (gpxData?.metadata as Record<string, unknown> | undefined)?.name ??
+    trk.name ??
+    'Unnamed Route'
+)
+
   const waypoints = extractWaypoints(gpxContent)
   return ParsedGpxSchema.parse({
     name,
