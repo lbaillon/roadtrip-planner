@@ -1,21 +1,14 @@
+import { findNearestIndex } from '#web/lib/gpx-utils'
 import type { GpxCoordinate, GpxWaypoint, WeatherData } from '@roadtrip/shared'
-import { Button, Dropdown, Switch } from 'antd'
 import type { MenuProps } from 'antd'
-import type { MapMouseEvent } from 'react-map-gl/maplibre'
+import { Button, Dropdown, Switch } from 'antd'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { useEffect, useState } from 'react'
+import type { MapMouseEvent } from 'react-map-gl/maplibre'
 import Map, { Layer, Marker, Popup, Source } from 'react-map-gl/maplibre'
 import styles from './MapView.module.css'
-import { findNearestIndex } from '#web/lib/gpx-utils'
+import { TRACK_COLORS } from './MapViewTracksColors'
 
-export const TRACK_COLORS = [
-  '#239182',
-  '#e6194b',
-  '#3cb44b',
-  '#4363d8',
-  '#f58231',
-  '#911eb4',
-]
 interface MapViewProps {
   subTracks: Array<{ name: string; coordinates: GpxCoordinate[] }>
   coordinates: GpxCoordinate[]

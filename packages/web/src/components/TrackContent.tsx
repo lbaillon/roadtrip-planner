@@ -18,7 +18,7 @@ import { Button, Collapse, InputNumber, message, TimePicker } from 'antd'
 import { lazy, Suspense, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import styles from './TrackContent.module.css'
-import { TRACK_COLORS } from '#web/components/MapView'
+import { TRACK_COLORS } from './MapViewTracksColors'
 
 const MapView = lazy(() => import('#web/components/MapView'))
 type WaypointFormData = { name: string; description?: string }
