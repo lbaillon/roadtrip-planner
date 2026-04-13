@@ -33,7 +33,6 @@ export const LogInRequestSchema = z.object({
 
 export const CreateTrackRequestSchema = z.object({
   id: z.uuidv7(),
-  name: z.string().min(1, 'Cannot be empty'),
   gpxContent: z.string().min(1, 'GPX content cannot be empty'),
 })
 
@@ -79,14 +78,13 @@ export const LogInResponseSchema = z.object({
 
 export const GetTrackResponseSchema = z.object({
   id: z.string(),
-  name: z.string(),
   gpxContent: z.string(),
 })
 
 // Response types
 
 export type TripSummary = { id: string; name: string }
-export type TripTrack = { id: string; name: string; order: number }
+export type TripTrack = { id: string; order: number }
 export type TrackSummary = { id: string; name: string }
 
 export type IdParams = z.infer<typeof IdParamsSchema>

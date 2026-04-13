@@ -11,6 +11,7 @@ import {
   type UploadFile,
 } from 'antd'
 import styles from './NewTrackForm.module.css'
+import { setGpxName } from '#web/lib/gpx-utils'
 
 export type NewTrackFormValues = {
   name?: string
@@ -33,8 +34,14 @@ export function NewTrackForm({ form, tripId, onSuccess }: Props) {
     const file = values.file?.[0]?.originFileObj
     if (!file) return
     const gpxContent = await file.text()
+    // edit gpx content if values.name is defined
+    // create function in gpx-utils to rewrite name in metadata.name
+    const finalGpxContent = values.name
+      ? setGpxName(gpxContent, values.name)
+      : gpxContent
     createTrack(
-      { ...(values.name && { name: values.name }), gpxContent },
+      // remove values.name
+      { gpxContent: finalGpxContent },
       {
         onSuccess: ({ id: trackId }) => {
           if (tripId) {

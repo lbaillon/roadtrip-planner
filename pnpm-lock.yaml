@@ -65,6 +65,9 @@ importers:
       express:
         specifier: ^5.2.1
         version: 5.2.1
+      fast-xml-parser:
+        specifier: ^5.5.9
+        version: 5.5.9
       jose:
         specifier: ^6.2.2
         version: 6.2.2

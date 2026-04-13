@@ -35,6 +35,14 @@ export const ParsedGpxSchema = z.object({
   coordinates: z.array(GpxCoordinateSchema),
   distance: z.number(),
   waypoints: z.array(GpxWaypointSchema).default([]),
+  subTracks: z
+    .array(
+      z.object({
+        name: z.string(),
+        coordinates: z.array(GpxCoordinateSchema),
+      })
+    )
+    .default([]),
 })
 
 export const UserSchema = z.object({

@@ -8,6 +8,7 @@ import type {
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useApi } from '../useApi'
 import type { FlushFn } from './types'
+import { getGpxName } from '#web/lib/gpx-utils'
 
 export interface AddTrackToTripMutation {
   type: 'ADD_TRACK_TO_TRIP'
@@ -35,7 +36,8 @@ export function useAddTrackToTrip(tripId: string) {
       const summary = queryClient
         .getQueryData<TrackSummary[]>(['tracks'])
         ?.find((t) => t.id === trackId)
-      const name = full?.name ?? summary?.name ?? 'Unknown Track'
+      const name =
+        getGpxName(full?.gpxContent ?? '') ?? summary?.name ?? 'Unknown Track'
       queryClient.setQueryData<TripTrack[]>(
         ['trips', tripId, 'tracks'],
         (old = []) => [...old, { id: trackId, name, order }]
