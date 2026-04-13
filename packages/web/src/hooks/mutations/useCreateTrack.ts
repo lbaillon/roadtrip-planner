@@ -22,26 +22,23 @@ export function useCreateTrack() {
   return useMutation({
     networkMode: 'offlineFirst',
     mutationFn: async (
-      request: Omit<CreateTrackRequest, 'id' | 'name'> & { name?: string }
+      request: Omit<CreateTrackRequest, 'id'>
     ): Promise<CreateResponse> => {
       const trackId = uuidv7()
-      const trackName = request.name ?? 'Unnamed Track'
       await saveGpxBlob(trackId, request.gpxContent)
       await enqueueMutation({
         type: 'CREATE_TRACK',
-        payload: { id: trackId, name: trackName },
+        payload: { id: trackId },
       })
       return { id: trackId }
     },
-    onSuccess: async ({ id: trackId }, { name, gpxContent }) => {
-      const trackName = name ?? 'Unnamed Track'
+    onSuccess: async ({ id: trackId }, { gpxContent }) => {
       queryClient.setQueryData<TrackSummary[]>(['tracks'], (old = []) => [
         ...old,
-        { id: trackId, name: trackName },
+        { id: trackId },
       ])
       queryClient.setQueryData<GetTrackResponse>(['tracks', trackId], {
         id: trackId,
-        name: trackName,
         gpxContent,
       })
       await queryClient.invalidateQueries({
@@ -54,7 +51,7 @@ export function useCreateTrack() {
 export function useFlushCreateTrack(): FlushFn<CreateTrackMutation['payload']> {
   const api = useApi()
   const enrichElevation = useEnrichTrackElevation()
-  return async ({ id, name }) => {
+  return async ({ id }) => {
     const gpxContent = await getGpxBlob(id)
     if (gpxContent === undefined) {
       throw new Error('GPX data lost — please re-upload the track')
@@ -63,7 +60,6 @@ export function useFlushCreateTrack(): FlushFn<CreateTrackMutation['payload']> {
       method: 'POST',
       body: JSON.stringify({
         id,
-        name,
         gpxContent,
       } satisfies CreateTrackRequest),
     })
