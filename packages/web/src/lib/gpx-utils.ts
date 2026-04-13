@@ -87,6 +87,7 @@ export function parseGpxFile(gpxContent: string): ParsedGpx {
     coordinates,
     distance: distanceM,
     waypoints,
+    subTracks
   })
 }
 
