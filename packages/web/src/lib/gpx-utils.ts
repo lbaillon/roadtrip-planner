@@ -33,27 +33,6 @@ export function parseGpxFile(gpxContent: string): ParsedGpx {
     throw new Error('No tracks found in GPX file')
   }
 
-  const trk = trks[0] as Record<string, unknown>
-  const trksegs: unknown[] = (trk.trkseg as unknown[]) ?? []
-
-  const coordinates: Array<{ lat: number; lon: number; ele?: number }> = []
-  for (const seg of trksegs) {
-    const trkpts: unknown[] =
-      ((seg as Record<string, unknown>).trkpt as unknown[]) ?? []
-    for (const pt of trkpts) {
-      const p = pt as Record<string, unknown>
-      coordinates.push({
-        lat: parseFloat(String(p['@_lat'])),
-        lon: parseFloat(String(p['@_lon'])),
-        ele: p.ele != null ? parseFloat(String(p.ele)) : undefined,
-      })
-    }
-  }
-  let distanceM = 0
-  for (let i = 1; i < coordinates.length; i++) {
-    distanceM += haversineDistanceKm(coordinates[i - 1], coordinates[i]) * 1000
-  }
-
   const subTracks = []
   for (const trk of trks) {
     const trkRecord = trk as Record<string, unknown>
@@ -75,9 +54,17 @@ export function parseGpxFile(gpxContent: string): ParsedGpx {
     subTracks.push({ name: trkName, coordinates: trkCoordinates })
   }
 
+  const coordinates = subTracks.flatMap((st) => st.coordinates)
+
+  let distanceM = 0
+  for (let i = 1; i < coordinates.length; i++) {
+    distanceM += haversineDistanceKm(coordinates[i - 1], coordinates[i]) * 1000
+  }
+
+  const firstTrk = trks[0] as Record<string, unknown>
   const name = String(
     (gpxData?.metadata as Record<string, unknown> | undefined)?.name ??
-      trk.name ??
+      firstTrk.name ??
       'Unnamed Route'
   )
 
@@ -87,9 +74,12 @@ export function parseGpxFile(gpxContent: string): ParsedGpx {
     coordinates,
     distance: distanceM,
     waypoints,
-    subTracks
+    subTracks,
   })
 }
+
+
+
 
 // Extracts <wpt> and <rtept> via fast-xml-parser
 // Handles Liberty Rider's non-standard <n> tag in addition to <name>
