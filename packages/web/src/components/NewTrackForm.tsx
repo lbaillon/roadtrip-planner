@@ -36,7 +36,9 @@ export function NewTrackForm({ form, tripId, onSuccess }: Props) {
     const gpxContent = await file.text()
     // edit gpx content if values.name is defined
     // create function in gpx-utils to rewrite name in metadata.name
-    const finalGpxContent = values.name ? setGpxName(gpxContent, values.name) : gpxContent
+    const finalGpxContent = values.name
+      ? setGpxName(gpxContent, values.name)
+      : gpxContent
     createTrack(
       // remove values.name
       { gpxContent: finalGpxContent },

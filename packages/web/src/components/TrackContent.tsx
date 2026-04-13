@@ -177,9 +177,7 @@ export default function TrackContent({
   return (
     <div className={styles.mapBox}>
       {contextHolder}
-      <h2 className={styles.routeName}>
-        {parsed.name ?? 'Unnamed Track'}
-      </h2>
+      <h2 className={styles.routeName}>{parsed.name ?? 'Unnamed Track'}</h2>
       <div className={styles.mapHeader}>
         {parsed.distance && (
           <p className={styles.routeName}>
@@ -222,6 +220,7 @@ export default function TrackContent({
       <Suspense fallback={<div>Loading map...</div>}>
         <MapView
           coordinates={parsed.coordinates}
+          subTracks={parsed.subTracks}
           weather={weather ?? []}
           timepointIndex={
             timepointIndices ??

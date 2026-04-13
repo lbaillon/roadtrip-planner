@@ -9,6 +9,7 @@ import styles from './MapView.module.css'
 import { findNearestIndex } from '#web/lib/gpx-utils'
 
 interface MapViewProps {
+  subTracks?: Array<{ name: string; coordinates: GpxCoordinate[] }>
   coordinates: GpxCoordinate[]
   waypoints?: GpxWaypoint[]
   weather: WeatherData[]
@@ -36,6 +37,7 @@ interface MapViewProps {
 
 export default function MapView({
   coordinates,
+  subTracks,
   waypoints = [],
   weather,
   timepointIndex,
@@ -48,6 +50,8 @@ export default function MapView({
   userPosition,
   setUserPosition,
 }: MapViewProps) {
+  const TRACK_COLORS = ['#e6194b', '#3cb44b', '#4363d8', '#f58231', '#911eb4']
+
   const [selectedWeather, setSelectedWeather] = useState<WeatherData | null>(
     null
   )
@@ -292,32 +296,70 @@ export default function MapView({
         onClick={handleMapClick}
       >
         {/* Route line */}
-        <Source id="route" type="geojson" data={routeGeoJSON}>
+{(!subTracks || subTracks.length <= 1) ? (
+<Source id="route" type="geojson" data={routeGeoJSON}>
+  <Layer
+    id="route-line"
+    type="line"
+    paint={{
+      'line-color': '#239182',
+      'line-width': 4,
+      'line-opacity': 0.8,
+    }}
+  />
+  {directionEnable && (
+    <Layer
+      id="direction-signs"
+      type="symbol"
+      layout={{
+        'symbol-placement': 'line',
+        'text-field': '>',
+        'text-size': 20,
+        'symbol-spacing': 5,
+        'text-keep-upright': false,
+        'text-font': ['Open Sans Bold'],
+      }}
+      paint={{ 'text-color': '#239182' }}
+    />
+  )}
+</Source>
+) : (
+  subTracks.map((subTrack, index) => {
+    const color = TRACK_COLORS[index % TRACK_COLORS.length]
+    const geoJSON = {
+      type: 'Feature' as const,
+      properties: {},
+      geometry: {
+        type: 'LineString' as const,
+        coordinates: subTrack.coordinates.map((c) => [c.lon, c.lat]),
+      },
+    }
+    return (
+      <Source key={index} id={`route-${index}`} type="geojson" data={geoJSON}>
+        <Layer
+          id={`route-line-${index}`}
+          type="line"
+          paint={{ 'line-color': color, 'line-width': 4, 'line-opacity': 0.8 }}
+        />
+        {directionEnable && (
           <Layer
-            id="route-line"
-            type="line"
-            paint={{
-              'line-color': '#239182',
-              'line-width': 4,
-              'line-opacity': 0.8,
+            id={`direction-signs-${index}`}
+            type="symbol"
+            layout={{
+              'symbol-placement': 'line',
+              'text-field': '>',
+              'text-size': 20,
+              'symbol-spacing': 5,
+              'text-keep-upright': false,
+              'text-font': ['Open Sans Bold'],
             }}
+            paint={{ 'text-color': color }}
           />
-          {directionEnable && (
-            <Layer
-              id="direction-signs"
-              type="symbol"
-              layout={{
-                'symbol-placement': 'line',
-                'text-field': '>',
-                'text-size': 20,
-                'symbol-spacing': 5,
-                'text-keep-upright': false,
-                'text-font': ['Open Sans Bold'],
-              }}
-              paint={{ 'text-color': '#239182' }}
-            />
-          )}
-        </Source>
+        )}
+      </Source>
+    )
+  })
+)}
         {startflagEnable && (
           <Marker
             key="departure point"

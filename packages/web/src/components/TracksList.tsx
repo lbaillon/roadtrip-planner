@@ -34,9 +34,8 @@ function TrackItem({
   track: Track
   onDelete: (id: string) => void
 }) {
-
-const { data } = useGetTrack(track.id)
-const name = data ? parseGpxFile(data.gpxContent).name : '...'
+  const { data } = useGetTrack(track.id)
+  const name = data ? parseGpxFile(data.gpxContent).name : '...'
 
   return (
     <>
