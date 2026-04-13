@@ -291,7 +291,8 @@ export function setGpxName(gpxContent: string, name: string): string {
   const parsed = xmlParser.parse(gpxContent) as Record<string, unknown>
   const gpx = parsed['gpx'] as Record<string, unknown>
   if (!gpx['metadata']) gpx['metadata'] = {}
-  ;(gpx['metadata'] as Record<string, unknown>)['name'] = name
+  const metadata = gpx['metadata'] as Record<string, unknown>
+  metadata['name'] = name
   return xmlBuilder.build(parsed) as string
 }
 
