@@ -22,7 +22,7 @@ export default function NewTrackModal() {
         onClick={() => setOpen(true)}
         className={styles.modalButton}
       >
-        Upload new track
+        Ajouter un circuit
       </Button>
       <Modal
         title="New track"

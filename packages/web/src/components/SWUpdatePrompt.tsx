@@ -8,8 +8,8 @@ export default function SWUpdatePrompt() {
     onNeedRefresh() {
       api.info({
         key: 'sw-update',
-        message: 'Update available',
-        description: 'A new version of the app is ready.',
+        message: 'Mise à jour disponible',
+        description: 'Une nouvelle version est disponible.',
         duration: 0,
         btn: (
           <Button
@@ -17,7 +17,7 @@ export default function SWUpdatePrompt() {
             size="small"
             onClick={async () => await updateServiceWorker(true)}
           >
-            Reload
+            Actualiser
           </Button>
         ),
       })

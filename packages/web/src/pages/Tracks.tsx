@@ -15,7 +15,7 @@ export default function Tracks() {
       <UserGreeting />
       <NewTrackModal />
       <Box>
-        <BoxTitle>My tracks</BoxTitle>
+        <BoxTitle>Mes circuits</BoxTitle>
         <TracksList tracks={tracks ?? []} onDelete={deleteTrack} />
       </Box>
     </>

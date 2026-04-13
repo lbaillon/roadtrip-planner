@@ -49,7 +49,7 @@ export function NewTrackForm({ form, tripId, onSuccess }: Props) {
           }
           onSuccess()
         },
-        onError: (error) => messageApi.error(`Error: ${error.message}`),
+        onError: (error) => messageApi.error(`Erreur: ${error.message}`),
       }
     )
   }
@@ -62,15 +62,17 @@ export function NewTrackForm({ form, tripId, onSuccess }: Props) {
         layout="vertical"
         onFinish={handleSubmit}
       >
-        <Form.Item<NewTrackFormValues> label="Name" name="name">
+        <Form.Item<NewTrackFormValues> label="Nom" name="name">
           <Input className={styles.inputModal} />
         </Form.Item>
         <Form.Item<NewTrackFormValues>
-          label="GPX File"
+          label="Fichier GPX"
           name="file"
           valuePropName="fileList"
           getValueFromEvent={(e) => e.fileList}
-          rules={[{ required: true, message: 'Please upload a GPX file' }]}
+          rules={[
+            { required: true, message: 'Veuillez uploader un fichier GPX' },
+          ]}
         >
           <Upload
             beforeUpload={(file) => {
@@ -78,11 +80,11 @@ export function NewTrackForm({ form, tripId, onSuccess }: Props) {
                 file.type === 'application/gpx+xml' ||
                 file.name.endsWith('.gpx')
               if (!isGpx) {
-                messageApi.error('Only GPX files allowed')
+                messageApi.error('Seuls les fichiers GPX sont acceptés')
                 return Upload.LIST_IGNORE
               }
               if (file.size > 2_000_000) {
-                messageApi.error('File too large (max 2MB)')
+                messageApi.error('Fichier trop volumineux (max 2Mo)')
                 return Upload.LIST_IGNORE
               }
               return false // necessary, it prevents automatic upload
@@ -90,7 +92,7 @@ export function NewTrackForm({ form, tripId, onSuccess }: Props) {
             accept=".gpx"
             maxCount={1}
           >
-            <Button>Select GPX file</Button>
+            <Button>Sélectionner un fichier GPX</Button>
           </Upload>
         </Form.Item>
       </Form>

@@ -28,7 +28,7 @@ export default function TrackDetails() {
     <div className={styles.contentBox}>
       {isLoading && (
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <p>Loading route...</p>
+          <p>Chargement du circuit...</p>
         </div>
       )}
 

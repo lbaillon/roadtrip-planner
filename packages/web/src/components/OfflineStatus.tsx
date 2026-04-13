@@ -5,14 +5,14 @@ import { useState } from 'react'
 import styles from './OfflineStatus.module.css'
 
 const MUTATION_LABELS: Record<FailedMutation['type'], string> = {
-  CREATE_TRACK: 'Create track',
-  PUT_TRACK_GPX: 'Update track',
-  DELETE_TRACK: 'Delete track',
-  CREATE_TRIP: 'Create trip',
-  DELETE_TRIP: 'Delete trip',
-  ADD_TRACK_TO_TRIP: 'Add track to trip',
-  REMOVE_TRACK_FROM_TRIP: 'Remove track from trip',
-  REORDER_TRIP_TRACKS: 'Reorder trip tracks',
+  CREATE_TRACK: 'Créer un circuit',
+  PUT_TRACK_GPX: 'Modifier un circuit',
+  DELETE_TRACK: 'Supprimer un circuit',
+  CREATE_TRIP: 'Créer un voyage',
+  DELETE_TRIP: 'Supprimer un voyage',
+  ADD_TRACK_TO_TRIP: 'Ajouter un circuit au voyage',
+  REMOVE_TRACK_FROM_TRIP: 'Retirer un circuit du voyage',
+  REORDER_TRIP_TRACKS: 'Réorganiser les circuits',
 }
 
 interface Props {
@@ -25,12 +25,14 @@ export default function OfflineStatus({ isSyncing }: Props) {
     useMutationQueue()
   const [showFailed, setShowFailed] = useState(false)
 
-  const base = !isOnline ? 'Offline' : 'Server unavailable'
+  const base = !isOnline ? 'Hors ligne' : 'Serveur indisponible'
   const label =
-    pendingCount > 0 ? `${base} — ${pendingCount} change(s) pending` : base
+    pendingCount > 0
+      ? `${base} — ${pendingCount} modifications en attente`
+      : base
   return (
     <div className={styles.container}>
-      {isSyncing && <span className={styles.syncing}>Syncing...</span>}
+      {isSyncing && <span className={styles.syncing}>Synchronisation...</span>}
       {(!isOnline || !isServerReady) && (
         <span className={styles.offline}>{label}</span>
       )}
@@ -39,7 +41,8 @@ export default function OfflineStatus({ isSyncing }: Props) {
           className={styles.errorToggle}
           onClick={() => setShowFailed((v) => !v)}
         >
-          {failedMutations.length} sync error(s) {showFailed ? '▲' : '▼'}
+          {failedMutations.length} erreur(s) de synchronisation{' '}
+          {showFailed ? '▲' : '▼'}
         </button>
       )}
       {showFailed && failedMutations.length > 0 && (
@@ -52,10 +55,10 @@ export default function OfflineStatus({ isSyncing }: Props) {
               <span className={styles.failedError}>{m.error}</span>
               <div className={styles.failedActions}>
                 <button onClick={async () => await retryMutation(m.id)}>
-                  Retry
+                  Réessayer
                 </button>
                 <button onClick={async () => await dismissMutation(m.id)}>
-                  Dismiss
+                  Ignorer
                 </button>
               </div>
             </li>

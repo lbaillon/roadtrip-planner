@@ -24,29 +24,29 @@ export default function Header() {
 
   let userMenu: MenuProps['items'] = [
     {
-      label: <Link to="/login">Log in</Link>,
+      label: <Link to="/login">S'identifier</Link>,
       key: 'login',
     },
     {
-      label: <Link to="/signup">Sign up</Link>,
+      label: <Link to="/signup">S'inscrire</Link>,
       key: 'signup',
     },
   ]
 
   let barsMenu: MenuProps['items'] = [
     {
-      label: <Link to="/">Home</Link>,
+      label: <Link to="/">Accueil</Link>,
       key: 'home',
     },
     {
-      label: <Link to="/about">About</Link>,
+      label: <Link to="/about">À propos</Link>,
       key: 'about',
     },
   ]
 
   const onLogout = () => {
     logout()
-    setAlert({ type: 'success', message: 'Logout successful' })
+    setAlert({ type: 'success', message: 'Déconnexion réussie' })
   }
 
   if (userId) {
@@ -54,7 +54,7 @@ export default function Header() {
       {
         label: (
           <Link to="/login" onClick={onLogout}>
-            Log out
+            Se déconnecter
           </Link>
         ),
         key: 'logout',
@@ -63,19 +63,19 @@ export default function Header() {
 
     barsMenu = [
       {
-        label: <Link to="/">Home</Link>,
+        label: <Link to="/">Accueil</Link>,
         key: 'home',
       },
       {
-        label: <Link to="/tracks">My tracks</Link>,
+        label: <Link to="/tracks">Mes circuits</Link>,
         key: 'tracks',
       },
       {
-        label: <Link to="/trips">My trips</Link>,
+        label: <Link to="/trips">Mes voyages</Link>,
         key: 'trips',
       },
       {
-        label: <Link to="/about">About</Link>,
+        label: <Link to="/about">À propos</Link>,
         key: 'about',
       },
     ]
@@ -87,7 +87,7 @@ export default function Header() {
         <FontAwesomeIcon
           className={styles.headerIcon}
           icon={faBars}
-          aria-label="Navigation menu"
+          aria-label="Menu de navigation"
         />
       </Dropdown>
       {alert && (
@@ -97,7 +97,7 @@ export default function Header() {
         <FontAwesomeIcon
           className={styles.headerIcon}
           icon={faUser}
-          aria-label="User menu"
+          aria-label="Menu utilisateur"
         />
       </Dropdown>
     </div>

@@ -274,8 +274,16 @@ export default function MapView({
         <button
           className={`${styles.editModeButton} ${isEditMode ? styles.editModeActive : ''}`}
           onClick={onToggleEditMode}
-          aria-label={isEditMode ? 'Exit edit mode' : 'Edit waypoints'}
-          title={isEditMode ? 'Exit edit mode' : 'Add / edit waypoints'}
+          aria-label={
+            isEditMode
+              ? 'Quitter le mode édition'
+              : "Modifier les points d'intérêt"
+          }
+          title={
+            isEditMode
+              ? 'Quitter le mode édition'
+              : "Ajouter / modifier les points d'intérêt"
+          }
         >
           ✏️
         </button>
@@ -283,7 +291,7 @@ export default function MapView({
 
       {isEditMode && (
         <div className={styles.editModeBanner}>
-          Click on the map to add a waypoint
+          Cliquez sur la carte pour ajouter un point
         </div>
       )}
 
@@ -397,7 +405,7 @@ export default function MapView({
             >
               <div
                 className={styles.waypointMarker}
-                title={wp.name ?? 'Waypoint'}
+                title={wp.name ?? "Points d'intérêt"}
               >
                 📌
               </div>
@@ -433,10 +441,10 @@ export default function MapView({
               {isEditMode && (
                 <div className={styles.waypointActions}>
                   <Button size="small" onClick={handleEditClick}>
-                    Edit
+                    Modifier
                   </Button>
                   <Button size="small" danger onClick={handleDeleteClick}>
-                    Delete
+                    Supprimer
                   </Button>
                 </div>
               )}

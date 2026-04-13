@@ -72,7 +72,7 @@ export default function About() {
 
   return (
     <div className={styles.main}>
-      <BoxTitle>About</BoxTitle>
+      <BoxTitle>À propos</BoxTitle>
       <div className={styles.content}>
         <h3 className={styles.subtilte}>Notre appli</h3>
         <p>
