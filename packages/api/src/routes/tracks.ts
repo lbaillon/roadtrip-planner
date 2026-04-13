@@ -54,12 +54,6 @@ export async function createTrack(
     throw new UnauthorizedError('Missing user', codes.MISSING_USER)
   }
   const gpxPublicId = await uploadGpx(body.id, body.gpxContent)
-
-  const content = xmlParser.parse(body.gpxContent)
-  console.log("gpxContent", body.gpxContent.slice(0, 500))
-  console.log("content", content)
-  console.log("name", content?.gpx?.metadata?.name)
-
   const [track] = await db
     .insert(tracks)
     .values({
