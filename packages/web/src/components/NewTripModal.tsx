@@ -19,10 +19,10 @@ export default function NewTripModal() {
         onClick={() => setOpen(true)}
         className={styles.modalButton}
       >
-        Create Trip
+        Créer un voyage
       </Button>
       <Modal
-        title="Create a new trip"
+        title="Créer un nouveau voyage"
         open={open}
         onCancel={() => {
           setOpen(false)
@@ -41,19 +41,21 @@ export default function NewTripModal() {
           }}
         >
           <Form.Item<CreateTripInput>
-            label="Trip name"
+            label="Nom du voyage"
             name="name"
-            rules={[{ required: true, message: 'Please enter a trip name' }]}
+            rules={[
+              { required: true, message: 'Veuillez entrer un nom de voyage' },
+            ]}
           >
             <Input
-              placeholder="Roadtrip in Italy"
+              placeholder="Roadtrip en Italie"
               className={styles.inputModal}
             />
           </Form.Item>
           <Form.Item<CreateTripInput> label="Description" name="description">
             <Input.TextArea
               rows={4}
-              placeholder="Describe your trip"
+              placeholder="Décrivez votre voyage"
               className={styles.inputModal}
             />
           </Form.Item>

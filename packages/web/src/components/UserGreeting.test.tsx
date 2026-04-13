@@ -19,7 +19,7 @@ describe('UserGreeting', () => {
 
     render(<UserGreeting />)
 
-    expect(screen.getByText('Hello Alice !')).toBeInTheDocument()
+    expect(screen.getByText('Bonjour Alice !')).toBeInTheDocument()
   })
 
   it('displays Anonymous when not logged in', () => {
@@ -33,6 +33,6 @@ describe('UserGreeting', () => {
 
     render(<UserGreeting />)
 
-    expect(screen.getByText('Hello Anonymous !')).toBeInTheDocument()
+    expect(screen.getByText('Bonjour Anonymous !')).toBeInTheDocument()
   })
 })

@@ -42,7 +42,7 @@ export function GpxUploader({ onFileSelect }: GpxUploaderProps) {
         />
         <label htmlFor="gpx-input" className={styles.label}>
           <div>
-            <p className={styles.textLabel}>Upload your GPX file here</p>
+            <p className={styles.textLabel}>Uploader un GPX</p>
           </div>
         </label>
       </div>

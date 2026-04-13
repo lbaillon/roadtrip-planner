@@ -11,7 +11,7 @@ import {
   type UploadFile,
 } from 'antd'
 import styles from './NewTrackForm.module.css'
-import { setGpxName } from '#web/lib/gpx-utils'
+import { getGpxName, setGpxName } from '#web/lib/gpx-utils'
 
 export type NewTrackFormValues = {
   name?: string
@@ -34,14 +34,9 @@ export function NewTrackForm({ form, tripId, onSuccess }: Props) {
     const file = values.file?.[0]?.originFileObj
     if (!file) return
     const gpxContent = await file.text()
-    // edit gpx content if values.name is defined
-    // create function in gpx-utils to rewrite name in metadata.name
-    const finalGpxContent = values.name
-      ? setGpxName(gpxContent, values.name)
-      : gpxContent
+    const name = values.name ?? getGpxName(gpxContent) ?? 'Route inconnue'
     createTrack(
-      // remove values.name
-      { gpxContent: finalGpxContent },
+      { gpxContent: setGpxName(gpxContent, name) },
       {
         onSuccess: ({ id: trackId }) => {
           if (tripId) {
@@ -49,7 +44,7 @@ export function NewTrackForm({ form, tripId, onSuccess }: Props) {
           }
           onSuccess()
         },
-        onError: (error) => messageApi.error(`Error: ${error.message}`),
+        onError: (error) => messageApi.error(`Erreur: ${error.message}`),
       }
     )
   }
@@ -62,15 +57,17 @@ export function NewTrackForm({ form, tripId, onSuccess }: Props) {
         layout="vertical"
         onFinish={handleSubmit}
       >
-        <Form.Item<NewTrackFormValues> label="Name" name="name">
+        <Form.Item<NewTrackFormValues> label="Nom" name="name">
           <Input className={styles.inputModal} />
         </Form.Item>
         <Form.Item<NewTrackFormValues>
-          label="GPX File"
+          label="Fichier GPX"
           name="file"
           valuePropName="fileList"
           getValueFromEvent={(e) => e.fileList}
-          rules={[{ required: true, message: 'Please upload a GPX file' }]}
+          rules={[
+            { required: true, message: 'Veuillez uploader un fichier GPX' },
+          ]}
         >
           <Upload
             beforeUpload={(file) => {
@@ -78,11 +75,11 @@ export function NewTrackForm({ form, tripId, onSuccess }: Props) {
                 file.type === 'application/gpx+xml' ||
                 file.name.endsWith('.gpx')
               if (!isGpx) {
-                messageApi.error('Only GPX files allowed')
+                messageApi.error('Seuls les fichiers GPX sont acceptés')
                 return Upload.LIST_IGNORE
               }
               if (file.size > 2_000_000) {
-                messageApi.error('File too large (max 2MB)')
+                messageApi.error('Fichier trop volumineux (max 2Mo)')
                 return Upload.LIST_IGNORE
               }
               return false // necessary, it prevents automatic upload
@@ -90,7 +87,7 @@ export function NewTrackForm({ form, tripId, onSuccess }: Props) {
             accept=".gpx"
             maxCount={1}
           >
-            <Button>Select GPX file</Button>
+            <Button>Sélectionner un fichier GPX</Button>
           </Upload>
         </Form.Item>
       </Form>

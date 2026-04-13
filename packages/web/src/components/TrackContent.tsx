@@ -12,13 +12,13 @@ import { useAuth } from '#web/hooks/useAuth'
 import {
   remapCoordinatesFrom,
   sampleRoutePointsWithCumulativeKm,
-  TRACK_COLORS,
 } from '#web/lib/gpx-utils'
 import type { ParsedGpx } from '@roadtrip/shared'
 import { Button, Collapse, InputNumber, message, TimePicker } from 'antd'
 import { lazy, Suspense, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import styles from './TrackContent.module.css'
+import { TRACK_COLORS } from './MapViewTracksColors'
 
 const MapView = lazy(() => import('#web/components/MapView'))
 type WaypointFormData = { name: string; description?: string }
@@ -131,7 +131,7 @@ export default function TrackContent({
 
   function handleDeleteWaypoint(index: number) {
     deleteWaypoint(index, {
-      onError: () => messageApi.error('Failed to delete waypoint'),
+      onError: () => messageApi.error('Erreur lors de la suppression du point'),
     })
   }
 
@@ -148,7 +148,8 @@ export default function TrackContent({
             setIsModalOpen(false)
             setEditingWaypoint(null)
           },
-          onError: () => messageApi.error('Failed to edit waypoint'),
+          onError: () =>
+            messageApi.error('Erreur lors de la modification du point'),
         }
       )
     } else if (pendingClickCoords) {
@@ -163,7 +164,7 @@ export default function TrackContent({
             setIsModalOpen(false)
             setPendingClickCoords(null)
           },
-          onError: () => messageApi.error('Failed to add waypoint'),
+          onError: () => messageApi.error("Erreur lors de l'ajout du point"),
         }
       )
     }
@@ -178,28 +179,29 @@ export default function TrackContent({
   return (
     <div className={styles.mapBox}>
       {contextHolder}
-      <h2 className={styles.routeName}>{parsed.name ?? 'Unnamed Track'}</h2>
+      <h2 className={styles.routeName}>{parsed.name ?? 'Route inconnue'}</h2>
       <div className={styles.mapHeader}>
         {parsed.distance && (
           <p className={styles.routeName}>
-            Distance: {(parsed.distance / 1000).toFixed(2)} km
+            Distance : {(parsed.distance / 1000).toFixed(2)} km
           </p>
         )}
         {accessToken && id && (
           <Button
             onClick={() =>
               invertTrack(undefined, {
-                onError: () => messageApi.error('Failed to invert track'),
+                onError: () =>
+                  messageApi.error("Erreur lors de l'inversion du parcours"),
               })
             }
             loading={isInverting}
           >
-            Invert start and arrival
+            Inverser départ et arrivée
           </Button>
         )}
         {arrivalTime && (
           <p className={styles.routeName}>
-            Estimated arrival:{' '}
+            Arrivée estimée :{' '}
             {arrivalTime.toLocaleTimeString([], {
               hour: '2-digit',
               minute: '2-digit',
@@ -210,15 +212,15 @@ export default function TrackContent({
       </div>
       {weatherLoading && (
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <p>Loading weather data...</p>
+          <p>Chargement de la météo...</p>
         </div>
       )}
       {isError && (
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <p>Error occurred: {error.message}</p>
+          <p>Erreur : {error.message}</p>
         </div>
       )}
-      <Suspense fallback={<div>Loading map...</div>}>
+      <Suspense fallback={<div>Chargement de la carte...</div>}>
         <MapView
           coordinates={parsed.coordinates}
           subTracks={parsed.subTracks}
@@ -282,7 +284,7 @@ export default function TrackContent({
 
       {weatherLoading && !weather && (
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <p>Loading weather data...</p>
+          <p>Chargement de la météo...</p>
         </div>
       )}
 
@@ -291,7 +293,7 @@ export default function TrackContent({
           {useCustomTime ? (
             <div className={styles.startAndSpeed}>
               <div className={styles.selectionBox}>
-                <label>Start hour</label>
+                <label>Heure de départ</label>
                 <TimePicker
                   format="HH:mm"
                   onChange={(value) =>
@@ -300,7 +302,7 @@ export default function TrackContent({
                 />
               </div>
               <div className={styles.selectionBox}>
-                <label>Average speed (km/h)</label>
+                <label>Vitesse moyenne (km/h)</label>
                 <InputNumber
                   min={1}
                   defaultValue={50}
@@ -326,10 +328,14 @@ export default function TrackContent({
             }}
             className={styles.hourSetup}
           >
-            {useCustomTime ? 'Choose time slot' : 'Custom start hour and speed'}
+            {useCustomTime
+              ? 'Choisir un créneau'
+              : 'Heure et vitesse personnalisées'}
           </Button>
 
-          <h3 className={styles.humidityPlot}>Humidity Chart</h3>
+          <h3 className={styles.humidityPlot}>
+            Taux d'humidité sur le circuit
+          </h3>
 
           <HumidityChart
             coordinates={parsed.coordinates}

@@ -12,6 +12,7 @@ import { useApi } from '../useApi'
 import type { FlushFn } from './types'
 import { getGpxBlob } from '#web/lib/mutation-queue'
 import { getGpxName } from '#web/lib/gpx-utils'
+import { ApiError } from '#web/lib/api-client'
 
 export interface CreateTrackMutation {
   type: 'CREATE_TRACK'
@@ -36,7 +37,7 @@ export function useCreateTrack() {
     onSuccess: async ({ id: trackId }, { gpxContent }) => {
       queryClient.setQueryData<TrackSummary[]>(['tracks'], (old = []) => [
         ...old,
-        { id: trackId, name: getGpxName(gpxContent) ?? 'Unnamed Route' },
+        { id: trackId, name: getGpxName(gpxContent) ?? 'Route inconnue' },
       ])
       queryClient.setQueryData<GetTrackResponse>(['tracks', trackId], {
         id: trackId,
@@ -55,7 +56,7 @@ export function useFlushCreateTrack(): FlushFn<CreateTrackMutation['payload']> {
   return async ({ id }) => {
     const gpxContent = await getGpxBlob(id)
     if (gpxContent === undefined) {
-      throw new Error('GPX data lost — please re-upload the track')
+      throw new ApiError('GPX data lost — please re-upload the track', 422)
     }
     await api<void>('/api/tracks', {
       method: 'POST',

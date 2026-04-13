@@ -1,15 +1,16 @@
+import { findNearestIndex } from '#web/lib/gpx-utils'
 import type { GpxCoordinate, GpxWaypoint, WeatherData } from '@roadtrip/shared'
-import { Button, Dropdown, Switch } from 'antd'
 import type { MenuProps } from 'antd'
-import type { MapMouseEvent } from 'react-map-gl/maplibre'
+import { Button, Dropdown, Switch } from 'antd'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { useEffect, useState } from 'react'
+import type { MapMouseEvent } from 'react-map-gl/maplibre'
 import Map, { Layer, Marker, Popup, Source } from 'react-map-gl/maplibre'
 import styles from './MapView.module.css'
-import { findNearestIndex, TRACK_COLORS } from '#web/lib/gpx-utils'
+import { TRACK_COLORS } from './MapViewTracksColors'
 
 interface MapViewProps {
-  subTracks?: Array<{ name: string; coordinates: GpxCoordinate[] }>
+  subTracks: Array<{ name: string; coordinates: GpxCoordinate[] }>
   coordinates: GpxCoordinate[]
   waypoints?: GpxWaypoint[]
   weather: WeatherData[]
@@ -103,15 +104,6 @@ export default function MapView({
     fitBoundsOptions: { padding: 50 },
   }
 
-  const routeGeoJSON = {
-    type: 'Feature' as const,
-    properties: {},
-    geometry: {
-      type: 'LineString' as const,
-      coordinates: coordinates.map((c) => [c.lon, c.lat]),
-    },
-  }
-
   const dropdownItems: MenuProps['items'] = [
     {
       key: 'departure',
@@ -176,7 +168,7 @@ export default function MapView({
                 className={styles.dropdownItem}
                 onClick={(e) => e.stopPropagation()}
               >
-                <span>🗺️ Waypoints</span>
+                <span>🗺️ Points d'intérêt</span>
                 <Switch
                   size="small"
                   checked={waypointsEnabled}
@@ -274,8 +266,16 @@ export default function MapView({
         <button
           className={`${styles.editModeButton} ${isEditMode ? styles.editModeActive : ''}`}
           onClick={onToggleEditMode}
-          aria-label={isEditMode ? 'Exit edit mode' : 'Edit waypoints'}
-          title={isEditMode ? 'Exit edit mode' : 'Add / edit waypoints'}
+          aria-label={
+            isEditMode
+              ? 'Quitter le mode édition'
+              : "Modifier les points d'intérêt"
+          }
+          title={
+            isEditMode
+              ? 'Quitter le mode édition'
+              : "Ajouter / modifier les points d'intérêt"
+          }
         >
           ✏️
         </button>
@@ -283,7 +283,7 @@ export default function MapView({
 
       {isEditMode && (
         <div className={styles.editModeBanner}>
-          Click on the map to add a waypoint
+          Cliquez sur la carte pour ajouter un point
         </div>
       )}
 
@@ -294,79 +294,50 @@ export default function MapView({
         onClick={handleMapClick}
       >
         {/* Route line */}
-        {!subTracks || subTracks.length <= 1 ? (
-          <Source id="route" type="geojson" data={routeGeoJSON}>
-            <Layer
-              id="route-line"
-              type="line"
-              paint={{
-                'line-color': '#239182',
-                'line-width': 4,
-                'line-opacity': 0.8,
-              }}
-            />
-            {directionEnable && (
+        {subTracks.map((subTrack, index) => {
+          const color = TRACK_COLORS[index % TRACK_COLORS.length]
+          const geoJSON = {
+            type: 'Feature' as const,
+            properties: {},
+            geometry: {
+              type: 'LineString' as const,
+              coordinates: subTrack.coordinates.map((c) => [c.lon, c.lat]),
+            },
+          }
+          return (
+            <Source
+              key={index}
+              id={`route-${index}`}
+              type="geojson"
+              data={geoJSON}
+            >
               <Layer
-                id="direction-signs"
-                type="symbol"
-                layout={{
-                  'symbol-placement': 'line',
-                  'text-field': '>',
-                  'text-size': 20,
-                  'symbol-spacing': 5,
-                  'text-keep-upright': false,
-                  'text-font': ['Open Sans Bold'],
+                id={`route-line-${index}`}
+                type="line"
+                paint={{
+                  'line-color': color,
+                  'line-width': 4,
+                  'line-opacity': 0.8,
                 }}
-                paint={{ 'text-color': '#239182' }}
               />
-            )}
-          </Source>
-        ) : (
-          subTracks.map((subTrack, index) => {
-            const color = TRACK_COLORS[index % TRACK_COLORS.length]
-            const geoJSON = {
-              type: 'Feature' as const,
-              properties: {},
-              geometry: {
-                type: 'LineString' as const,
-                coordinates: subTrack.coordinates.map((c) => [c.lon, c.lat]),
-              },
-            }
-            return (
-              <Source
-                key={index}
-                id={`route-${index}`}
-                type="geojson"
-                data={geoJSON}
-              >
+              {directionEnable && (
                 <Layer
-                  id={`route-line-${index}`}
-                  type="line"
-                  paint={{
-                    'line-color': color,
-                    'line-width': 4,
-                    'line-opacity': 0.8,
+                  id={`direction-signs-${index}`}
+                  type="symbol"
+                  layout={{
+                    'symbol-placement': 'line',
+                    'text-field': '>',
+                    'text-size': 20,
+                    'symbol-spacing': 5,
+                    'text-keep-upright': false,
+                    'text-font': ['Open Sans Bold'],
                   }}
+                  paint={{ 'text-color': color }}
                 />
-                {directionEnable && (
-                  <Layer
-                    id={`direction-signs-${index}`}
-                    type="symbol"
-                    layout={{
-                      'symbol-placement': 'line',
-                      'text-field': '>',
-                      'text-size': 20,
-                      'symbol-spacing': 5,
-                      'text-keep-upright': false,
-                      'text-font': ['Open Sans Bold'],
-                    }}
-                    paint={{ 'text-color': color }}
-                  />
-                )}
-              </Source>
-            )
-          })
-        )}
+              )}
+            </Source>
+          )
+        })}
         {startflagEnable && (
           <Marker
             key="departure point"
@@ -397,7 +368,7 @@ export default function MapView({
             >
               <div
                 className={styles.waypointMarker}
-                title={wp.name ?? 'Waypoint'}
+                title={wp.name ?? "Points d'intérêt"}
               >
                 📌
               </div>
@@ -433,10 +404,10 @@ export default function MapView({
               {isEditMode && (
                 <div className={styles.waypointActions}>
                   <Button size="small" onClick={handleEditClick}>
-                    Edit
+                    Modifier
                   </Button>
                   <Button size="small" danger onClick={handleDeleteClick}>
-                    Delete
+                    Supprimer
                   </Button>
                 </div>
               )}

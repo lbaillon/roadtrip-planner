@@ -36,10 +36,10 @@ export default function AddTrackToTripModal({ tripId }: Props) {
         disabled={!tripId}
         className={styles.modalButton}
       >
-        Add track to trip
+        Ajouter un circuit au voyage
       </Button>
       <Modal
-        title="Add track to trip"
+        title="Ajouter un circuit au voyage"
         open={open}
         onCancel={handleClose}
         onOk={() =>
@@ -48,8 +48,8 @@ export default function AddTrackToTripModal({ tripId }: Props) {
       >
         <Segmented<Mode>
           options={[
-            { label: 'Existing track', value: 'existing' },
-            { label: 'New track', value: 'new' },
+            { label: 'Circuit existant', value: 'existing' },
+            { label: 'Nouveau circuit', value: 'new' },
           ]}
           value={mode}
           onChange={(v: Mode) => {

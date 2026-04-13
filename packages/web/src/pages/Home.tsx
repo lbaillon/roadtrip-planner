@@ -19,7 +19,9 @@ export default function Home() {
       setParsedGpx(parsed)
     } catch (e) {
       messageApi.error(
-        e instanceof Error ? e.message : 'Failed to parse GPX file'
+        e instanceof Error
+          ? e.message
+          : 'Erreur lors de la lecture du fichier GPX'
       )
     }
   }
@@ -33,7 +35,7 @@ export default function Home() {
           {isReady ? (
             <GpxUploader onFileSelect={handleFileSelect} />
           ) : (
-            <p>GPX preview is unavailable offline.</p>
+            <p>L'affichage du GPX est indisponible hors ligne.</p>
           )}
         </div>
 

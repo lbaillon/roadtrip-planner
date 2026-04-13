@@ -48,12 +48,12 @@ export default function AuthForm<M extends 'login' | 'signup'>({
         {
           onSuccess: (data) => {
             setAccessToken(data.accessToken)
-            setAlert({ type: 'success', message: 'Login successful' })
+            setAlert({ type: 'success', message: 'Connexion validée' })
           },
           onError: (err) =>
             setAlert({
               type: 'error',
-              message: `Login failed: ${err.message}`,
+              message: `Erreur de connexion: ${err.message}`,
             }),
         }
       )
@@ -65,12 +65,12 @@ export default function AuthForm<M extends 'login' | 'signup'>({
           onSuccess: () =>
             setAlert({
               type: 'success',
-              message: 'Your profile has been successfully created!',
+              message: 'Votre profil a été créé avec succes !',
             }),
           onError: (err) =>
             setAlert({
               type: 'error',
-              message: `Profile creation failed: ${err.message}`,
+              message: `Erreur dans la création du profil: ${err.message}`,
             }),
         }
       )
@@ -80,10 +80,10 @@ export default function AuthForm<M extends 'login' | 'signup'>({
   const onFinishFailed: FormProps<FieldType<M>>['onFinishFailed'] = (
     errorInfo
   ) => {
-    const prefix = mode === 'login' ? 'Login' : 'Profile creation'
+    const prefix = mode === 'login' ? 'Connexion' : 'Création du profil'
     setAlert({
       type: 'error',
-      message: `${prefix} failed: ${errorInfo.message}`,
+      message: `${prefix} erreur : ${errorInfo.message}`,
     })
   }
 
@@ -102,9 +102,11 @@ export default function AuthForm<M extends 'login' | 'signup'>({
         onFinishFailed={onFinishFailed}
       >
         <Form.Item<LoginFields>
-          label="Username"
+          label="Identifiant"
           name="username"
-          rules={[{ required: true, message: 'Please input your username!' }]}
+          rules={[
+            { required: true, message: 'Veuillez entrer votre identifiant !' },
+          ]}
         >
           <Input autoComplete="username" />
         </Form.Item>
@@ -113,16 +115,20 @@ export default function AuthForm<M extends 'login' | 'signup'>({
           <Form.Item<SignUpFields>
             label="Email"
             name="email"
-            rules={[{ required: true, message: 'Please input your email!' }]}
+            rules={[
+              { required: true, message: 'Veuillez entrer votre email !' },
+            ]}
           >
             <Input autoComplete="email" />
           </Form.Item>
         )}
 
         <Form.Item<LoginFields>
-          label="Password"
+          label="Mot de passe"
           name="password"
-          rules={[{ required: true, message: 'Please input your password!' }]}
+          rules={[
+            { required: true, message: 'Veuillez entrer votre mot de passe !' },
+          ]}
         >
           <Input.Password
             autoComplete={
@@ -133,17 +139,22 @@ export default function AuthForm<M extends 'login' | 'signup'>({
 
         {mode === 'signup' && (
           <Form.Item<SignUpFields>
-            label="Confirm password"
+            label="Confirmer le mot de passe"
             name="confirmPassword"
             dependencies={['password']}
             rules={[
-              { required: true, message: 'Please confirm your password!' },
+              {
+                required: true,
+                message: 'Veuillez confirmer votre mot de passe !',
+              },
               ({ getFieldValue }) => ({
                 validator(_, value) {
                   if (getFieldValue('password') === value) {
                     return Promise.resolve()
                   }
-                  return Promise.reject(new Error('Passwords do not match!'))
+                  return Promise.reject(
+                    new Error('Les mots de passe ne sont pas identiques !')
+                  )
                 },
               }),
             ]}
@@ -154,7 +165,7 @@ export default function AuthForm<M extends 'login' | 'signup'>({
 
         <Form.Item label={null}>
           <Button type="primary" htmlType="submit" className={styles.button}>
-            Submit
+            Valider
           </Button>
         </Form.Item>
       </Form>

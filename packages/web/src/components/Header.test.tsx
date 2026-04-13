@@ -26,18 +26,18 @@ describe('Header', () => {
       </MemoryRouter>
     )
 
-    const barsIcon = screen.getByRole('img', { name: 'Navigation menu' })
-    const userIcon = screen.getByRole('img', { name: 'User menu' })
+    const barsIcon = screen.getByRole('img', { name: 'Menu de navigation' })
+    const userIcon = screen.getByRole('img', { name: 'Menu utilisateur' })
 
     await user.click(barsIcon)
 
-    expect(await screen.findByText('Home')).toBeInTheDocument()
-    expect(await screen.findByText('My tracks')).toBeInTheDocument()
-    expect(await screen.findByText('My trips')).toBeInTheDocument()
-    expect(await screen.findByText('About')).toBeInTheDocument()
+    expect(await screen.findByText('Accueil')).toBeInTheDocument()
+    expect(await screen.findByText('Mes circuits')).toBeInTheDocument()
+    expect(await screen.findByText('Mes voyages')).toBeInTheDocument()
+    expect(await screen.findByText('À propos')).toBeInTheDocument()
 
     await user.click(userIcon)
-    expect(await screen.findByText('Log out')).toBeInTheDocument()
+    expect(await screen.findByText('Se déconnecter')).toBeInTheDocument()
   })
 
   it('displays log in, sign up and not my trips/ my tracks when logged out', async () => {
@@ -57,18 +57,18 @@ describe('Header', () => {
       </MemoryRouter>
     )
 
-    const barsIcon = screen.getByRole('img', { name: 'Navigation menu' })
-    const userIcon = screen.getByRole('img', { name: 'User menu' })
+    const barsIcon = screen.getByRole('img', { name: 'Menu de navigation' })
+    const userIcon = screen.getByRole('img', { name: 'Menu utilisateur' })
 
     await user.click(barsIcon)
 
-    expect(await screen.findByText('Home')).toBeInTheDocument()
-    expect(screen.queryByText('My tracks')).not.toBeInTheDocument()
-    expect(screen.queryByText('My trips')).not.toBeInTheDocument()
-    expect(await screen.findByText('About')).toBeInTheDocument()
+    expect(await screen.findByText('Accueil')).toBeInTheDocument()
+    expect(screen.queryByText('Mes circuits')).not.toBeInTheDocument()
+    expect(screen.queryByText('Mes voyages')).not.toBeInTheDocument()
+    expect(await screen.findByText('À propos')).toBeInTheDocument()
 
     await user.click(userIcon)
-    expect(await screen.findByText('Log in')).toBeInTheDocument()
-    expect(await screen.findByText('Sign up')).toBeInTheDocument()
+    expect(await screen.findByText("S'identifier")).toBeInTheDocument()
+    expect(await screen.findByText("S'inscrire")).toBeInTheDocument()
   })
 })

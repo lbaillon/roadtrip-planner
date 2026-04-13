@@ -31,7 +31,7 @@ export default function WaypointFormModal({
 
   return (
     <Modal
-      title={initialValues ? 'Edit waypoint' : 'Add waypoint'}
+      title={initialValues ? 'Modifier le point' : 'Ajouter un point'}
       open={open}
       onCancel={() => {
         onClose()
@@ -46,14 +46,14 @@ export default function WaypointFormModal({
         onFinish={(values) => onSubmit(values)}
       >
         <Form.Item<WaypointFormInput>
-          label="Name"
+          label="Nom"
           name="name"
-          rules={[{ required: true, message: 'Please enter a name' }]}
+          rules={[{ required: true, message: 'Veuillez entrer un nom' }]}
         >
           <Input placeholder="Col de la Croix de Fer" />
         </Form.Item>
         <Form.Item<WaypointFormInput> label="Description" name="description">
-          <Input.TextArea rows={3} placeholder="Optional description" />
+          <Input.TextArea rows={3} placeholder="Description optionnelle" />
         </Form.Item>
       </Form>
     </Modal>

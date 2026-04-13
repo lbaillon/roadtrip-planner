@@ -18,6 +18,7 @@ import { type GetTrackResponse } from '@roadtrip/shared'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useApi } from '../useApi'
 import type { FlushFn } from './types'
+import { ApiError } from '#web/lib/api-client'
 
 export interface PutTrackGpxMutation {
   type: 'PUT_TRACK_GPX'
@@ -159,7 +160,7 @@ export function useFlushPutTrackGpx(): FlushFn<PutTrackGpxMutation['payload']> {
   return async ({ id }) => {
     const gpxContent = await getGpxBlob(id)
     if (gpxContent === undefined) {
-      throw new Error('GPX data lost — please re-upload the track')
+      throw new ApiError('GPX data lost — please re-upload the track', 422)
     }
     await api<void>(`/api/tracks/${id}`, {
       method: 'PUT',

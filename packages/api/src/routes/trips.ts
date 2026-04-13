@@ -99,6 +99,9 @@ async function getTrip(id: string, user?: JWTPayload): Promise<TripSummary> {
     .select()
     .from(trips)
     .where(and(eq(trips.id, id), eq(trips.userId, user.userId)))
+  if (!trip) {
+    throw new NotFoundError('Trip not found', codes.MISSING_TRIP)
+  }
   return { id: trip.id, name: trip.name }
 }
 

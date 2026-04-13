@@ -12,7 +12,7 @@ export default function Trips() {
     <>
       <UserGreeting />
       <Box>
-        <BoxTitle>My trips</BoxTitle>
+        <BoxTitle>Mes voyages</BoxTitle>
         <NewTripModal />
         <TripsList trips={trips ?? []} onDelete={deleteTrip} />
       </Box>

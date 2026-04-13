@@ -54,7 +54,6 @@ export async function createTrack(
     throw new UnauthorizedError('Missing user', codes.MISSING_USER)
   }
   const gpxPublicId = await uploadGpx(body.id, body.gpxContent)
-
   const [track] = await db
     .insert(tracks)
     .values({
@@ -63,7 +62,7 @@ export async function createTrack(
       gpxFile: gpxPublicId,
       name:
         xmlParser.parse(body.gpxContent)?.gpx?.metadata?.name ??
-        'Unnamed Route',
+        'Route inconnue',
     })
     .returning()
   return { id: track.id }

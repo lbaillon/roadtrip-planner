@@ -24,14 +24,6 @@ const xmlBuilder = new XMLBuilder({
   format: true,
 })
 
-export const TRACK_COLORS = [
-  '#e6194b',
-  '#3cb44b',
-  '#4363d8',
-  '#f58231',
-  '#911eb4',
-]
-
 export function parseGpxFile(gpxContent: string): ParsedGpx {
   const parsed = xmlParser.parse(gpxContent)
   const gpxData = parsed?.gpx
@@ -44,7 +36,7 @@ export function parseGpxFile(gpxContent: string): ParsedGpx {
   const subTracks = []
   for (const trk of trks) {
     const trkRecord = trk as Record<string, unknown>
-    const trkName = String(trkRecord.name ?? 'Unnamed Route')
+    const trkName = String(trkRecord.name ?? 'Route inconnue')
     const trksegs: unknown[] = (trkRecord.trkseg as unknown[]) ?? []
     const trkCoordinates: Array<{ lat: number; lon: number; ele?: number }> = []
     for (const seg of trksegs) {
@@ -73,7 +65,7 @@ export function parseGpxFile(gpxContent: string): ParsedGpx {
   const name = String(
     (gpxData?.metadata as Record<string, unknown> | undefined)?.name ??
       firstTrk.name ??
-      'Unnamed Route'
+      'Route inconnue'
   )
 
   const waypoints = extractWaypoints(gpxContent)
@@ -291,12 +283,14 @@ export function setGpxName(gpxContent: string, name: string): string {
   const parsed = xmlParser.parse(gpxContent) as Record<string, unknown>
   const gpx = parsed['gpx'] as Record<string, unknown>
   if (!gpx['metadata']) gpx['metadata'] = {}
-  ;(gpx['metadata'] as Record<string, unknown>)['name'] = name
+  const metadata = gpx['metadata'] as Record<string, unknown>
+  metadata['name'] = name
   return xmlBuilder.build(parsed) as string
 }
 
 export function getGpxName(gpxContent: string): string | undefined {
-  return xmlParser.parse(gpxContent)?.gpx?.metadata?.name
+  const parsed = xmlParser.parse(gpxContent)
+  return parsed?.gpx?.metadata?.name ?? parsed?.gpx?.trk?.at(0)?.name
 }
 
 export function addWaypointToGpx(
@@ -410,4 +404,9 @@ export function invertGpxTrack(gpxContent: string): string {
   }
 
   return xmlBuilder.build(parsed)
+}
+
+export function prettifyGpx(gpxContent: string): string {
+  // We rely on format: true in xmlBuilder
+  return xmlBuilder.build(xmlParser.parse(gpxContent)) as string
 }
