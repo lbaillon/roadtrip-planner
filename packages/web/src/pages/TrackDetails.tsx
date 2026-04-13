@@ -1,6 +1,6 @@
 import TrackContent from '#web/components/TrackContent'
 import { useGetTrack } from '#web/hooks/useTracks'
-import { parseGpxFile } from '#web/lib/gpx-utils'
+import { parseGpxFile, prettifyGpx } from '#web/lib/gpx-utils'
 import { Button } from 'antd'
 import { useParams } from 'react-router-dom'
 import styles from './TrackDetails.module.css'
@@ -15,7 +15,9 @@ export default function TrackDetails() {
 
   function handleDownload() {
     if (!track) return
-    const blob = new Blob([track.gpxContent], { type: 'application/gpx+xml' })
+    const blob = new Blob([prettifyGpx(track.gpxContent)], {
+      type: 'application/gpx+xml',
+    })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url

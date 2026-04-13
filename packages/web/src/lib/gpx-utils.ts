@@ -413,3 +413,8 @@ export function invertGpxTrack(gpxContent: string): string {
 
   return xmlBuilder.build(parsed)
 }
+
+export function prettifyGpx(gpxContent: string): string {
+  // We rely on format: true in xmlBuilder
+  return xmlBuilder.build(xmlParser.parse(gpxContent)) as string
+}
