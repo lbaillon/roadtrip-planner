@@ -84,8 +84,8 @@ export const GetTrackResponseSchema = z.object({
 // Response types
 
 export type TripSummary = { id: string; name: string }
-export type TripTrack = { id: string; name: string; order: number }
-export type TrackSummary = { id: string }
+export type TripTrack = { id: string; order: number }
+export type TrackSummary = { id: string; name: string }
 
 export type IdParams = z.infer<typeof IdParamsSchema>
 export type TrackOfTripParams = z.infer<typeof TrackOfTripParamsSchema>

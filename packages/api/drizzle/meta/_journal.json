@@ -22,13 +22,6 @@
       "when": 1773674712717,
       "tag": "0002_nosy_black_cat",
       "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1776067710519,
-      "tag": "0003_gray_phil_sheldon",
-      "breakpoints": true
     }
   ]
 }

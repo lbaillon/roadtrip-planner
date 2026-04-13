@@ -29,6 +29,19 @@ import {
 
 import { and, eq } from 'drizzle-orm'
 import { Router } from 'express'
+import { XMLParser } from 'fast-xml-parser'
+
+const xmlParser = new XMLParser({
+  ignoreAttributes: false,
+  attributeNamePrefix: '@_',
+  isArray: (name) =>
+    name === 'rtept' ||
+    name === 'wpt' ||
+    name === 'rte' ||
+    name === 'trk' ||
+    name === 'trkseg' ||
+    name === 'trkpt',
+})
 
 const router: Router = Router()
 router.use(authenticate)
@@ -48,6 +61,9 @@ export async function createTrack(
       id: body.id,
       userId: user.userId,
       gpxFile: gpxPublicId,
+      name:
+        xmlParser.parse(body.gpxContent)?.gpx?.metadata?.name ??
+        'Unnamed Route',
     })
     .returning()
   return { id: track.id }
@@ -102,6 +118,13 @@ export async function updateTrackGpx(
     throw new NotFoundError('track not found', codes.MISSING_TRACK)
   }
   await overwriteGpx(track.gpxFile, body.gpxContent)
+  const newName = xmlParser.parse(body.gpxContent)?.gpx?.metadata?.trkName
+  if (newName && newName !== track.name) {
+    await db
+      .update(tracks)
+      .set({ name: newName })
+      .where(and(eq(tracks.id, id), eq(tracks.userId, user.userId)))
+  }
 }
 
 router.put(

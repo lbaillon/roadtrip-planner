@@ -127,7 +127,6 @@ async function getTripTracks(
   return await db
     .select({
       id: tracks.id,
-      name: tracks.name,
       gpxFile: tracks.gpxFile,
       createdAt: tracks.createdAt,
       order: tripTracks.step,

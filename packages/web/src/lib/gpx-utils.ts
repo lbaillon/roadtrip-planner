@@ -295,6 +295,10 @@ export function setGpxName(gpxContent: string, name: string): string {
   return xmlBuilder.build(parsed) as string
 }
 
+export function getGpxName(gpxContent: string): string | undefined {
+  return xmlParser.parse(gpxContent)?.gpx?.metadata?.name
+}
+
 export function addWaypointToGpx(
   gpxContent: string,
   waypoint: { lat: number; lon: number; name: string; description?: string }

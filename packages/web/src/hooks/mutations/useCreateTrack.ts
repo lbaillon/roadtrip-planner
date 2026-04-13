@@ -11,6 +11,7 @@ import { useEnrichTrackElevation } from './usePutTrackGpx'
 import { useApi } from '../useApi'
 import type { FlushFn } from './types'
 import { getGpxBlob } from '#web/lib/mutation-queue'
+import { getGpxName } from '#web/lib/gpx-utils'
 
 export interface CreateTrackMutation {
   type: 'CREATE_TRACK'
@@ -35,7 +36,7 @@ export function useCreateTrack() {
     onSuccess: async ({ id: trackId }, { gpxContent }) => {
       queryClient.setQueryData<TrackSummary[]>(['tracks'], (old = []) => [
         ...old,
-        { id: trackId },
+        { id: trackId, name: getGpxName(gpxContent) ?? 'Unnamed Route' },
       ])
       queryClient.setQueryData<GetTrackResponse>(['tracks', trackId], {
         id: trackId,
