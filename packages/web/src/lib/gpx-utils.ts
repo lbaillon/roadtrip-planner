@@ -53,6 +53,28 @@ export function parseGpxFile(gpxContent: string): ParsedGpx {
   for (let i = 1; i < coordinates.length; i++) {
     distanceM += haversineDistanceKm(coordinates[i - 1], coordinates[i]) * 1000
   }
+
+const subTracks = []
+for (const trk of trks) {
+  const trkRecord = trk as Record<string, unknown>
+  const trkName = String(trkRecord.name ?? 'Unnamed Route')
+  const trksegs: unknown[] = (trkRecord.trkseg as unknown[]) ?? []
+  const trkCoordinates: Array<{ lat: number; lon: number; ele?: number }> = []
+  for (const seg of trksegs) {
+    const trkpts: unknown[] =
+      ((seg as Record<string, unknown>).trkpt as unknown[]) ?? []
+    for (const pt of trkpts) {
+      const p = pt as Record<string, unknown>
+      trkCoordinates.push({
+        lat: parseFloat(String(p['@_lat'])),
+        lon: parseFloat(String(p['@_lon'])),
+        ele: p.ele != null ? parseFloat(String(p.ele)) : undefined,
+      })
+    }
+  }
+  subTracks.push({ name: trkName, coordinates: trkCoordinates })
+}
+
 const name = String(
   (gpxData?.metadata as Record<string, unknown> | undefined)?.name ??
     trk.name ??
