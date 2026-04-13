@@ -69,6 +69,6 @@ describe('Header', () => {
 
     await user.click(userIcon)
     expect(await screen.findByText("S'identifier")).toBeInTheDocument()
-    expect(await screen.findByText(`"S'inscrire"`)).toBeInTheDocument()
+    expect(await screen.findByText("S'inscrire")).toBeInTheDocument()
   })
 })
