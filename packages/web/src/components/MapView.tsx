@@ -50,7 +50,6 @@ export default function MapView({
   userPosition,
   setUserPosition,
 }: MapViewProps) {
-
   const [selectedWeather, setSelectedWeather] = useState<WeatherData | null>(
     null
   )
@@ -295,70 +294,79 @@ export default function MapView({
         onClick={handleMapClick}
       >
         {/* Route line */}
-{(!subTracks || subTracks.length <= 1) ? (
-<Source id="route" type="geojson" data={routeGeoJSON}>
-  <Layer
-    id="route-line"
-    type="line"
-    paint={{
-      'line-color': '#239182',
-      'line-width': 4,
-      'line-opacity': 0.8,
-    }}
-  />
-  {directionEnable && (
-    <Layer
-      id="direction-signs"
-      type="symbol"
-      layout={{
-        'symbol-placement': 'line',
-        'text-field': '>',
-        'text-size': 20,
-        'symbol-spacing': 5,
-        'text-keep-upright': false,
-        'text-font': ['Open Sans Bold'],
-      }}
-      paint={{ 'text-color': '#239182' }}
-    />
-  )}
-</Source>
-) : (
-  subTracks.map((subTrack, index) => {
-    const color = TRACK_COLORS[index % TRACK_COLORS.length]
-    const geoJSON = {
-      type: 'Feature' as const,
-      properties: {},
-      geometry: {
-        type: 'LineString' as const,
-        coordinates: subTrack.coordinates.map((c) => [c.lon, c.lat]),
-      },
-    }
-    return (
-      <Source key={index} id={`route-${index}`} type="geojson" data={geoJSON}>
-        <Layer
-          id={`route-line-${index}`}
-          type="line"
-          paint={{ 'line-color': color, 'line-width': 4, 'line-opacity': 0.8 }}
-        />
-        {directionEnable && (
-          <Layer
-            id={`direction-signs-${index}`}
-            type="symbol"
-            layout={{
-              'symbol-placement': 'line',
-              'text-field': '>',
-              'text-size': 20,
-              'symbol-spacing': 5,
-              'text-keep-upright': false,
-              'text-font': ['Open Sans Bold'],
-            }}
-            paint={{ 'text-color': color }}
-          />
+        {!subTracks || subTracks.length <= 1 ? (
+          <Source id="route" type="geojson" data={routeGeoJSON}>
+            <Layer
+              id="route-line"
+              type="line"
+              paint={{
+                'line-color': '#239182',
+                'line-width': 4,
+                'line-opacity': 0.8,
+              }}
+            />
+            {directionEnable && (
+              <Layer
+                id="direction-signs"
+                type="symbol"
+                layout={{
+                  'symbol-placement': 'line',
+                  'text-field': '>',
+                  'text-size': 20,
+                  'symbol-spacing': 5,
+                  'text-keep-upright': false,
+                  'text-font': ['Open Sans Bold'],
+                }}
+                paint={{ 'text-color': '#239182' }}
+              />
+            )}
+          </Source>
+        ) : (
+          subTracks.map((subTrack, index) => {
+            const color = TRACK_COLORS[index % TRACK_COLORS.length]
+            const geoJSON = {
+              type: 'Feature' as const,
+              properties: {},
+              geometry: {
+                type: 'LineString' as const,
+                coordinates: subTrack.coordinates.map((c) => [c.lon, c.lat]),
+              },
+            }
+            return (
+              <Source
+                key={index}
+                id={`route-${index}`}
+                type="geojson"
+                data={geoJSON}
+              >
+                <Layer
+                  id={`route-line-${index}`}
+                  type="line"
+                  paint={{
+                    'line-color': color,
+                    'line-width': 4,
+                    'line-opacity': 0.8,
+                  }}
+                />
+                {directionEnable && (
+                  <Layer
+                    id={`direction-signs-${index}`}
+                    type="symbol"
+                    layout={{
+                      'symbol-placement': 'line',
+                      'text-field': '>',
+                      'text-size': 20,
+                      'symbol-spacing': 5,
+                      'text-keep-upright': false,
+                      'text-font': ['Open Sans Bold'],
+                    }}
+                    paint={{ 'text-color': color }}
+                  />
+                )}
+              </Source>
+            )
+          })
         )}
-      </Source>
-    )
-  })
-)}
         {startflagEnable && (
           <Marker
             key="departure point"

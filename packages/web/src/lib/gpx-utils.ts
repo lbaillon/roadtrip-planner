@@ -24,7 +24,13 @@ const xmlBuilder = new XMLBuilder({
   format: true,
 })
 
-export const TRACK_COLORS = ['#e6194b', '#3cb44b', '#4363d8', '#f58231', '#911eb4']
+export const TRACK_COLORS = [
+  '#e6194b',
+  '#3cb44b',
+  '#4363d8',
+  '#f58231',
+  '#911eb4',
+]
 
 export function parseGpxFile(gpxContent: string): ParsedGpx {
   const parsed = xmlParser.parse(gpxContent)
@@ -79,9 +85,6 @@ export function parseGpxFile(gpxContent: string): ParsedGpx {
     subTracks,
   })
 }
-
-
-
 
 // Extracts <wpt> and <rtept> via fast-xml-parser
 // Handles Liberty Rider's non-standard <n> tag in addition to <name>

@@ -239,26 +239,39 @@ export default function TrackContent({
         />
       </Suspense>
 
-{parsed.subTracks.length > 1 && (
-  <Collapse
-    items={[{
-      key: 'legend',
-      label: 'Légende',
-      children: parsed.subTracks.map((st, index) => (
-        <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-          <div style={{
-            width: '24px',
-            height: '4px',
-            backgroundColor: TRACK_COLORS[index % TRACK_COLORS.length],
-            borderRadius: '2px',
-            flexShrink: 0,
-          }} />
-          <span>{st.name}</span>
-        </div>
-      )),
-    }]}
-  />
-)}
+      {parsed.subTracks.length > 1 && (
+        <Collapse
+          items={[
+            {
+              key: 'legend',
+              label: 'Légende',
+              children: parsed.subTracks.map((st, index) => (
+                <div
+                  key={index}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    marginBottom: '6px',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: '24px',
+                      height: '4px',
+                      backgroundColor:
+                        TRACK_COLORS[index % TRACK_COLORS.length],
+                      borderRadius: '2px',
+                      flexShrink: 0,
+                    }}
+                  />
+                  <span>{st.name}</span>
+                </div>
+              )),
+            },
+          ]}
+        />
+      )}
       <WaypointFormModal
         open={isModalOpen}
         onClose={handleModalClose}
