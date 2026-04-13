@@ -6,7 +6,7 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 import { useEffect, useState } from 'react'
 import Map, { Layer, Marker, Popup, Source } from 'react-map-gl/maplibre'
 import styles from './MapView.module.css'
-import { findNearestIndex } from '#web/lib/gpx-utils'
+import { findNearestIndex, TRACK_COLORS } from '#web/lib/gpx-utils'
 
 interface MapViewProps {
   subTracks?: Array<{ name: string; coordinates: GpxCoordinate[] }>
@@ -50,7 +50,6 @@ export default function MapView({
   userPosition,
   setUserPosition,
 }: MapViewProps) {
-  const TRACK_COLORS = ['#e6194b', '#3cb44b', '#4363d8', '#f58231', '#911eb4']
 
   const [selectedWeather, setSelectedWeather] = useState<WeatherData | null>(
     null

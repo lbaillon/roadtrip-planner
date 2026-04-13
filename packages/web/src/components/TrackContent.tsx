@@ -12,9 +12,10 @@ import { useAuth } from '#web/hooks/useAuth'
 import {
   remapCoordinatesFrom,
   sampleRoutePointsWithCumulativeKm,
+  TRACK_COLORS,
 } from '#web/lib/gpx-utils'
 import type { ParsedGpx } from '@roadtrip/shared'
-import { Button, InputNumber, message, TimePicker } from 'antd'
+import { Button, Collapse, InputNumber, message, TimePicker } from 'antd'
 import { lazy, Suspense, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import styles from './TrackContent.module.css'
@@ -238,6 +239,26 @@ export default function TrackContent({
         />
       </Suspense>
 
+{parsed.subTracks.length > 1 && (
+  <Collapse
+    items={[{
+      key: 'legend',
+      label: 'Légende',
+      children: parsed.subTracks.map((st, index) => (
+        <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+          <div style={{
+            width: '24px',
+            height: '4px',
+            backgroundColor: TRACK_COLORS[index % TRACK_COLORS.length],
+            borderRadius: '2px',
+            flexShrink: 0,
+          }} />
+          <span>{st.name}</span>
+        </div>
+      )),
+    }]}
+  />
+)}
       <WaypointFormModal
         open={isModalOpen}
         onClose={handleModalClose}
