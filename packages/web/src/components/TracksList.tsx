@@ -22,8 +22,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import styles from './TracksList.module.css'
+import { useGetTrack } from '#web/hooks/useTracks'
+import { parseGpxFile } from '#web/lib/gpx-utils'
 
-type Track = { id: string; name: string }
+type Track = { id: string }
 
 function TrackItem({
   track,
@@ -32,11 +34,15 @@ function TrackItem({
   track: Track
   onDelete: (id: string) => void
 }) {
+
+const { data } = useGetTrack(track.id)
+const name = data ? parseGpxFile(data.gpxContent).name : '...'
+
   return (
     <>
       <FontAwesomeIcon icon={faMotorcycle} className={styles.itemIcon} />
       <Link to={`/tracks/${track.id}`} className={styles.trackName}>
-        {track.name}
+        {name}
       </Link>
       <FontAwesomeIcon
         icon={faXmark}

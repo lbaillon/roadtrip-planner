@@ -19,7 +19,7 @@ export default function TrackDetails() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `${track.name}.gpx`
+    a.download = `${parsed?.name}.gpx`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -34,7 +34,6 @@ export default function TrackDetails() {
 
       {parsed && (
         <TrackContent
-          trackName={track?.name}
           parsed={parsed}
           headerAction={
             <Button onClick={handleDownload} className={styles.downloadButton}>
