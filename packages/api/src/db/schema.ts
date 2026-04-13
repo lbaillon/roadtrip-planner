@@ -26,7 +26,6 @@ export const tracks = sqliteTable(
     userId: text('user_id')
       .references(() => users.id, { onDelete: 'cascade' })
       .notNull(),
-    name: text('name').notNull(),
     gpxFile: text('gpx_file').notNull(),
     createdAt: integer('created_at', { mode: 'timestamp' })
       .notNull()
