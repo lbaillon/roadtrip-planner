@@ -114,7 +114,7 @@ export async function saveGpxBlob(
   content: string
 ): Promise<void> {
   const minified = content.replace(/>\s+</g, '><').trim()
-await set(trackId, minified, gpxBlobStore)
+  await set(trackId, minified, gpxBlobStore)
 }
 
 export async function getGpxBlob(trackId: string): Promise<string | undefined> {
