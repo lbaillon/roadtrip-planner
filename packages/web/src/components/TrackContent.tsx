@@ -12,13 +12,13 @@ import { useAuth } from '#web/hooks/useAuth'
 import {
   remapCoordinatesFrom,
   sampleRoutePointsWithCumulativeKm,
-  TRACK_COLORS,
 } from '#web/lib/gpx-utils'
 import type { ParsedGpx } from '@roadtrip/shared'
 import { Button, Collapse, InputNumber, message, TimePicker } from 'antd'
 import { lazy, Suspense, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import styles from './TrackContent.module.css'
+import { TRACK_COLORS } from '#web/components/MapView'
 
 const MapView = lazy(() => import('#web/components/MapView'))
 type WaypointFormData = { name: string; description?: string }

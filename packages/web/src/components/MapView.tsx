@@ -6,10 +6,18 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 import { useEffect, useState } from 'react'
 import Map, { Layer, Marker, Popup, Source } from 'react-map-gl/maplibre'
 import styles from './MapView.module.css'
-import { findNearestIndex, TRACK_COLORS } from '#web/lib/gpx-utils'
+import { findNearestIndex } from '#web/lib/gpx-utils'
 
+export const TRACK_COLORS = [
+  '#239182',
+  '#e6194b',
+  '#3cb44b',
+  '#4363d8',
+  '#f58231',
+  '#911eb4',
+]
 interface MapViewProps {
-  subTracks?: Array<{ name: string; coordinates: GpxCoordinate[] }>
+  subTracks: Array<{ name: string; coordinates: GpxCoordinate[] }>
   coordinates: GpxCoordinate[]
   waypoints?: GpxWaypoint[]
   weather: WeatherData[]
@@ -101,15 +109,6 @@ export default function MapView({
       [Math.max(...longitudes), Math.max(...latitudes)],
     ] as [[number, number], [number, number]],
     fitBoundsOptions: { padding: 50 },
-  }
-
-  const routeGeoJSON = {
-    type: 'Feature' as const,
-    properties: {},
-    geometry: {
-      type: 'LineString' as const,
-      coordinates: coordinates.map((c) => [c.lon, c.lat]),
-    },
   }
 
   const dropdownItems: MenuProps['items'] = [
@@ -302,79 +301,50 @@ export default function MapView({
         onClick={handleMapClick}
       >
         {/* Route line */}
-        {!subTracks || subTracks.length <= 1 ? (
-          <Source id="route" type="geojson" data={routeGeoJSON}>
-            <Layer
-              id="route-line"
-              type="line"
-              paint={{
-                'line-color': '#239182',
-                'line-width': 4,
-                'line-opacity': 0.8,
-              }}
-            />
-            {directionEnable && (
+        {subTracks.map((subTrack, index) => {
+          const color = TRACK_COLORS[index % TRACK_COLORS.length]
+          const geoJSON = {
+            type: 'Feature' as const,
+            properties: {},
+            geometry: {
+              type: 'LineString' as const,
+              coordinates: subTrack.coordinates.map((c) => [c.lon, c.lat]),
+            },
+          }
+          return (
+            <Source
+              key={index}
+              id={`route-${index}`}
+              type="geojson"
+              data={geoJSON}
+            >
               <Layer
-                id="direction-signs"
-                type="symbol"
-                layout={{
-                  'symbol-placement': 'line',
-                  'text-field': '>',
-                  'text-size': 20,
-                  'symbol-spacing': 5,
-                  'text-keep-upright': false,
-                  'text-font': ['Open Sans Bold'],
+                id={`route-line-${index}`}
+                type="line"
+                paint={{
+                  'line-color': color,
+                  'line-width': 4,
+                  'line-opacity': 0.8,
                 }}
-                paint={{ 'text-color': '#239182' }}
               />
-            )}
-          </Source>
-        ) : (
-          subTracks.map((subTrack, index) => {
-            const color = TRACK_COLORS[index % TRACK_COLORS.length]
-            const geoJSON = {
-              type: 'Feature' as const,
-              properties: {},
-              geometry: {
-                type: 'LineString' as const,
-                coordinates: subTrack.coordinates.map((c) => [c.lon, c.lat]),
-              },
-            }
-            return (
-              <Source
-                key={index}
-                id={`route-${index}`}
-                type="geojson"
-                data={geoJSON}
-              >
+              {directionEnable && (
                 <Layer
-                  id={`route-line-${index}`}
-                  type="line"
-                  paint={{
-                    'line-color': color,
-                    'line-width': 4,
-                    'line-opacity': 0.8,
+                  id={`direction-signs-${index}`}
+                  type="symbol"
+                  layout={{
+                    'symbol-placement': 'line',
+                    'text-field': '>',
+                    'text-size': 20,
+                    'symbol-spacing': 5,
+                    'text-keep-upright': false,
+                    'text-font': ['Open Sans Bold'],
                   }}
+                  paint={{ 'text-color': color }}
                 />
-                {directionEnable && (
-                  <Layer
-                    id={`direction-signs-${index}`}
-                    type="symbol"
-                    layout={{
-                      'symbol-placement': 'line',
-                      'text-field': '>',
-                      'text-size': 20,
-                      'symbol-spacing': 5,
-                      'text-keep-upright': false,
-                      'text-font': ['Open Sans Bold'],
-                    }}
-                    paint={{ 'text-color': color }}
-                  />
-                )}
-              </Source>
-            )
-          })
-        )}
+              )}
+            </Source>
+          )
+        })}
         {startflagEnable && (
           <Marker
             key="departure point"
