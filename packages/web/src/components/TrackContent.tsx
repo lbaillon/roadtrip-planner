@@ -336,12 +336,12 @@ export default function TrackContent({
 
           <h3 className={styles.humidityPlot}>Altitude</h3>
 
-          <ElevationChart coordinates={parsed.coordinates} />
+          <ElevationChart coordinates={actualCoords} />
 
           <h3 className={styles.humidityPlot}>Taux d'humidité</h3>
 
           <HumidityChart
-            coordinates={parsed.coordinates}
+            coordinates={actualCoords}
             weather={weather}
             timepointIndex={
               timepointIndices ??
