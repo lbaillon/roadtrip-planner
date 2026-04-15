@@ -335,8 +335,9 @@ export default function TrackContent({
               : 'Heure et vitesse personnalisées'}
           </Button>
 
-          <h3 className={styles.humidityPlot}>Altitude</h3>
-
+          {parsed.coordinates.some((c) => c.ele != null) && (
+            <h3 className={styles.humidityPlot}>Altitude</h3>
+          )}
           <ElevationChart coordinates={actualCoords} />
 
           <h3 className={styles.humidityPlot}>Taux d'humidité</h3>
