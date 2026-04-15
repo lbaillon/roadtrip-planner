@@ -291,6 +291,39 @@ export function WindSpeedChart({
         hoverDot.style('opacity', 0)
         tooltip.style('opacity', 0)
       })
+      .on('touchstart', (event) => { event.preventDefault() }, { passive: false })
+      .on('touchmove', (event) => {
+        event.preventDefault()
+        const [mouseX] = d3.pointer(event.touches[0], event.currentTarget)
+        const distanceAtMouse = xScale.invert(mouseX)
+
+        const nearest = data.reduce((a, b) =>
+          Math.abs(a.distanceKm - distanceAtMouse) <
+          Math.abs(b.distanceKm - distanceAtMouse)
+            ? a
+            : b
+        )
+
+        const cx = xScale(nearest.distanceKm)
+        const cy = yScale(nearest.windSpeed)
+
+        hoverLine.attr('x1', cx).attr('x2', cx).style('opacity', 1)
+        hoverDot.attr('cx', cx).attr('cy', cy).style('opacity', 1)
+
+        tooltip
+          .style('opacity', 1)
+          .html(
+            `<strong style="color:#ea580c">💨 ${nearest.windSpeed} km/h</strong><br/>
+          📏 ${nearest.distanceKm} km`
+          )
+          .style('left', `${event.touches[0].pageX + 14}px`)
+          .style('top', `${event.touches[0].pageY - 48}px`)
+      })
+      .on('touchend touchcancel', () => {
+        hoverLine.style('opacity', 0)
+        hoverDot.style('opacity', 0)
+        tooltip.style('opacity', 0)
+      })
 
     return () => {
       tooltip.remove()
