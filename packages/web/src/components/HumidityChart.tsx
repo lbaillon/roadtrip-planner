@@ -296,7 +296,13 @@ export function HumidityChart({
         hoverDot.style('opacity', 0)
         tooltip.style('opacity', 0)
       })
-      .on('touchstart', (event) => { event.preventDefault() }, { passive: false })
+      .on(
+        'touchstart',
+        (event) => {
+          event.preventDefault()
+        },
+        { passive: false }
+      )
       .on('touchmove', (event) => {
         event.preventDefault()
         const [mouseX] = d3.pointer(event.touches[0], event.currentTarget)
