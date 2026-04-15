@@ -1,40 +1,66 @@
-import * as d3 from 'd3'
-import type { GpxCoordinate } from '@roadtrip/shared'
 import { haversineDistanceKm } from '#web/lib/gpx-utils'
+import type { GpxCoordinate, WeatherData } from '@roadtrip/shared'
 import { useEffect, useRef } from 'react'
+import * as d3 from 'd3'
 
-interface ElevationChartProps {
+interface WindSpeedChartProps {
   coordinates: GpxCoordinate[]
+  weather: WeatherData[]
+  timepointIndex: number[]
 }
 
 interface EnrichedPoint {
-  ele: number
+  lat: number
+  lon: number
+  ele?: number | null
   distanceKm: number
+  windSpeed: number
 }
 
-export function ElevationChart({ coordinates }: ElevationChartProps) {
-  const svgRef = useRef<SVGSVGElement>(null)
+const findNearestWeather = (
+  coord: GpxCoordinate,
+  weatherPoints: WeatherData[]
+): WeatherData | undefined =>
+  weatherPoints.reduce((nearest, current) =>
+    haversineDistanceKm(coord, current) < haversineDistanceKm(coord, nearest)
+      ? current
+      : nearest
+  )
 
-  function getElevationData() {
-    if (coordinates.length === 0) return []
+export function WindSpeedChart({
+  coordinates,
+  weather,
+  timepointIndex,
+}: WindSpeedChartProps) {
+  const svgRef = useRef<SVGSVGElement>(null)
+  const weatherWithWindSpeed = weather.filter(
+    (w, i): w is WeatherData & { windSpeed: number } =>
+      w.timepoints[timepointIndex[i] ?? 0].windSpeed !== undefined
+  )
+
+  function getWindSpeedData() {
+    if (coordinates.length === 0 || weatherWithWindSpeed.length === 0) return []
+
     let cumulatedDistance = 0
 
-    const pointsWithElevation = coordinates
-      .map((coord, i) => {
-        if (i > 0) {
-          cumulatedDistance += haversineDistanceKm(coordinates[i - 1], coord)
-        }
-        return {
-          distanceKm: parseFloat(cumulatedDistance.toFixed(2)),
-          ele: coord.ele,
-        }
-      })
-      .filter((point): point is EnrichedPoint => point.ele != null)
+    return coordinates.map((coord, i) => {
+      if (i > 0) {
+        cumulatedDistance += haversineDistanceKm(coordinates[i - 1], coord)
+      }
 
-    return pointsWithElevation
+      const nearest = findNearestWeather(coord, weatherWithWindSpeed)
+
+      return {
+        lat: coord.lat,
+        lon: coord.lon,
+        ele: coord.ele,
+        distanceKm: parseFloat(cumulatedDistance.toFixed(2)),
+        windSpeed: nearest?.timepoints[timepointIndex[i] ?? 0].windSpeed ?? 0,
+      }
+    })
   }
 
-  const data = getElevationData()
+  const data = getWindSpeedData()
 
   useEffect(() => {
     if (!svgRef.current || data.length === 0) return
@@ -57,12 +83,11 @@ export function ElevationChart({ coordinates }: ElevationChartProps) {
       .domain([0, d3.max(data, (d) => d.distanceKm) ?? 0])
       .range([0, width])
 
-    const eleMin = d3.min(data, (d) => d.ele) ?? 0
-    const eleMax = d3.max(data, (d) => d.ele) ?? 0
+    const windMax = d3.max(data, (d) => d.windSpeed) ?? 0
 
     const yScale = d3
       .scaleLinear()
-      .domain([Math.max(0, eleMin - 50), eleMax + 50])
+      .domain([0, windMax + 5])
       .range([height, 0])
 
     // Horizontal grid
@@ -108,7 +133,7 @@ export function ElevationChart({ coordinates }: ElevationChartProps) {
         d3
           .axisLeft(yScale)
           .ticks(5)
-          .tickFormat((d) => `${d} m`)
+          .tickFormat((d) => `${d} km/h`)
       )
       .call((g) => g.select('.domain').attr('stroke', '#cbd5e1'))
       .call((g) => g.selectAll('.tick line').attr('stroke', '#cbd5e1'))
@@ -137,14 +162,14 @@ export function ElevationChart({ coordinates }: ElevationChartProps) {
       .attr('text-anchor', 'middle')
       .attr('fill', '#94a3b8')
       .attr('font-size', '12px')
-      .text('Altitude (m)')
+      .text('Vitesse du vent (km/h)')
 
     // Gradient fill under the curve
     const defs = svg.append('defs')
 
     const gradient = defs
       .append('linearGradient')
-      .attr('id', 'elevationGradient')
+      .attr('id', 'windSpeedGradient')
       .attr('gradientUnits', 'userSpaceOnUse')
       .attr('x1', 0)
       .attr('y1', 0)
@@ -154,13 +179,13 @@ export function ElevationChart({ coordinates }: ElevationChartProps) {
     gradient
       .append('stop')
       .attr('offset', '0%')
-      .attr('stop-color', '#16a34a')
+      .attr('stop-color', '#ea580c')
       .attr('stop-opacity', 0.3)
 
     gradient
       .append('stop')
       .attr('offset', '100%')
-      .attr('stop-color', '#16a34a')
+      .attr('stop-color', '#ea580c')
       .attr('stop-opacity', 0.02)
 
     // Area under the curve
@@ -168,27 +193,27 @@ export function ElevationChart({ coordinates }: ElevationChartProps) {
       .area<EnrichedPoint>()
       .x((d) => xScale(d.distanceKm))
       .y0(height)
-      .y1((d) => yScale(d.ele))
+      .y1((d) => yScale(d.windSpeed))
       .curve(d3.curveCatmullRom.alpha(0.5))
 
     svg
       .append('path')
       .datum(data)
-      .attr('fill', 'url(#elevationGradient)')
+      .attr('fill', 'url(#windSpeedGradient)')
       .attr('d', area)
 
     // Main line
     const line = d3
       .line<EnrichedPoint>()
       .x((d) => xScale(d.distanceKm))
-      .y((d) => yScale(d.ele))
+      .y((d) => yScale(d.windSpeed))
       .curve(d3.curveCatmullRom.alpha(0.5))
 
     svg
       .append('path')
       .datum(data)
       .attr('fill', 'none')
-      .attr('stroke', '#16a34a')
+      .attr('stroke', '#ea580c')
       .attr('stroke-width', 2)
       .attr('d', line)
 
@@ -223,7 +248,7 @@ export function ElevationChart({ coordinates }: ElevationChartProps) {
     const hoverDot = svg
       .append('circle')
       .attr('r', 5)
-      .attr('fill', '#16a34a')
+      .attr('fill', '#ea580c')
       .attr('stroke', 'white')
       .attr('stroke-width', 2)
       .style('opacity', 0)
@@ -247,7 +272,7 @@ export function ElevationChart({ coordinates }: ElevationChartProps) {
         )
 
         const cx = xScale(nearest.distanceKm)
-        const cy = yScale(nearest.ele)
+        const cy = yScale(nearest.windSpeed)
 
         hoverLine.attr('x1', cx).attr('x2', cx).style('opacity', 1)
         hoverDot.attr('cx', cx).attr('cy', cy).style('opacity', 1)
@@ -255,7 +280,7 @@ export function ElevationChart({ coordinates }: ElevationChartProps) {
         tooltip
           .style('opacity', 1)
           .html(
-            `<strong style="color:#16a34a">⛰️ ${Math.round(nearest.ele)} m</strong><br/>
+            `<strong style="color:#ea580c">💨 ${nearest.windSpeed} km/h</strong><br/>
           📏 ${nearest.distanceKm} km`
           )
           .style('left', `${event.pageX + 14}px`)
@@ -286,7 +311,7 @@ export function ElevationChart({ coordinates }: ElevationChartProps) {
         )
 
         const cx = xScale(nearest.distanceKm)
-        const cy = yScale(nearest.ele)
+        const cy = yScale(nearest.windSpeed)
 
         hoverLine.attr('x1', cx).attr('x2', cx).style('opacity', 1)
         hoverDot.attr('cx', cx).attr('cy', cy).style('opacity', 1)
@@ -294,7 +319,7 @@ export function ElevationChart({ coordinates }: ElevationChartProps) {
         tooltip
           .style('opacity', 1)
           .html(
-            `<strong style="color:#16a34a">⛰️ ${Math.round(nearest.ele)} m</strong><br/>
+            `<strong style="color:#ea580c">💨 ${nearest.windSpeed} km/h</strong><br/>
           📏 ${nearest.distanceKm} km`
           )
           .style('left', `${event.touches[0].pageX + 14}px`)
@@ -310,8 +335,6 @@ export function ElevationChart({ coordinates }: ElevationChartProps) {
       tooltip.remove()
     }
   }, [data])
-
-  if (data.length === 0) return null
 
   return <svg ref={svgRef} style={{ width: '100%', display: 'block' }} />
 }
