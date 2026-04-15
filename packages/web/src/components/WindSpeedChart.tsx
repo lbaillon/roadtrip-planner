@@ -231,6 +231,7 @@ export function WindSpeedChart({
       .style('box-shadow', '0 4px 12px rgba(0,0,0,0.08)')
       .style('pointer-events', 'none')
       .style('opacity', 0)
+      .style('z-index', '9999')
       .style('transition', 'opacity 0.15s ease')
 
     // Vertical hover line
