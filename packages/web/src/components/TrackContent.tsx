@@ -20,6 +20,7 @@ import { useParams } from 'react-router-dom'
 import styles from './TrackContent.module.css'
 import { TRACK_COLORS } from './MapViewTracksColors'
 import { ElevationChart } from './ElevationChart'
+import { WindSpeedChart } from './WindSpeedChart'
 
 const MapView = lazy(() => import('#web/components/MapView'))
 type WaypointFormData = { name: string; description?: string }
@@ -341,6 +342,16 @@ export default function TrackContent({
           <h3 className={styles.humidityPlot}>Taux d'humidité</h3>
 
           <HumidityChart
+            coordinates={actualCoords}
+            weather={weather}
+            timepointIndex={
+              timepointIndices ??
+              new Array(parsed.coordinates.length).fill(timepointIndex)
+            }
+          />
+          <h3 className={styles.humidityPlot}>Vitesse du vent</h3>
+
+          <WindSpeedChart
             coordinates={actualCoords}
             weather={weather}
             timepointIndex={
