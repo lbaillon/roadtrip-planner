@@ -39,21 +39,20 @@ export default function TripDetails() {
     })),
   })
 
-  const parsedTracks=  (tracks ?? [])
-      .map((track, index) => {
-        const gpxContent = trackQueries[index]?.data?.gpxContent
-        if (!gpxContent) return null
-        try {
-          return { id: track.id, parsedGpx: parseGpxFile(gpxContent) }
-        } catch {
-          return null
-        }
-      })
-      .filter(
-        (t): t is NonNullable<typeof t> =>
-          t !== null && t.parsedGpx.coordinates.length > 0
-      )
-
+  const parsedTracks = (tracks ?? [])
+    .map((track, index) => {
+      const gpxContent = trackQueries[index]?.data?.gpxContent
+      if (!gpxContent) return null
+      try {
+        return { id: track.id, parsedGpx: parseGpxFile(gpxContent) }
+      } catch {
+        return null
+      }
+    })
+    .filter(
+      (t): t is NonNullable<typeof t> =>
+        t !== null && t.parsedGpx.coordinates.length > 0
+    )
 
   const subTracks = parsedTracks.map((track) => ({
     name: track.parsedGpx.name ?? '',
