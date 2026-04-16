@@ -30,16 +30,22 @@ type Track = { id: string }
 function TrackItem({
   track,
   onDelete,
+  color,
 }: {
   track: Track
   onDelete: (id: string) => void
+  color?: string
 }) {
   const { data } = useGetTrack(track.id)
   const name = data ? parseGpxFile(data.gpxContent).name : '...'
 
   return (
     <>
-      <FontAwesomeIcon icon={faMotorcycle} className={styles.itemIcon} />
+      <FontAwesomeIcon
+        icon={faMotorcycle}
+        className={styles.itemIcon}
+        style={color ? { color } : undefined}
+      />
       <Link to={`/tracks/${track.id}`} className={styles.trackName}>
         {name}
       </Link>
@@ -55,9 +61,11 @@ function TrackItem({
 function SortableItem({
   track,
   onDelete,
+  color,
 }: {
   track: Track
   onDelete: (id: string) => void
+  color?: string
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: track.id })
@@ -72,7 +80,7 @@ function SortableItem({
         {...attributes}
         {...listeners}
       />
-      <TrackItem track={track} onDelete={onDelete} />
+      <TrackItem track={track} onDelete={onDelete} color={color} />
     </p>
   )
 }
@@ -81,10 +89,12 @@ export default function TracksList({
   tracks,
   onDelete,
   onReorder,
+  colorsById,
 }: {
   tracks: Track[]
   onDelete: (id: string) => void
   onReorder?: (trackIds: string[]) => void
+  colorsById?: Record<string, string>
 }) {
   const [items, setItems] = useState(tracks)
   const sensors = useSensors(
@@ -102,7 +112,11 @@ export default function TracksList({
   if (!onReorder) {
     return tracks.map((track) => (
       <p className={styles.track} key={track.id}>
-        <TrackItem track={track} onDelete={onDelete} />
+        <TrackItem
+          track={track}
+          onDelete={onDelete}
+          color={colorsById?.[track.id]}
+        />
       </p>
     ))
   }
@@ -124,7 +138,12 @@ export default function TracksList({
         strategy={verticalListSortingStrategy}
       >
         {items.map((track) => (
-          <SortableItem key={track.id} track={track} onDelete={onDelete} />
+          <SortableItem
+            key={track.id}
+            track={track}
+            onDelete={onDelete}
+            color={colorsById?.[track.id]}
+          />
         ))}
       </SortableContext>
     </DndContext>

@@ -7,6 +7,7 @@ import { useRemoveTrackFromTrip } from '#web/hooks/mutations/useRemoveTrackFromT
 import { useUpdateTripTracksOrder } from '#web/hooks/mutations/useReorderTripTracks'
 import { useApi } from '#web/hooks/useApi'
 import { useGetTrip, useGetTripTracks } from '#web/hooks/useTrips'
+import { TRACK_COLORS } from '#web/components/MapViewTracksColors'
 import { parseGpxFile } from '#web/lib/gpx-utils'
 import { faArrowLeftLong } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -60,8 +61,16 @@ export default function TripDetails() {
     coordinates: track.parsedGpx.coordinates,
   }))
 
-  const coordinates = parsedTracks.flatMap((track) => track.parsedGpx.coordinates)
+  const coordinates = parsedTracks.flatMap(
+    (track) => track.parsedGpx.coordinates
+  )
 
+  const colorsById = Object.fromEntries(
+    parsedTracks.map((track, index) => [
+      track.id,
+      TRACK_COLORS[index % TRACK_COLORS.length],
+    ])
+  )
 
   return (
     <>
@@ -78,10 +87,11 @@ export default function TripDetails() {
           tracks={tracks ?? []}
           onDelete={removeTrackFromTrip}
           onReorder={updateTracksOrder}
+          colorsById={colorsById}
         />
         {coordinates.length > 0 && (
           <Suspense fallback={<div>Chargement de la carte...</div>}>
-            <div style={{ height: '400px', marginTop: '20px'}}>
+            <div style={{ height: '400px', marginTop: '20px' }}>
               <MapView
                 subTracks={subTracks}
                 coordinates={coordinates}
@@ -90,7 +100,6 @@ export default function TripDetails() {
                 waypoints={[]}
                 userPosition={userPosition}
                 setUserPosition={setUserPosition}
-                
               />
             </div>
           </Suspense>
