@@ -13,7 +13,7 @@ import { faArrowLeftLong } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import type { GetTrackResponse } from '@roadtrip/shared'
 import { useQueries } from '@tanstack/react-query'
-import { lazy, Suspense, useMemo, useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
 const MapView = lazy(() => import('#web/components/MapView'))
@@ -39,8 +39,7 @@ export default function TripDetails() {
     })),
   })
 
-  const parsedTracks = useMemo(() => {
-    return (tracks ?? [])
+  const parsedTracks=  (tracks ?? [])
       .map((track, index) => {
         const gpxContent = trackQueries[index]?.data?.gpxContent
         if (!gpxContent) return null
@@ -54,7 +53,7 @@ export default function TripDetails() {
         (t): t is NonNullable<typeof t> =>
           t !== null && t.parsedGpx.coordinates.length > 0
       )
-  }, [tracks, trackQueries])
+
 
   const subTracks = parsedTracks.map((track) => ({
     name: track.parsedGpx.name ?? '',
