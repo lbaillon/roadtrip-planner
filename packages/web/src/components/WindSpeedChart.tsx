@@ -55,7 +55,8 @@ export function WindSpeedChart({
         lon: coord.lon,
         ele: coord.ele,
         distanceKm: parseFloat(cumulatedDistance.toFixed(2)),
-        windSpeed: nearest?.timepoints[timepointIndex[i] ?? 0].windSpeed ?? 0,
+        windSpeed:
+          (nearest?.timepoints[timepointIndex[i] ?? 0].windSpeed ?? 0) * 3.6,
       }
     })
   }
@@ -280,7 +281,7 @@ export function WindSpeedChart({
         tooltip
           .style('opacity', 1)
           .html(
-            `<strong style="color:#ea580c">💨 ${nearest.windSpeed} km/h</strong><br/>
+            `<strong style="color:#ea580c">💨 ${nearest.windSpeed.toFixed(1)} km/h</strong><br/>
           📏 ${nearest.distanceKm} km`
           )
           .style('left', `${event.pageX + 14}px`)
@@ -319,7 +320,7 @@ export function WindSpeedChart({
         tooltip
           .style('opacity', 1)
           .html(
-            `<strong style="color:#ea580c">💨 ${nearest.windSpeed} km/h</strong><br/>
+            `<strong style="color:#ea580c">💨 ${nearest.windSpeed.toFixed(1)} km/h</strong><br/>
           📏 ${nearest.distanceKm} km`
           )
           .style('left', `${event.touches[0].pageX + 14}px`)
