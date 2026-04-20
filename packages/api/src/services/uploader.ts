@@ -60,26 +60,3 @@ export async function getGpxFile(publicId: string): Promise<string> {
   const response = await fetch(url)
   return response.text()
 }
-
-export async function updateGpxName(
-  publicId: string,
-  newName: string
-): Promise<void> {
-  const gpxfile = await getGpxFile(publicId)
-  const xmlParser = new XMLParser({
-    ignoreAttributes: false,
-    attributeNamePrefix: '@_',
-  })
-  const parsed = xmlParser.parse(gpxfile)
-  if (!parsed.gpx.metadata) {
-    parsed.gpx.metadata = {}
-  }
-  parsed.gpx.metadata.name = newName
-
-  const xmlBuilder = new XMLBuilder({
-    ignoreAttributes: false,
-    attributeNamePrefix: '@_',
-  })
-  const newXml = xmlBuilder.build(parsed)
-  await overwriteGpx(publicId, newXml)
-}
