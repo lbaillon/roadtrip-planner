@@ -64,6 +64,10 @@ export const UpdateTripTracksOrderRequestSchema = z.object({
   trackIds: z.array(z.string().min(1)),
 })
 
+export const UpdateTrackNameRequestSchema = z.object({
+  name: z.string().min(1, 'Cannot be empty'),
+})
+
 // Response schemas
 
 export const GetWeatherResponseSchema = z.array(WeatherDataSchema)
@@ -104,3 +108,4 @@ export type UpdateTripTracksOrderRequest = z.infer<
 export type GetWeatherRequest = z.infer<typeof GetWeatherRequestSchema>
 export type GetWeatherResponse = z.infer<typeof GetWeatherResponseSchema>
 export type UpdateTrackGpxRequest = z.infer<typeof UpdateTrackGpxRequestSchema>
+export type UpdateTrackNameRequest = z.infer<typeof UpdateTrackNameRequestSchema>
