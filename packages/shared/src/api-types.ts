@@ -108,4 +108,6 @@ export type UpdateTripTracksOrderRequest = z.infer<
 export type GetWeatherRequest = z.infer<typeof GetWeatherRequestSchema>
 export type GetWeatherResponse = z.infer<typeof GetWeatherResponseSchema>
 export type UpdateTrackGpxRequest = z.infer<typeof UpdateTrackGpxRequestSchema>
-export type UpdateTrackNameRequest = z.infer<typeof UpdateTrackNameRequestSchema>
+export type UpdateTrackNameRequest = z.infer<
+  typeof UpdateTrackNameRequestSchema
+>

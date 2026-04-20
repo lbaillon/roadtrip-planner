@@ -1,5 +1,6 @@
 import { env } from '#api/env.js'
 import { v2 as cloudinary } from 'cloudinary'
+import { XMLBuilder, XMLParser } from 'fast-xml-parser'
 
 cloudinary.config({
   cloud_name: env.CLOUDINARY_CLOUD_NAME,
@@ -58,4 +59,27 @@ export async function getGpxFile(publicId: string): Promise<string> {
   const url = cloudinary.url(publicId, { resource_type: 'raw' })
   const response = await fetch(url)
   return response.text()
+}
+
+export async function updateGpxName(
+  publicId: string,
+  newName: string
+): Promise<void> {
+  const gpxfile = await getGpxFile(publicId)
+  const xmlParser = new XMLParser({
+    ignoreAttributes: false,
+    attributeNamePrefix: '@_',
+  })
+  const parsed = xmlParser.parse(gpxfile)
+  if (!parsed.gpx.metadata) {
+    parsed.gpx.metadata = {}
+  }
+  parsed.gpx.metadata.name = newName
+
+  const xmlBuilder = new XMLBuilder({
+    ignoreAttributes: false,
+    attributeNamePrefix: '@_',
+  })
+  const newXml = xmlBuilder.build(parsed)
+  await overwriteGpx(publicId, newXml)
 }
