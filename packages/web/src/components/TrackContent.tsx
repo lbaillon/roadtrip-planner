@@ -6,6 +6,7 @@ import {
   useDeleteWaypoint,
   useEditWaypoint,
   useInvertTrack,
+  useRenameTrack,
 } from '#web/hooks/mutations/usePutTrackGpx'
 import { useGetWeather } from '#web/hooks/useApi'
 import { useAuth } from '#web/hooks/useAuth'
@@ -14,7 +15,7 @@ import {
   sampleRoutePointsWithCumulativeKm,
 } from '#web/lib/gpx-utils'
 import type { ParsedGpx } from '@roadtrip/shared'
-import { Button, Collapse, InputNumber, message, TimePicker } from 'antd'
+import { Button, Collapse, Input, InputNumber, message, TimePicker } from 'antd'
 import { lazy, Suspense, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import styles from './TrackContent.module.css'
@@ -50,6 +51,8 @@ export default function TrackContent({
     lat: number
     lon: number
   } | null>(null)
+  const [isEditingName, setIsEditingName] = useState(false)
+const [nameInput, setNameInput] = useState(parsed.name ?? '')
 
   const [messageApi, contextHolder] = message.useMessage()
   const { id } = useParams()
@@ -79,6 +82,7 @@ export default function TrackContent({
   const { mutate: invertTrack, isPending: isInverting } = useInvertTrack(
     id ?? ''
   )
+  const { mutate: renameTrack, isPending: isRenaming } = useRenameTrack(id ?? '')
 
   const getTimepointIndices = () => {
     if (!departureTime || !speedKmh || !weather || !parsed) return null
@@ -178,10 +182,33 @@ export default function TrackContent({
     setPendingClickCoords(null)
   }
 
+  function handleRenameSubmit() {
+    renameTrack(nameInput , {
+      onSuccess: () => {
+        setIsEditingName(false)
+      },
+      onError : () => {
+        messageApi.error('Erreur lors de l\'édition')
+      }
+    })
+  }
+
   return (
     <div className={styles.mapBox}>
       {contextHolder}
+      {isEditingName ? (
+        <Input value={nameInput} onChange={e => setNameInput(e.target.value)} disabled={isRenaming} autoFocus onKeyDown={e => {
+  if (e.key === 'Enter') handleRenameSubmit()
+  if (e.key === 'Escape') setIsEditingName(false)
+}}/>
+      ) : (
+      <>
       <h2 className={styles.routeName}>{parsed.name ?? 'Route inconnue'}</h2>
+      {accessToken && id && <Button onClick={() => { 
+        setNameInput(parsed.name ?? '') 
+        setIsEditingName(true)}}>✏️</Button>}
+      </>
+      )}
       <div className={styles.mapHeader}>
         {parsed.distance && (
           <p className={styles.routeName}>
