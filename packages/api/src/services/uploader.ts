@@ -1,6 +1,5 @@
 import { env } from '#api/env.js'
 import { v2 as cloudinary } from 'cloudinary'
-import { XMLBuilder, XMLParser } from 'fast-xml-parser'
 
 cloudinary.config({
   cloud_name: env.CLOUDINARY_CLOUD_NAME,
