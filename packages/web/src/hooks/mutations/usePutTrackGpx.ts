@@ -6,6 +6,7 @@ import {
   getAllTrkpts,
   sampleTrkptsByIntervalKm,
   invertGpxTrack,
+  setGpxName,
 } from '#web/lib/gpx-utils'
 import { fetchElevations } from '#web/lib/elevation'
 import {
@@ -167,4 +168,8 @@ export function useFlushPutTrackGpx(): FlushFn<PutTrackGpxMutation['payload']> {
       body: JSON.stringify({ gpxContent } satisfies UpdateTrackGpxRequest),
     })
   }
+}
+
+export function useRenameTrack(trackId: string) {
+  return useGpxMutation<string>(trackId, (gpx, newName) => setGpxName(gpx, newName))
 }
