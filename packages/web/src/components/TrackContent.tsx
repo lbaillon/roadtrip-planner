@@ -6,6 +6,7 @@ import {
   useDeleteWaypoint,
   useEditWaypoint,
   useInvertTrack,
+  useRenameTrack,
 } from '#web/hooks/mutations/usePutTrackGpx'
 import { useGetWeather } from '#web/hooks/useApi'
 import { useAuth } from '#web/hooks/useAuth'
@@ -14,7 +15,7 @@ import {
   sampleRoutePointsWithCumulativeKm,
 } from '#web/lib/gpx-utils'
 import type { ParsedGpx } from '@roadtrip/shared'
-import { Button, Collapse, InputNumber, message, TimePicker } from 'antd'
+import { Button, Collapse, Input, InputNumber, message, TimePicker } from 'antd'
 import { lazy, Suspense, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import styles from './TrackContent.module.css'
@@ -50,6 +51,8 @@ export default function TrackContent({
     lat: number
     lon: number
   } | null>(null)
+  const [isEditingName, setIsEditingName] = useState(false)
+  const [nameInput, setNameInput] = useState(parsed.name ?? '')
 
   const [messageApi, contextHolder] = message.useMessage()
   const { id } = useParams()
@@ -77,6 +80,9 @@ export default function TrackContent({
   )
   const { mutate: deleteWaypoint } = useDeleteWaypoint(id ?? '')
   const { mutate: invertTrack, isPending: isInverting } = useInvertTrack(
+    id ?? ''
+  )
+  const { mutate: renameTrack, isPending: isRenaming } = useRenameTrack(
     id ?? ''
   )
 
@@ -178,28 +184,64 @@ export default function TrackContent({
     setPendingClickCoords(null)
   }
 
+  function handleRenameSubmit() {
+    renameTrack(nameInput, {
+      onSuccess: () => {
+        setIsEditingName(false)
+      },
+      onError: () => {
+        messageApi.error("Erreur lors de l'édition")
+      },
+    })
+  }
+
   return (
     <div className={styles.mapBox}>
       {contextHolder}
-      <h2 className={styles.routeName}>{parsed.name ?? 'Route inconnue'}</h2>
+      {isEditingName ? (
+        <div className={styles.editName}>
+          <Input
+            className={styles.editNameInput}
+            value={nameInput}
+            onChange={(e) => setNameInput(e.target.value)}
+            disabled={isRenaming}
+            autoFocus
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleRenameSubmit()
+              if (e.key === 'Escape') setIsEditingName(false)
+            }}
+          />
+          <Button
+            onClick={() => handleRenameSubmit()}
+            className={styles.validateName}
+          >
+            ✅
+          </Button>
+        </div>
+      ) : (
+        <div className={styles.nameBox}>
+          <h2 className={styles.routeName}>
+            {parsed.name ?? 'Route inconnue'}
+          </h2>
+          {accessToken && id && (
+            <Button
+              size="small"
+              className={styles.editNameButton}
+              onClick={() => {
+                setNameInput(parsed.name ?? '')
+                setIsEditingName(true)
+              }}
+            >
+              ✏️
+            </Button>
+          )}
+        </div>
+      )}
       <div className={styles.mapHeader}>
         {parsed.distance && (
           <p className={styles.routeName}>
             Distance : {(parsed.distance / 1000).toFixed(2)} km
           </p>
-        )}
-        {accessToken && id && (
-          <Button
-            onClick={() =>
-              invertTrack(undefined, {
-                onError: () =>
-                  messageApi.error("Erreur lors de l'inversion du parcours"),
-              })
-            }
-            loading={isInverting}
-          >
-            Inverser départ et arrivée
-          </Button>
         )}
         {arrivalTime && (
           <p className={styles.routeName}>
@@ -210,7 +252,23 @@ export default function TrackContent({
             })}
           </p>
         )}
-        {headerAction}
+        <div className={styles.invertAndDownload}>
+          {accessToken && id && (
+            <Button
+              onClick={() =>
+                invertTrack(undefined, {
+                  onError: () =>
+                    messageApi.error("Erreur lors de l'inversion du parcours"),
+                })
+              }
+              loading={isInverting}
+            >
+              Inverser départ et arrivée
+            </Button>
+          )}
+
+          {headerAction}
+        </div>
       </div>
       {weatherLoading && (
         <div style={{ textAlign: 'center', marginTop: '20px' }}>

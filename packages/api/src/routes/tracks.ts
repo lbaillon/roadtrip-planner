@@ -117,7 +117,7 @@ export async function updateTrackGpx(
     throw new NotFoundError('track not found', codes.MISSING_TRACK)
   }
   await overwriteGpx(track.gpxFile, body.gpxContent)
-  const newName = xmlParser.parse(body.gpxContent)?.gpx?.metadata?.trkName
+  const newName = xmlParser.parse(body.gpxContent)?.gpx?.metadata?.name
   if (newName && newName !== track.name) {
     await db
       .update(tracks)
