@@ -61,6 +61,7 @@
 .mapHeader{
   width: 90%;
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
@@ -96,4 +97,11 @@
 .validateName{
   width: 5%;
   font-size: 1rem;
+}
+
+.invertAndDownload{
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }

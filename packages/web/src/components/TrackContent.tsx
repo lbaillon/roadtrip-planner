@@ -243,19 +243,6 @@ export default function TrackContent({
             Distance : {(parsed.distance / 1000).toFixed(2)} km
           </p>
         )}
-        {accessToken && id && (
-          <Button
-            onClick={() =>
-              invertTrack(undefined, {
-                onError: () =>
-                  messageApi.error("Erreur lors de l'inversion du parcours"),
-              })
-            }
-            loading={isInverting}
-          >
-            Inverser départ et arrivée
-          </Button>
-        )}
         {arrivalTime && (
           <p className={styles.routeName}>
             Arrivée estimée :{' '}
@@ -265,7 +252,23 @@ export default function TrackContent({
             })}
           </p>
         )}
-        {headerAction}
+        <div className={styles.invertAndDownload}>
+          {accessToken && id && (
+            <Button
+              onClick={() =>
+                invertTrack(undefined, {
+                  onError: () =>
+                    messageApi.error("Erreur lors de l'inversion du parcours"),
+                })
+              }
+              loading={isInverting}
+            >
+              Inverser départ et arrivée
+            </Button>
+          )}
+
+          {headerAction}
+        </div>
       </div>
       {weatherLoading && (
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
