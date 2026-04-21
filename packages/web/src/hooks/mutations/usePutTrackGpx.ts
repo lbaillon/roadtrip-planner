@@ -171,5 +171,7 @@ export function useFlushPutTrackGpx(): FlushFn<PutTrackGpxMutation['payload']> {
 }
 
 export function useRenameTrack(trackId: string) {
-  return useGpxMutation<string>(trackId, (gpx, newName) => setGpxName(gpx, newName))
+  return useGpxMutation<string>(trackId, (gpx, newName) =>
+    setGpxName(gpx, newName)
+  )
 }

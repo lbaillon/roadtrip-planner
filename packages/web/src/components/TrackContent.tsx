@@ -52,7 +52,7 @@ export default function TrackContent({
     lon: number
   } | null>(null)
   const [isEditingName, setIsEditingName] = useState(false)
-const [nameInput, setNameInput] = useState(parsed.name ?? '')
+  const [nameInput, setNameInput] = useState(parsed.name ?? '')
 
   const [messageApi, contextHolder] = message.useMessage()
   const { id } = useParams()
@@ -82,7 +82,9 @@ const [nameInput, setNameInput] = useState(parsed.name ?? '')
   const { mutate: invertTrack, isPending: isInverting } = useInvertTrack(
     id ?? ''
   )
-  const { mutate: renameTrack, isPending: isRenaming } = useRenameTrack(id ?? '')
+  const { mutate: renameTrack, isPending: isRenaming } = useRenameTrack(
+    id ?? ''
+  )
 
   const getTimepointIndices = () => {
     if (!departureTime || !speedKmh || !weather || !parsed) return null
@@ -183,13 +185,13 @@ const [nameInput, setNameInput] = useState(parsed.name ?? '')
   }
 
   function handleRenameSubmit() {
-    renameTrack(nameInput , {
+    renameTrack(nameInput, {
       onSuccess: () => {
         setIsEditingName(false)
       },
-      onError : () => {
-        messageApi.error('Erreur lors de l\'édition')
-      }
+      onError: () => {
+        messageApi.error("Erreur lors de l'édition")
+      },
     })
   }
 
@@ -197,17 +199,43 @@ const [nameInput, setNameInput] = useState(parsed.name ?? '')
     <div className={styles.mapBox}>
       {contextHolder}
       {isEditingName ? (
-        <Input value={nameInput} onChange={e => setNameInput(e.target.value)} disabled={isRenaming} autoFocus onKeyDown={e => {
-  if (e.key === 'Enter') handleRenameSubmit()
-  if (e.key === 'Escape') setIsEditingName(false)
-}}/>
+        <div className={styles.editName}>
+          <Input
+            className={styles.editNameInput}
+            value={nameInput}
+            onChange={(e) => setNameInput(e.target.value)}
+            disabled={isRenaming}
+            autoFocus
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleRenameSubmit()
+              if (e.key === 'Escape') setIsEditingName(false)
+            }}
+          />
+          <Button
+            onClick={() => handleRenameSubmit()}
+            className={styles.validateName}
+          >
+            ✅
+          </Button>
+        </div>
       ) : (
-      <>
-      <h2 className={styles.routeName}>{parsed.name ?? 'Route inconnue'}</h2>
-      {accessToken && id && <Button onClick={() => { 
-        setNameInput(parsed.name ?? '') 
-        setIsEditingName(true)}}>✏️</Button>}
-      </>
+        <div className={styles.nameBox}>
+          <h2 className={styles.routeName}>
+            {parsed.name ?? 'Route inconnue'}
+          </h2>
+          {accessToken && id && (
+            <Button
+              size="small"
+              className={styles.editNameButton}
+              onClick={() => {
+                setNameInput(parsed.name ?? '')
+                setIsEditingName(true)
+              }}
+            >
+              ✏️
+            </Button>
+          )}
+        </div>
       )}
       <div className={styles.mapHeader}>
         {parsed.distance && (
