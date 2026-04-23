@@ -83,10 +83,15 @@ router.delete(
 )
 
 async function getUserTrips(user?: JWTPayload): Promise<TripSummary[]> {
-  return await db
+  return (await db
     .select()
     .from(trips)
-    .where(eq(trips.userId, user?.userId ?? ''))
+    .where(eq(trips.userId, user?.userId ?? '')))
+    .map(trip => ({
+      id: trip.id,
+      name: trip.name,
+      description: trip.description?? undefined
+    }))
 }
 
 router.get('/', processGet({ handler: ({ user }) => getUserTrips(user) }))
@@ -102,7 +107,7 @@ async function getTrip(id: string, user?: JWTPayload): Promise<TripSummary> {
   if (!trip) {
     throw new NotFoundError('Trip not found', codes.MISSING_TRIP)
   }
-  return { id: trip.id, name: trip.name }
+  return { id: trip.id, name: trip.name}
 }
 
 router.get(

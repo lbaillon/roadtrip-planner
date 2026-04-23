@@ -56,6 +56,11 @@ export const CreateTripRequestSchema = z.object({
     .optional(),
 })
 
+export const UpdateTripRequestSchema = z.object({
+  name: z.string().optional(),
+  description: z.string().optional(),
+})
+
 export const AddTrackToTripRequestSchema = z.object({
   order: z.number(),
 })
@@ -83,7 +88,7 @@ export const GetTrackResponseSchema = z.object({
 
 // Response types
 
-export type TripSummary = { id: string; name: string }
+export type TripSummary = { id: string; name: string; description?: string}
 export type TripTrack = { id: string; order: number }
 export type TrackSummary = { id: string; name: string }
 
@@ -104,3 +109,4 @@ export type UpdateTripTracksOrderRequest = z.infer<
 export type GetWeatherRequest = z.infer<typeof GetWeatherRequestSchema>
 export type GetWeatherResponse = z.infer<typeof GetWeatherResponseSchema>
 export type UpdateTrackGpxRequest = z.infer<typeof UpdateTrackGpxRequestSchema>
+export type UpdateTripRequest = z.infer<typeof UpdateTripRequestSchema>
