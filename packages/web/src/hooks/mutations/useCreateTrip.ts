@@ -28,10 +28,10 @@ export function useCreateTrip() {
       })
       return { id: tripId }
     },
-    onSuccess: async ({ id: tripId }, { name }) => {
+    onSuccess: async ({ id: tripId }, { name, description }) => {
       queryClient.setQueryData<TripSummary[]>(['trips'], (old = []) => [
         ...old,
-        { id: tripId, name },
+        { id: tripId, name, description },
       ])
       await queryClient.invalidateQueries({
         queryKey: ['mutation-queue', 'pending'],
