@@ -7,11 +7,13 @@ import { useFlushPutTrackGpx } from './usePutTrackGpx'
 import { useFlushRemoveTrackFromTrip } from './useRemoveTrackFromTrip'
 import { useFlushReorderTripTracks } from './useReorderTripTracks'
 import type { FlushFn, FlushHandlerRegistry, MutationDefinition } from './types'
+import { useFlushUpdateTrip } from './useUpdateTrip'
 
 export function useFlushHandler() {
   const handlers: FlushHandlerRegistry = {
     CREATE_TRIP: useFlushCreateTrip(),
     DELETE_TRIP: useFlushDeleteTrip(),
+    UPDATE_TRIP: useFlushUpdateTrip(),
     CREATE_TRACK: useFlushCreateTrack(),
     DELETE_TRACK: useFlushDeleteTrack(),
     PUT_TRACK_GPX: useFlushPutTrackGpx(),
