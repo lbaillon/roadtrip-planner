@@ -6,12 +6,14 @@ import type { DeleteTripMutation } from './useDeleteTrip'
 import type { PutTrackGpxMutation } from './usePutTrackGpx'
 import type { RemoveTrackFromTripMutation } from './useRemoveTrackFromTrip'
 import type { ReorderTripTracksMutation } from './useReorderTripTracks'
+import type { UpdateTripMutation } from './useUpdateTrip'
 
 export type FlushFn<P> = (payload: P) => Promise<void>
 
 export type MutationDefinition =
   | CreateTripMutation
   | DeleteTripMutation
+  | UpdateTripMutation
   | CreateTrackMutation
   | DeleteTrackMutation
   | PutTrackGpxMutation

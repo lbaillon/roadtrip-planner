@@ -1,0 +1,42 @@
+.content{
+  display: 'flex';
+  gap: '10px';
+  flex-direction: column;
+}
+
+.tripHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.tripName{
+  width: 75%;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.button{
+  background-color: var(--primary);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  margin-top: 5px;
+}
+
+.icon{
+  color: var(--surface);
+  font-size: 20px;
+}
+
+.editTripInfo{
+  display: flex;
+  flex-direction: column;
+}
+
+.editNameInput{
+  margin-bottom: 5px;
+}

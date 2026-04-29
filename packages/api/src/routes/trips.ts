@@ -23,6 +23,8 @@ import {
   TrackOfTripParamsSchema,
   TripSummary,
   TripTrack,
+  UpdateTripRequest,
+  UpdateTripRequestSchema,
   UpdateTripTracksOrderRequestSchema,
 } from '@roadtrip/shared'
 import { and, eq, sql } from 'drizzle-orm'
@@ -82,11 +84,45 @@ router.delete(
   })
 )
 
+async function updateTrip(
+  id: string,
+  body: UpdateTripRequest,
+  user?: JWTPayload
+) {
+  if (!user) {
+    throw new UnauthorizedError('Missing user', codes.MISSING_USER)
+  }
+  const [upadatedTrip] = await db
+    .update(trips)
+    .set({ name: body.name, description: body.description })
+    .where(and(eq(trips.id, id), eq(trips.userId, user.userId)))
+    .returning()
+
+  if (!upadatedTrip) {
+    throw new NotFoundError('trip not found', codes.MISSING_TRIP)
+  }
+}
+
+router.put(
+  '/:id',
+  processPut({
+    paramsSchema: IdParamsSchema,
+    bodySchema: UpdateTripRequestSchema,
+    handler: ({ params, body, user }) => updateTrip(params.id, body, user),
+  })
+)
+
 async function getUserTrips(user?: JWTPayload): Promise<TripSummary[]> {
-  return await db
-    .select()
-    .from(trips)
-    .where(eq(trips.userId, user?.userId ?? ''))
+  return (
+    await db
+      .select()
+      .from(trips)
+      .where(eq(trips.userId, user?.userId ?? ''))
+  ).map((trip) => ({
+    id: trip.id,
+    name: trip.name,
+    description: trip.description ?? undefined,
+  }))
 }
 
 router.get('/', processGet({ handler: ({ user }) => getUserTrips(user) }))
@@ -102,7 +138,11 @@ async function getTrip(id: string, user?: JWTPayload): Promise<TripSummary> {
   if (!trip) {
     throw new NotFoundError('Trip not found', codes.MISSING_TRIP)
   }
-  return { id: trip.id, name: trip.name }
+  return {
+    id: trip.id,
+    name: trip.name,
+    description: trip.description ?? undefined,
+  }
 }
 
 router.get(
