@@ -22,6 +22,8 @@ import styles from './TrackContent.module.css'
 import { TRACK_COLORS } from './MapViewTracksColors'
 import { ElevationChart } from './ElevationChart'
 import { WindSpeedChart } from './WindSpeedChart'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCheck, faPencil } from '@fortawesome/free-solid-svg-icons'
 
 const MapView = lazy(() => import('#web/components/MapView'))
 type WaypointFormData = { name: string; description?: string }
@@ -215,7 +217,7 @@ export default function TrackContent({
             onClick={() => handleRenameSubmit()}
             className={styles.validateName}
           >
-            ✅
+            <FontAwesomeIcon icon={faCheck} className={styles.icon} />
           </Button>
         </div>
       ) : (
@@ -223,18 +225,6 @@ export default function TrackContent({
           <h2 className={styles.routeName}>
             {parsed.name ?? 'Route inconnue'}
           </h2>
-          {accessToken && id && (
-            <Button
-              size="small"
-              className={styles.editNameButton}
-              onClick={() => {
-                setNameInput(parsed.name ?? '')
-                setIsEditingName(true)
-              }}
-            >
-              ✏️
-            </Button>
-          )}
         </div>
       )}
       <div className={styles.mapHeader}>
@@ -253,8 +243,11 @@ export default function TrackContent({
           </p>
         )}
         <div className={styles.invertAndDownload}>
+          {headerAction}
+
           {accessToken && id && (
             <Button
+              className={styles.invertButton}
               onClick={() =>
                 invertTrack(undefined, {
                   onError: () =>
@@ -266,8 +259,18 @@ export default function TrackContent({
               Inverser départ et arrivée
             </Button>
           )}
-
-          {headerAction}
+          {accessToken && id && (
+            <Button
+              size="small"
+              className={styles.editNameButton}
+              onClick={() => {
+                setNameInput(parsed.name ?? '')
+                setIsEditingName(true)
+              }}
+            >
+              <FontAwesomeIcon icon={faPencil} className={styles.icon} />
+            </Button>
+          )}
         </div>
       </div>
       {weatherLoading && (

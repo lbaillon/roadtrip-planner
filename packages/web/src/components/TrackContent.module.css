@@ -17,6 +17,8 @@
   color: var(--primary);
   margin-bottom: 10px;
   padding-bottom: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .humidityPlot {
@@ -68,19 +70,35 @@
   margin-top: 1rem;
 }
 
+.invertButton{
+  background-color: var(--primary);
+  color: var(--surface) ;
+  border-radius: 20px;
+  border-color: var(--primary);
+}
+
 .nameBox{
   position: relative;
   display: flex;
   justify-content: center;
   padding: 3%;
   align-items: center;
+  width: 80%;
 }
 
 .editNameButton {
-  position: absolute;
-  right: 8px;
-  bottom: 8px;
-  font-size: 0.8rem;
+  background-color: var(--primary);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  margin-top: 5px;
+}
+
+.icon{
+  color: var(--surface);
+  font-size: 20px;
 }
 
 .editName {
@@ -95,8 +113,13 @@
 }
 
 .validateName{
-  width: 5%;
-  font-size: 1rem;
+  background-color: var(--primary);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  margin-top: 5px;
 }
 
 .invertAndDownload{

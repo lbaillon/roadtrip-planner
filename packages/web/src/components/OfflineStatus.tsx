@@ -13,7 +13,7 @@ const MUTATION_LABELS: Record<FailedMutation['type'], string> = {
   ADD_TRACK_TO_TRIP: 'Ajouter un circuit au voyage',
   REMOVE_TRACK_FROM_TRIP: 'Retirer un circuit du voyage',
   REORDER_TRIP_TRACKS: 'Réorganiser les circuits',
-  UPDATE_TRIP: 'Modifer les infos d\'un voyage'
+  UPDATE_TRIP: "Modifer les infos d'un voyage",
 }
 
 interface Props {

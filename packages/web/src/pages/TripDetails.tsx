@@ -9,7 +9,7 @@ import { useApi } from '#web/hooks/useApi'
 import { useGetTrip, useGetTripTracks } from '#web/hooks/useTrips'
 import { TRACK_COLORS } from '#web/components/MapViewTracksColors'
 import { parseGpxFile } from '#web/lib/gpx-utils'
-import { faArrowLeftLong } from '@fortawesome/free-solid-svg-icons'
+import { faArrowLeftLong, faCheck } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import type { GetTrackResponse } from '@roadtrip/shared'
 import { useQueries } from '@tanstack/react-query'
@@ -18,6 +18,7 @@ import { Link, useParams } from 'react-router-dom'
 import { useUpdateTrip } from '#web/hooks/mutations/useUpdateTrip'
 import { Button, Collapse, Input, message } from 'antd'
 import { useAuth } from '#web/hooks/useAuth'
+import { faPencil } from '@fortawesome/free-solid-svg-icons'
 
 const MapView = lazy(() => import('#web/components/MapView'))
 
@@ -99,12 +100,36 @@ export default function TripDetails() {
     <>
       <UserGreeting />
       <Box>
-        <div style={{ display: 'flex', gap: '10px', flexDirection:'column' }}>
-          <Link to={'/trips'}>
-            <FontAwesomeIcon icon={faArrowLeftLong} />
-          </Link>
+        <div className={styles.content}>
+          <div className={styles.tripHeader}>
+            <Link to={'/trips'}>
+              <Button className={styles.button}>
+                <FontAwesomeIcon
+                  icon={faArrowLeftLong}
+                  className={styles.icon}
+                />
+              </Button>
+            </Link>
+            <h2 className={styles.tripName}>
+              {trip?.name ?? 'Route inconnue'}
+            </h2>
+            {accessToken && id && (
+              <Button
+                size="small"
+                className={styles.button}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setNameInput(trip?.name ?? '')
+                  setDescriptionInput(trip?.description ?? '')
+                  setIsEditingName(true)
+                }}
+              >
+                <FontAwesomeIcon icon={faPencil} className={styles.icon} />
+              </Button>
+            )}
+          </div>
           {isEditingName ? (
-            <div className={styles.editName}>
+            <div className={styles.editTripInfo}>
               <Input
                 className={styles.editNameInput}
                 value={nameInput}
@@ -117,47 +142,29 @@ export default function TripDetails() {
                 }}
               />
               <Input.TextArea
-              value={descriptionInput}
-              onChange={(e) => setDescriptionInput(e.target.value)}
-              disabled={isPending}
+                value={descriptionInput}
+                onChange={(e) => setDescriptionInput(e.target.value)}
+                disabled={isPending}
               />
               <Button
                 onClick={() => handleRenameSubmit()}
-                className={styles.validateName}
+                className={styles.button}
               >
-                ✅
+                <FontAwesomeIcon icon={faCheck} className={styles.icon} />
               </Button>
             </div>
           ) : (
-            <>
-              <div className={styles.nameBox}>
-                <h2 className={styles.routeName}>
-                  {trip?.name ?? 'Route inconnue'}
-                </h2>
-                {accessToken && id && (
-                  <Button
-                    size="small"
-                    className={styles.editNameButton}
-                    onClick={() => {
-                      setNameInput(trip?.name ?? '')
-                      setDescriptionInput(trip?.description ?? '')
-                      setIsEditingName(true)
-                    }}
-                  >
-                    ✏️
-                  </Button>
-                )}
-              </div>
-              <Collapse
-                items={[
-                  {
-                    key: 'description',
-                    label: 'Description',
-                    children: trip?.description ?? 'Aucune description',
-                  },
-                ]}
-              />
-            </>
+            <Collapse
+              ghost
+              className={styles.description}
+              items={[
+                {
+                  key: 'description',
+                  label: 'Description',
+                  children: trip?.description ?? 'Aucune description',
+                },
+              ]}
+            />
           )}
         </div>
         <AddTrackToTripModal tripId={id} />
