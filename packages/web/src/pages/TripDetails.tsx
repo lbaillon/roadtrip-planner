@@ -1,6 +1,6 @@
 import AddTrackToTripModal from '#web/components/AddTrackToTripModal'
 import Box from '#web/components/Box'
-import BoxTitle from '#web/components/BoxTitle'
+import styles from './TripDetails.module.css'
 import TracksList from '#web/components/TracksList'
 import UserGreeting from '#web/components/UserGreeting'
 import { useRemoveTrackFromTrip } from '#web/hooks/mutations/useRemoveTrackFromTrip'
@@ -15,6 +15,9 @@ import type { GetTrackResponse } from '@roadtrip/shared'
 import { useQueries } from '@tanstack/react-query'
 import { lazy, Suspense, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { useUpdateTrip } from '#web/hooks/mutations/useUpdateTrip'
+import { Button, Collapse, Input, message } from 'antd'
+import { useAuth } from '#web/hooks/useAuth'
 
 const MapView = lazy(() => import('#web/components/MapView'))
 
@@ -28,7 +31,14 @@ export default function TripDetails() {
   const { data: tracks } = useGetTripTracks(id)
   const { mutate: removeTrackFromTrip } = useRemoveTrackFromTrip(id ?? '')
   const { mutate: updateTracksOrder } = useUpdateTripTracksOrder(id ?? '')
+  const { mutate: updateTrip, isPending } = useUpdateTrip()
+  const [isEditingName, setIsEditingName] = useState(false)
+  const [nameInput, setNameInput] = useState(trip?.name ?? '')
+  const [descriptionInput, setDescriptionInput] = useState(
+    trip?.description ?? ''
+  )
   const api = useApi()
+  const { accessToken } = useAuth()
 
   const trackQueries = useQueries({
     queries: (tracks ?? []).map((track) => ({
@@ -70,15 +80,85 @@ export default function TripDetails() {
     ])
   )
 
+  function handleRenameSubmit() {
+    if (!id) return
+    updateTrip(
+      { id, name: nameInput, description: descriptionInput },
+      {
+        onSuccess: () => {
+          setIsEditingName(false)
+        },
+        onError: () => {
+          message.error("erreur lors de l'édition des infos du voyage")
+        },
+      }
+    )
+  }
+
   return (
     <>
       <UserGreeting />
       <Box>
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div style={{ display: 'flex', gap: '10px', flexDirection:'column' }}>
           <Link to={'/trips'}>
             <FontAwesomeIcon icon={faArrowLeftLong} />
           </Link>
-          <BoxTitle>{trip?.name ?? 'No trip found'}</BoxTitle>
+          {isEditingName ? (
+            <div className={styles.editName}>
+              <Input
+                className={styles.editNameInput}
+                value={nameInput}
+                onChange={(e) => setNameInput(e.target.value)}
+                disabled={isPending}
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleRenameSubmit()
+                  if (e.key === 'Escape') setIsEditingName(false)
+                }}
+              />
+              <Input.TextArea
+              value={descriptionInput}
+              onChange={(e) => setDescriptionInput(e.target.value)}
+              disabled={isPending}
+              />
+              <Button
+                onClick={() => handleRenameSubmit()}
+                className={styles.validateName}
+              >
+                ✅
+              </Button>
+            </div>
+          ) : (
+            <>
+              <div className={styles.nameBox}>
+                <h2 className={styles.routeName}>
+                  {trip?.name ?? 'Route inconnue'}
+                </h2>
+                {accessToken && id && (
+                  <Button
+                    size="small"
+                    className={styles.editNameButton}
+                    onClick={() => {
+                      setNameInput(trip?.name ?? '')
+                      setDescriptionInput(trip?.description ?? '')
+                      setIsEditingName(true)
+                    }}
+                  >
+                    ✏️
+                  </Button>
+                )}
+              </div>
+              <Collapse
+                items={[
+                  {
+                    key: 'description',
+                    label: 'Description',
+                    children: trip?.description ?? 'Aucune description',
+                  },
+                ]}
+              />
+            </>
+          )}
         </div>
         <AddTrackToTripModal tripId={id} />
         <TracksList

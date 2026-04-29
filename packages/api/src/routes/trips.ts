@@ -138,7 +138,7 @@ async function getTrip(id: string, user?: JWTPayload): Promise<TripSummary> {
   if (!trip) {
     throw new NotFoundError('Trip not found', codes.MISSING_TRIP)
   }
-  return { id: trip.id, name: trip.name }
+  return { id: trip.id, name: trip.name, description: trip.description ?? undefined }
 }
 
 router.get(
