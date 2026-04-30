@@ -5,6 +5,7 @@ import {
   sqliteTable,
   text,
 } from 'drizzle-orm/sqlite-core'
+import { boolean } from 'zod'
 
 export const users = sqliteTable('users', {
   id: text('id')
@@ -34,6 +35,7 @@ export const tracks = sqliteTable(
     updatedAt: integer('updated_at', { mode: 'timestamp' })
       .notNull()
       .$defaultFn(() => new Date()),
+    isPublic: integer('is_public', {mode: 'boolean'}).notNull().default(false)
   },
   (table) => [index('tracks_user_id_idx').on(table.userId)]
 )
