@@ -2,7 +2,7 @@ import { db } from '#api/db/client.js'
 import { tracks } from '#api/db/schema.js'
 import { NotFoundError, UnauthorizedError } from '#api/errors/app-errors.js'
 import { codes } from '#api/errors/error-codes.js'
-import { authenticate, authorize } from '#api/middlewares/auth.js'
+import { authenticate, authenticateOptional, authorize } from '#api/middlewares/auth.js'
 import { JWTPayload } from '#api/services/authentication.js'
 import {
   deleteGpx,
@@ -27,7 +27,7 @@ import {
   UpdateTrackGpxRequestSchema,
 } from '@roadtrip/shared'
 
-import { and, eq } from 'drizzle-orm'
+import { and, eq, or } from 'drizzle-orm'
 import { Router } from 'express'
 import { XMLParser } from 'fast-xml-parser'
 
@@ -44,7 +44,6 @@ const xmlParser = new XMLParser({
 })
 
 const router: Router = Router()
-router.use(authenticate)
 
 export async function createTrack(
   body: CreateTrackRequest,
@@ -70,6 +69,7 @@ export async function createTrack(
 
 router.post(
   '/',
+  authenticate,
   authorize(['user', 'admin']),
   processPost({
     bodySchema: CreateTrackRequestSchema,
@@ -94,6 +94,7 @@ export async function deleteTrack(id: string, user?: JWTPayload) {
 
 router.delete(
   '/:id',
+  authenticate,
   processDelete({
     paramsSchema: IdParamsSchema,
     handler: ({ params, user }) => deleteTrack(params.id, user),
@@ -128,6 +129,7 @@ export async function updateTrackGpx(
 
 router.put(
   '/:id',
+  authenticate,
   processPut({
     paramsSchema: IdParamsSchema,
     bodySchema: UpdateTrackGpxRequestSchema,
@@ -142,29 +144,28 @@ async function getUserTracks(user?: JWTPayload): Promise<TrackSummary[]> {
     .where(eq(tracks.userId, user?.userId ?? ''))
 }
 
-router.get('/', processGet({ handler: ({ user }) => getUserTracks(user) }))
+router.get('/', authenticate, processGet({ handler: ({ user }) => getUserTracks(user) }))
 
 async function getTrack(
   id: string,
   user?: JWTPayload
 ): Promise<GetTrackResponse> {
-  if (!user) {
-    throw new UnauthorizedError('Missing user', codes.MISSING_USER)
-  }
+
   const [track] = await db
     .select()
     .from(tracks)
-    .where(and(eq(tracks.id, id), eq(tracks.userId, user.userId)))
+    .where(and(eq(tracks.id, id), or(eq(tracks.isPublic, true), eq(tracks.userId, user?.userId ??''))))
   if (!track) {
     throw new NotFoundError('track not found', codes.MISSING_TRACK)
   }
   const gpxContent = await getGpxFile(track.gpxFile)
 
-  return { id: track.id, gpxContent }
+  return { id: track.id, gpxContent, isPublic: track.isPublic }
 }
 
 router.get(
   '/:id',
+  authenticateOptional,
   processGet({
     paramsSchema: IdParamsSchema,
     handler: ({ params, user }) => getTrack(params.id, user),

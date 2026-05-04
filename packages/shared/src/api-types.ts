@@ -84,6 +84,7 @@ export const LogInResponseSchema = z.object({
 export const GetTrackResponseSchema = z.object({
   id: z.string(),
   gpxContent: z.string(),
+  isPublic: z.boolean(),
 })
 
 // Response types
