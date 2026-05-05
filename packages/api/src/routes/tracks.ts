@@ -2,7 +2,11 @@ import { db } from '#api/db/client.js'
 import { tracks } from '#api/db/schema.js'
 import { NotFoundError, UnauthorizedError } from '#api/errors/app-errors.js'
 import { codes } from '#api/errors/error-codes.js'
-import { authenticate, authenticateOptional, authorize } from '#api/middlewares/auth.js'
+import {
+  authenticate,
+  authenticateOptional,
+  authorize,
+} from '#api/middlewares/auth.js'
 import { JWTPayload } from '#api/services/authentication.js'
 import {
   deleteGpx,
@@ -25,6 +29,7 @@ import {
   TrackSummary,
   UpdateTrackGpxRequest,
   UpdateTrackGpxRequestSchema,
+  UpdateTrackPublicStatusRequestSchema,
 } from '@roadtrip/shared'
 
 import { and, eq, or } from 'drizzle-orm'
@@ -144,17 +149,25 @@ async function getUserTracks(user?: JWTPayload): Promise<TrackSummary[]> {
     .where(eq(tracks.userId, user?.userId ?? ''))
 }
 
-router.get('/', authenticate, processGet({ handler: ({ user }) => getUserTracks(user) }))
+router.get(
+  '/',
+  authenticate,
+  processGet({ handler: ({ user }) => getUserTracks(user) })
+)
 
 async function getTrack(
   id: string,
   user?: JWTPayload
 ): Promise<GetTrackResponse> {
-
   const [track] = await db
     .select()
     .from(tracks)
-    .where(and(eq(tracks.id, id), or(eq(tracks.isPublic, true), eq(tracks.userId, user?.userId ??''))))
+    .where(
+      and(
+        eq(tracks.id, id),
+        or(eq(tracks.isPublic, true), eq(tracks.userId, user?.userId ?? ''))
+      )
+    )
   if (!track) {
     throw new NotFoundError('track not found', codes.MISSING_TRACK)
   }
@@ -169,6 +182,39 @@ router.get(
   processGet({
     paramsSchema: IdParamsSchema,
     handler: ({ params, user }) => getTrack(params.id, user),
+  })
+)
+
+async function updateTrackVisibility(
+  id: string,
+  isPublic: boolean,
+  user?: JWTPayload
+) {
+  if (!user) {
+    throw new UnauthorizedError('Missing user', codes.MISSING_USER)
+  }
+  const [track] = await db
+    .select()
+    .from(tracks)
+    .where(and(eq(tracks.id, id), eq(tracks.userId, user.userId)))
+  if (!track) {
+    throw new NotFoundError('track not found', codes.MISSING_TRACK)
+  }
+
+  await db
+    .update(tracks)
+    .set({ isPublic })
+    .where(and(eq(tracks.id, id), eq(tracks.userId, user.userId)))
+}
+
+router.put(
+  '/:id/public',
+  authenticate,
+  processPut({
+    paramsSchema: IdParamsSchema,
+    bodySchema: UpdateTrackPublicStatusRequestSchema,
+    handler: ({ params, body, user }) =>
+      updateTrackVisibility(params.id, body.isPublic, user),
   })
 )
 

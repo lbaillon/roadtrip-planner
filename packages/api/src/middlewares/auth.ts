@@ -36,11 +36,12 @@ export function authorize(roles: string[]) {
   }
 }
 
-
-export async function authenticateOptional(  req: AuthenticatedRequest,
+export async function authenticateOptional(
+  req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction) {
-    const authHeader = req.headers.authorization
+  next: NextFunction
+) {
+  const authHeader = req.headers.authorization
 
   if (!authHeader?.startsWith('Bearer ')) {
     return next()
