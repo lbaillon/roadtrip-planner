@@ -8,6 +8,7 @@ const MUTATION_LABELS: Record<FailedMutation['type'], string> = {
   CREATE_TRACK: 'Créer un circuit',
   PUT_TRACK_GPX: 'Modifier un circuit',
   DELETE_TRACK: 'Supprimer un circuit',
+  UPDATE_TRACK_VISIBILITY: 'Modifier la visibilité d\'un circuit',
   CREATE_TRIP: 'Créer un voyage',
   DELETE_TRIP: 'Supprimer un voyage',
   ADD_TRACK_TO_TRIP: 'Ajouter un circuit au voyage',
