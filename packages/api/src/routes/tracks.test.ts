@@ -19,6 +19,7 @@ jest.mock('#api/services/uploader.js', () => ({
 // Not used in test but mock to avoid importing unnecessary code
 jest.mock('#api/middlewares/auth.js', () => ({
   authenticate: jest.fn(),
+  authenticateOptional: jest.fn(),
   authorize: jest.fn(() => jest.fn()),
 }))
 

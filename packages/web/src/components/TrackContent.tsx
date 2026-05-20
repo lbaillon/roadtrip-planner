@@ -8,6 +8,7 @@ import {
   useInvertTrack,
   useRenameTrack,
 } from '#web/hooks/mutations/usePutTrackGpx'
+import { useUpdateTrackVisibility } from '#web/hooks/mutations/useUpdateTrackVisibility'
 import { useGetWeather } from '#web/hooks/useApi'
 import { useAuth } from '#web/hooks/useAuth'
 import {
@@ -15,7 +16,15 @@ import {
   sampleRoutePointsWithCumulativeKm,
 } from '#web/lib/gpx-utils'
 import type { ParsedGpx } from '@roadtrip/shared'
-import { Button, Collapse, Input, InputNumber, message, TimePicker } from 'antd'
+import {
+  Button,
+  Collapse,
+  Input,
+  InputNumber,
+  message,
+  Switch,
+  TimePicker,
+} from 'antd'
 import { lazy, Suspense, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import styles from './TrackContent.module.css'
@@ -32,10 +41,12 @@ type EditingWaypoint = { index: number } & WaypointFormData
 export default function TrackContent({
   parsed,
   headerAction,
+  isPublic,
 }: {
   trackName?: string
   parsed: ParsedGpx
   headerAction?: React.ReactNode
+  isPublic?: boolean
 }) {
   const [timepointIndex, setTimepointIndex] = useState(0)
   const [isEditMode, setIsEditMode] = useState(false)
@@ -87,6 +98,7 @@ export default function TrackContent({
   const { mutate: renameTrack, isPending: isRenaming } = useRenameTrack(
     id ?? ''
   )
+  const { mutate: updateVisibility } = useUpdateTrackVisibility()
 
   const getTimepointIndices = () => {
     if (!departureTime || !speedKmh || !weather || !parsed) return null
@@ -213,6 +225,15 @@ export default function TrackContent({
               if (e.key === 'Escape') setIsEditingName(false)
             }}
           />
+          <Switch
+            className={styles.publicSwitch}
+            checked={isPublic}
+            onChange={(checked) =>
+              id && updateVisibility({ id, isPublic: checked })
+            }
+            checkedChildren="Public"
+            unCheckedChildren="Privé"
+          />
           <Button
             onClick={() => handleRenameSubmit()}
             className={styles.validateName}
@@ -228,6 +249,9 @@ export default function TrackContent({
         </div>
       )}
       <div className={styles.mapHeader}>
+        {accessToken &&
+          id &&
+          (isPublic ? <p>circuit public</p> : <p>circuit privé</p>)}
         {parsed.distance && (
           <p className={styles.routeName}>
             Distance : {(parsed.distance / 1000).toFixed(2)} km

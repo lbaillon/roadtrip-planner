@@ -8,6 +8,7 @@ import { useFlushRemoveTrackFromTrip } from './useRemoveTrackFromTrip'
 import { useFlushReorderTripTracks } from './useReorderTripTracks'
 import type { FlushFn, FlushHandlerRegistry, MutationDefinition } from './types'
 import { useFlushUpdateTrip } from './useUpdateTrip'
+import { useFlushUpdateTrackVisibility } from './useUpdateTrackVisibility'
 
 export function useFlushHandler() {
   const handlers: FlushHandlerRegistry = {
@@ -16,6 +17,7 @@ export function useFlushHandler() {
     UPDATE_TRIP: useFlushUpdateTrip(),
     CREATE_TRACK: useFlushCreateTrack(),
     DELETE_TRACK: useFlushDeleteTrack(),
+    UPDATE_TRACK_VISIBILITY: useFlushUpdateTrackVisibility(),
     PUT_TRACK_GPX: useFlushPutTrackGpx(),
     ADD_TRACK_TO_TRIP: useFlushAddTrackToTrip(),
     REMOVE_TRACK_FROM_TRIP: useFlushRemoveTrackFromTrip(),
