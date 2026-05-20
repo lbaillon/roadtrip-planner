@@ -36,6 +36,7 @@ export default function TrackDetails() {
 
       {parsed && (
         <TrackContent
+          isPublic={track?.isPublic ?? false}
           parsed={parsed}
           headerAction={
             <Button onClick={handleDownload} className={styles.downloadButton}>
