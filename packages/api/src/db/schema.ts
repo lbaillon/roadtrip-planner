@@ -5,7 +5,6 @@ import {
   sqliteTable,
   text,
 } from 'drizzle-orm/sqlite-core'
-import { boolean } from 'zod'
 
 export const users = sqliteTable('users', {
   id: text('id')
