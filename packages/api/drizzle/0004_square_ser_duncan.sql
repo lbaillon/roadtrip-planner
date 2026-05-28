@@ -1,0 +1,1 @@
+ALTER TABLE `trips` ADD `is_public` integer DEFAULT false NOT NULL;

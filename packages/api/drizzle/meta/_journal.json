@@ -29,6 +29,13 @@
       "when": 1777542654091,
       "tag": "0003_sweet_matthew_murdock",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1779974138919,
+      "tag": "0004_square_ser_duncan",
+      "breakpoints": true
     }
   ]
 }
