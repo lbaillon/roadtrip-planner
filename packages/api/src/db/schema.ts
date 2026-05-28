@@ -55,7 +55,7 @@ export const trips = sqliteTable(
       .$defaultFn(() => new Date()),
     startDate: text('start_date'),
     endDate: text('end_date'),
-        isPublic: integer('is_public', { mode: 'boolean' })
+    isPublic: integer('is_public', { mode: 'boolean' })
       .notNull()
       .default(false),
   },
