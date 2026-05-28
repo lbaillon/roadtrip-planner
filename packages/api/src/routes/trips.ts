@@ -122,6 +122,7 @@ async function getUserTrips(user?: JWTPayload): Promise<TripSummary[]> {
     id: trip.id,
     name: trip.name,
     description: trip.description ?? undefined,
+    isPublic: trip.isPublic
   }))
 }
 
@@ -142,6 +143,7 @@ async function getTrip(id: string, user?: JWTPayload): Promise<TripSummary> {
     id: trip.id,
     name: trip.name,
     description: trip.description ?? undefined,
+    isPublic: trip.isPublic
   }
 }
 
