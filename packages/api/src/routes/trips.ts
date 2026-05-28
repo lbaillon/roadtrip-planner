@@ -6,7 +6,11 @@ import {
   UnauthorizedError,
 } from '#api/errors/app-errors.js'
 import { codes } from '#api/errors/error-codes.js'
-import { authenticate, authorize } from '#api/middlewares/auth.js'
+import {
+  authenticate,
+  authenticateOptional,
+  authorize,
+} from '#api/middlewares/auth.js'
 import { JWTPayload } from '#api/services/authentication.js'
 import {
   processDelete,
@@ -23,6 +27,7 @@ import {
   TrackOfTripParamsSchema,
   TripSummary,
   TripTrack,
+  UpdateTripPublicStatusRequestSchema,
   UpdateTripRequest,
   UpdateTripRequestSchema,
   UpdateTripTracksOrderRequestSchema,
@@ -31,7 +36,6 @@ import { and, eq, sql } from 'drizzle-orm'
 import { Router } from 'express'
 
 const router: Router = Router()
-router.use(authenticate)
 
 async function createTrip(
   body: CreateTripRequest,
@@ -56,6 +60,7 @@ async function createTrip(
 
 router.post(
   '/',
+  authenticate,
   authorize(['user', 'admin']),
   processPost({
     bodySchema: CreateTripRequestSchema,
@@ -78,6 +83,7 @@ async function deleteTrip(id: string, user?: JWTPayload) {
 
 router.delete(
   '/:id',
+  authenticate,
   processDelete({
     paramsSchema: IdParamsSchema,
     handler: ({ params, user }) => deleteTrip(params.id, user),
@@ -105,6 +111,7 @@ async function updateTrip(
 
 router.put(
   '/:id',
+  authenticate,
   processPut({
     paramsSchema: IdParamsSchema,
     bodySchema: UpdateTripRequestSchema,
@@ -122,11 +129,15 @@ async function getUserTrips(user?: JWTPayload): Promise<TripSummary[]> {
     id: trip.id,
     name: trip.name,
     description: trip.description ?? undefined,
-    isPublic: trip.isPublic
+    isPublic: trip.isPublic,
   }))
 }
 
-router.get('/', processGet({ handler: ({ user }) => getUserTrips(user) }))
+router.get(
+  '/',
+  authenticate,
+  processGet({ handler: ({ user }) => getUserTrips(user) })
+)
 
 async function getTrip(id: string, user?: JWTPayload): Promise<TripSummary> {
   if (!user) {
@@ -143,12 +154,13 @@ async function getTrip(id: string, user?: JWTPayload): Promise<TripSummary> {
     id: trip.id,
     name: trip.name,
     description: trip.description ?? undefined,
-    isPublic: trip.isPublic
+    isPublic: trip.isPublic,
   }
 }
 
 router.get(
   '/:id',
+  authenticateOptional,
   processGet({
     paramsSchema: IdParamsSchema,
     handler: ({ params, user }) => getTrip(params.id, user),
@@ -186,6 +198,7 @@ async function getTripTracks(
 
 router.get(
   '/:id/tracks',
+  authenticateOptional,
   processGet({
     paramsSchema: IdParamsSchema,
     handler: ({ params, user }) => getTripTracks(params.id, user),
@@ -238,6 +251,7 @@ async function reorderTripTracks(
 
 router.put(
   '/:id/tracks',
+  authenticate,
   processPut({
     paramsSchema: IdParamsSchema,
     bodySchema: UpdateTripTracksOrderRequestSchema,
@@ -276,6 +290,7 @@ async function addTrackToTrip(
 
 router.post(
   '/:tripId/tracks/:trackId',
+  authenticate,
   processPost({
     paramsSchema: TrackOfTripParamsSchema,
     bodySchema: AddTrackToTripRequestSchema,
@@ -310,10 +325,44 @@ async function removeTrackFromTrip(
 
 router.delete(
   '/:tripId/tracks/:trackId',
+  authenticate,
   processDelete({
     paramsSchema: TrackOfTripParamsSchema,
     handler: ({ params, user }) =>
       removeTrackFromTrip(params.tripId, params.trackId, user),
+  })
+)
+
+async function updateTripVisibility(
+  id: string,
+  isPublic: boolean,
+  user?: JWTPayload
+) {
+  if (!user) {
+    throw new UnauthorizedError('Missing user', codes.MISSING_USER)
+  }
+  const [trip] = await db
+    .select()
+    .from(trips)
+    .where(and(eq(trips.id, id), eq(trips.userId, user.userId)))
+  if (!trip) {
+    throw new NotFoundError('trip not found', codes.MISSING_TRIP)
+  }
+
+  await db
+    .update(trips)
+    .set({ isPublic })
+    .where(and(eq(trips.id, id), eq(trips.userId, user.userId)))
+}
+
+router.put(
+  '/:id/public',
+  authenticate,
+  processPut({
+    paramsSchema: IdParamsSchema,
+    bodySchema: UpdateTripPublicStatusRequestSchema,
+    handler: ({ params, body, user }) =>
+      updateTripVisibility(params.id, body.isPublic, user),
   })
 )
 
