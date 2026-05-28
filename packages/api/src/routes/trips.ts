@@ -32,7 +32,7 @@ import {
   UpdateTripRequestSchema,
   UpdateTripTracksOrderRequestSchema,
 } from '@roadtrip/shared'
-import { and, eq, sql } from 'drizzle-orm'
+import { and, eq, or, sql } from 'drizzle-orm'
 import { Router } from 'express'
 
 const router: Router = Router()
@@ -140,13 +140,15 @@ router.get(
 )
 
 async function getTrip(id: string, user?: JWTPayload): Promise<TripSummary> {
-  if (!user) {
-    throw new UnauthorizedError('Missing user', codes.MISSING_USER)
-  }
   const [trip] = await db
     .select()
     .from(trips)
-    .where(and(eq(trips.id, id), eq(trips.userId, user.userId)))
+    .where(
+      and(
+        eq(trips.id, id),
+        or(eq(trips.isPublic, true), eq(trips.userId, user?.userId ?? ''))
+      )
+    )
   if (!trip) {
     throw new NotFoundError('Trip not found', codes.MISSING_TRIP)
   }
@@ -171,13 +173,15 @@ async function getTripTracks(
   tripId: string,
   user?: JWTPayload
 ): Promise<TripTrack[]> {
-  if (!user) {
-    throw new UnauthorizedError('Missing user', codes.MISSING_USER)
-  }
   const [trip] = await db
     .select()
     .from(trips)
-    .where(and(eq(trips.id, tripId), eq(trips.userId, user.userId)))
+    .where(
+      and(
+        eq(trips.id, tripId),
+        or(eq(trips.isPublic, true), eq(trips.userId, user?.userId ?? ''))
+      )
+    )
   if (!trip) {
     throw new NotFoundError('Trip not found', codes.MISSING_TRIP)
   }
