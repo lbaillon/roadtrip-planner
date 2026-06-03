@@ -16,7 +16,8 @@ import { useQueries } from '@tanstack/react-query'
 import { lazy, Suspense, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useUpdateTrip } from '#web/hooks/mutations/useUpdateTrip'
-import { Button, Collapse, Input, message } from 'antd'
+import { useUpdateTripVisibility } from '#web/hooks/mutations/useUpdateTripVisibility'
+import { Button, Collapse, Input, Switch, message } from 'antd'
 import { useAuth } from '#web/hooks/useAuth'
 import { faPencil } from '@fortawesome/free-solid-svg-icons'
 
@@ -33,6 +34,7 @@ export default function TripDetails() {
   const { mutate: removeTrackFromTrip } = useRemoveTrackFromTrip(id ?? '')
   const { mutate: updateTracksOrder } = useUpdateTripTracksOrder(id ?? '')
   const { mutate: updateTrip, isPending } = useUpdateTrip()
+  const { mutate: updateVisibility } = useUpdateTripVisibility()
   const [isEditingName, setIsEditingName] = useState(false)
   const [nameInput, setNameInput] = useState(trip?.name ?? '')
   const [descriptionInput, setDescriptionInput] = useState(
@@ -113,6 +115,7 @@ export default function TripDetails() {
             <h2 className={styles.tripName}>
               {trip?.name ?? 'Route inconnue'}
             </h2>
+
             {accessToken && id && (
               <Button
                 size="small"
@@ -128,6 +131,9 @@ export default function TripDetails() {
               </Button>
             )}
           </div>
+          {accessToken &&
+            id &&
+            (trip?.isPublic ? <p>voyage public</p> : <p>voyage privé</p>)}
           {isEditingName ? (
             <div className={styles.editTripInfo}>
               <Input
@@ -145,6 +151,14 @@ export default function TripDetails() {
                 value={descriptionInput}
                 onChange={(e) => setDescriptionInput(e.target.value)}
                 disabled={isPending}
+              />
+              <Switch
+                checked={trip?.isPublic}
+                onChange={(checked) =>
+                  id && updateVisibility({ id, isPublic: checked })
+                }
+                checkedChildren="Public"
+                unCheckedChildren="Privé"
               />
               <Button
                 onClick={() => handleRenameSubmit()}
