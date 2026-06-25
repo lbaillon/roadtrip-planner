@@ -1,5 +1,5 @@
 import { db } from '#api/db/client.js'
-import { tracks } from '#api/db/schema.js'
+import { tracks, trips, tripTracks } from '#api/db/schema.js'
 import { NotFoundError, UnauthorizedError } from '#api/errors/app-errors.js'
 import { codes } from '#api/errors/error-codes.js'
 import {
@@ -160,14 +160,26 @@ async function getTrack(
   user?: JWTPayload
 ): Promise<GetTrackResponse> {
   const [track] = await db
-    .select()
+    .select({
+      id: tracks.id,
+      userId: tracks.userId,
+      gpxFile: tracks.gpxFile,
+      isPublic: tracks.isPublic,
+    })
     .from(tracks)
+    .leftJoin(tripTracks, eq(tripTracks.trackId, tracks.id))
+    .leftJoin(trips, eq(trips.id, tripTracks.tripId))
     .where(
       and(
         eq(tracks.id, id),
-        or(eq(tracks.isPublic, true), eq(tracks.userId, user?.userId ?? ''))
+        or(
+          eq(tracks.isPublic, true),
+          eq(tracks.userId, user?.userId ?? ''),
+          eq(trips.isPublic, true)
+        )
       )
     )
+    .limit(1)
   if (!track) {
     throw new NotFoundError('track not found', codes.MISSING_TRACK)
   }
