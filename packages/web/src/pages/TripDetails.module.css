@@ -1,42 +1,94 @@
-.content{
-  display: 'flex';
-  gap: '10px';
+.content {
+  display: flex;
   flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
 }
 
 .tripHeader {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 1rem;
+  align-items: center;
+  margin-bottom: 4px;
 }
 
-.tripName{
+.tripName {
   width: 75%;
   text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.button{
+.button {
   background-color: var(--primary);
   border-radius: 50%;
   width: 36px;
   height: 36px;
   padding: 0;
   border: none;
-  margin-top: 5px;
 }
 
-.icon{
+.icon {
   color: var(--surface);
   font-size: 20px;
 }
 
-.editTripInfo{
-  display: flex;
-  flex-direction: column;
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  width: fit-content;
 }
 
-.editNameInput{
-  margin-bottom: 5px;
+.badgePublic {
+  background-color: #e6f4f1;
+  color: var(--primary);
+}
+
+.badgePrivate {
+  background-color: #f0f0f0;
+  color: #777;
+}
+
+.descriptionSection {
+  margin-top: 4px;
+}
+
+.descriptionText {
+  color: var(--text);
+  line-height: 1.5;
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+}
+
+.seeMoreBtn {
+  background: none;
+  border: none;
+  color: var(--primary-light);
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.85rem;
+  text-decoration: underline;
+}
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.modalVisibility {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modalVisibilityLabel {
+  font-size: 0.85rem;
+  color: var(--text);
 }

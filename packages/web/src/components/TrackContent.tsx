@@ -22,17 +22,23 @@ import {
   Input,
   InputNumber,
   message,
+  Modal,
   Switch,
   TimePicker,
 } from 'antd'
 import { lazy, Suspense, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import styles from './TrackContent.module.css'
 import { TRACK_COLORS } from './MapViewTracksColors'
 import { ElevationChart } from './ElevationChart'
 import { WindSpeedChart } from './WindSpeedChart'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCheck, faPencil } from '@fortawesome/free-solid-svg-icons'
+import {
+  faArrowLeftLong,
+  faGlobe,
+  faLock,
+  faPencil,
+} from '@fortawesome/free-solid-svg-icons'
 
 const MapView = lazy(() => import('#web/components/MapView'))
 type WaypointFormData = { name: string; description?: string }
@@ -64,12 +70,13 @@ export default function TrackContent({
     lat: number
     lon: number
   } | null>(null)
-  const [isEditingName, setIsEditingName] = useState(false)
+  const [isEditNameModalOpen, setIsEditNameModalOpen] = useState(false)
   const [nameInput, setNameInput] = useState(parsed.name ?? '')
 
   const [messageApi, contextHolder] = message.useMessage()
   const { id } = useParams()
   const { accessToken } = useAuth()
+  const navigate = useNavigate()
 
   const actualCoords = userPosition
     ? remapCoordinatesFrom(parsed.coordinates, userPosition)
@@ -201,7 +208,7 @@ export default function TrackContent({
   function handleRenameSubmit() {
     renameTrack(nameInput, {
       onSuccess: () => {
-        setIsEditingName(false)
+        setIsEditNameModalOpen(false)
       },
       onError: () => {
         messageApi.error("Erreur lors de l'édition")
@@ -212,46 +219,35 @@ export default function TrackContent({
   return (
     <div className={styles.mapBox}>
       {contextHolder}
-      {isEditingName ? (
-        <div className={styles.editName}>
-          <Input
-            className={styles.editNameInput}
-            value={nameInput}
-            onChange={(e) => setNameInput(e.target.value)}
-            disabled={isRenaming}
-            autoFocus
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') handleRenameSubmit()
-              if (e.key === 'Escape') setIsEditingName(false)
-            }}
-          />
-          <Switch
-            className={styles.publicSwitch}
-            checked={isPublic}
-            onChange={(checked) =>
-              id && updateVisibility({ id, isPublic: checked })
-            }
-            checkedChildren="Public"
-            unCheckedChildren="Privé"
-          />
+      <div className={styles.nameBox}>
+        <Button className={styles.backButton} onClick={() => navigate(-1)}>
+          <FontAwesomeIcon icon={faArrowLeftLong} className={styles.icon} />
+        </Button>
+        <h2 className={styles.routeName}>{parsed.name ?? 'Route inconnue'}</h2>
+        {accessToken && id ? (
           <Button
-            onClick={() => handleRenameSubmit()}
-            className={styles.validateName}
+            size="small"
+            className={styles.backButton}
+            onClick={() => {
+              setNameInput(parsed.name ?? '')
+              setIsEditNameModalOpen(true)
+            }}
           >
-            <FontAwesomeIcon icon={faCheck} className={styles.icon} />
+            <FontAwesomeIcon icon={faPencil} className={styles.icon} />
           </Button>
-        </div>
-      ) : (
-        <div className={styles.nameBox}>
-          <h2 className={styles.routeName}>
-            {parsed.name ?? 'Route inconnue'}
-          </h2>
-        </div>
-      )}
+        ) : (
+          <div className={styles.headerSpacer} />
+        )}
+      </div>
       <div className={styles.mapHeader}>
-        {accessToken &&
-          id &&
-          (isPublic ? <p>circuit public</p> : <p>circuit privé</p>)}
+        {accessToken && id && (
+          <span
+            className={`${styles.badge} ${isPublic ? styles.badgePublic : styles.badgePrivate}`}
+          >
+            <FontAwesomeIcon icon={isPublic ? faGlobe : faLock} />
+            {isPublic ? 'Public' : 'Privé'}
+          </span>
+        )}
         {parsed.distance && (
           <p className={styles.routeName}>
             Distance : {(parsed.distance / 1000).toFixed(2)} km
@@ -281,18 +277,6 @@ export default function TrackContent({
               loading={isInverting}
             >
               Inverser départ et arrivée
-            </Button>
-          )}
-          {accessToken && id && (
-            <Button
-              size="small"
-              className={styles.editNameButton}
-              onClick={() => {
-                setNameInput(parsed.name ?? '')
-                setIsEditingName(true)
-              }}
-            >
-              <FontAwesomeIcon icon={faPencil} className={styles.icon} />
             </Button>
           )}
         </div>
@@ -447,6 +431,43 @@ export default function TrackContent({
           />
         </>
       )}
+
+      <Modal
+        title="Modifier le circuit"
+        open={isEditNameModalOpen}
+        onCancel={() => setIsEditNameModalOpen(false)}
+        onOk={handleRenameSubmit}
+        okText="Enregistrer"
+        cancelText="Annuler"
+        confirmLoading={isRenaming}
+      >
+        <div className={styles.editModalContent}>
+          <Input
+            value={nameInput}
+            onChange={(e) => setNameInput(e.target.value)}
+            disabled={isRenaming}
+            placeholder="Nom du circuit"
+            autoFocus
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleRenameSubmit()
+            }}
+          />
+          <div className={styles.modalVisibility}>
+            <Switch
+              size="small"
+              checked={isPublic}
+              onChange={(checked) =>
+                id && updateVisibility({ id, isPublic: checked })
+              }
+              checkedChildren="Public"
+              unCheckedChildren="Privé"
+            />
+            <span className={styles.modalVisibilityLabel}>
+              {isPublic ? 'Circuit public' : 'Circuit privé'}
+            </span>
+          </div>
+        </div>
+      </Modal>
     </div>
   )
 }
