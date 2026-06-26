@@ -11,6 +11,7 @@ import {
 import { useUpdateTrackVisibility } from '#web/hooks/mutations/useUpdateTrackVisibility'
 import { useGetWeather } from '#web/hooks/useApi'
 import { useAuth } from '#web/hooks/useAuth'
+import { useGetTrackVisibility } from '#web/hooks/useTracks'
 import {
   remapCoordinatesFrom,
   sampleRoutePointsWithCumulativeKm,
@@ -77,6 +78,8 @@ export default function TrackContent({
   const { id } = useParams()
   const { accessToken } = useAuth()
   const navigate = useNavigate()
+  const { data: visibility } = useGetTrackVisibility(id, !!accessToken)
+  const publicViaTrip = !isPublic ? (visibility?.publicViaTrip ?? null) : null
 
   const actualCoords = userPosition
     ? remapCoordinatesFrom(parsed.coordinates, userPosition)
@@ -242,10 +245,16 @@ export default function TrackContent({
       {accessToken && id && (
         <div className={styles.badgeWrapper}>
           <span
-            className={`${styles.badge} ${isPublic ? styles.badgePublic : styles.badgePrivate}`}
+            className={`${styles.badge} ${isPublic || publicViaTrip ? styles.badgePublic : styles.badgePrivate}`}
           >
-            <FontAwesomeIcon icon={isPublic ? faGlobe : faLock} />
-            {isPublic ? 'Public' : 'Privé'}
+            <FontAwesomeIcon
+              icon={isPublic || publicViaTrip ? faGlobe : faLock}
+            />
+            {isPublic
+              ? 'Public'
+              : publicViaTrip
+                ? `Public via ${publicViaTrip}`
+                : 'Privé'}
           </span>
         </div>
       )}

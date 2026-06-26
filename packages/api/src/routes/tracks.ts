@@ -25,6 +25,7 @@ import {
   CreateTrackRequest,
   CreateTrackRequestSchema,
   GetTrackResponse,
+  GetTrackVisibilityResponse,
   IdParamsSchema,
   TrackSummary,
   UpdateTrackGpxRequest,
@@ -194,6 +195,42 @@ router.get(
   processGet({
     paramsSchema: IdParamsSchema,
     handler: ({ params, user }) => getTrack(params.id, user),
+  })
+)
+
+async function getTrackVisibility(
+  id: string,
+  user?: JWTPayload
+): Promise<GetTrackVisibilityResponse> {
+  if (!user) {
+    throw new UnauthorizedError('Missing user', codes.MISSING_USER)
+  }
+
+  const [track] = await db
+    .select({ id: tracks.id })
+    .from(tracks)
+    .where(and(eq(tracks.id, id), eq(tracks.userId, user.userId)))
+  if (!track) {
+    throw new NotFoundError('track not found', codes.MISSING_TRACK)
+  }
+
+  const [publicTrip] = await db
+    .select({ name: trips.name })
+    .from(trips)
+    .innerJoin(tripTracks, eq(tripTracks.tripId, trips.id))
+    .where(and(eq(tripTracks.trackId, id), eq(trips.isPublic, true)))
+    .orderBy(trips.createdAt)
+    .limit(1)
+
+  return { publicViaTrip: publicTrip?.name ?? null }
+}
+
+router.get(
+  '/:id/visibility',
+  authenticate,
+  processGet({
+    paramsSchema: IdParamsSchema,
+    handler: ({ params, user }) => getTrackVisibility(params.id, user),
   })
 )
 

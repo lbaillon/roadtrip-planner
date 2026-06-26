@@ -95,6 +95,10 @@ export const GetTrackResponseSchema = z.object({
   isPublic: z.boolean(),
 })
 
+export const GetTrackVisibilityResponseSchema = z.object({
+  publicViaTrip: z.string().nullable(),
+})
+
 // Response types
 
 export type TripSummary = {
@@ -116,6 +120,9 @@ export type CreateTrackRequest = z.infer<typeof CreateTrackRequestSchema>
 export type UpdateUserRequest = z.infer<typeof UpdateUserRequestSchema>
 export type CreateTripRequest = z.infer<typeof CreateTripRequestSchema>
 export type GetTrackResponse = z.infer<typeof GetTrackResponseSchema>
+export type GetTrackVisibilityResponse = z.infer<
+  typeof GetTrackVisibilityResponseSchema
+>
 export type AddTrackToTripRequest = z.infer<typeof AddTrackToTripRequestSchema>
 export type UpdateTripTracksOrderRequest = z.infer<
   typeof UpdateTripTracksOrderRequestSchema
