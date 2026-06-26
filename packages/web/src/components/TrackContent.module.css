@@ -110,6 +110,10 @@
   align-items: center;
 }
 
+.badgeWrapper {
+  width: 90%;
+}
+
 .badge {
   display: inline-flex;
   align-items: center;

@@ -239,15 +239,17 @@ export default function TrackContent({
           <div className={styles.headerSpacer} />
         )}
       </div>
-      <div className={styles.mapHeader}>
-        {accessToken && id && (
+      {accessToken && id && (
+        <div className={styles.badgeWrapper}>
           <span
             className={`${styles.badge} ${isPublic ? styles.badgePublic : styles.badgePrivate}`}
           >
             <FontAwesomeIcon icon={isPublic ? faGlobe : faLock} />
             {isPublic ? 'Public' : 'Privé'}
           </span>
-        )}
+        </div>
+      )}
+      <div className={styles.mapHeader}>
         {parsed.distance && (
           <p className={styles.routeName}>
             Distance : {(parsed.distance / 1000).toFixed(2)} km
