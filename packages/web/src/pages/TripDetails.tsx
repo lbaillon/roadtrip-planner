@@ -9,16 +9,21 @@ import { useApi } from '#web/hooks/useApi'
 import { useGetTrip, useGetTripTracks } from '#web/hooks/useTrips'
 import { TRACK_COLORS } from '#web/components/MapViewTracksColors'
 import { parseGpxFile } from '#web/lib/gpx-utils'
-import { faArrowLeftLong, faCheck } from '@fortawesome/free-solid-svg-icons'
+import {
+  faArrowLeftLong,
+  faGlobe,
+  faLock,
+  faPencil,
+} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import type { GetTrackResponse } from '@roadtrip/shared'
 import { useQueries } from '@tanstack/react-query'
 import { lazy, Suspense, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useUpdateTrip } from '#web/hooks/mutations/useUpdateTrip'
-import { Button, Collapse, Input, message } from 'antd'
+import { useUpdateTripVisibility } from '#web/hooks/mutations/useUpdateTripVisibility'
+import { Button, Collapse, Input, Modal, Switch, message } from 'antd'
 import { useAuth } from '#web/hooks/useAuth'
-import { faPencil } from '@fortawesome/free-solid-svg-icons'
 
 const MapView = lazy(() => import('#web/components/MapView'))
 
@@ -33,7 +38,8 @@ export default function TripDetails() {
   const { mutate: removeTrackFromTrip } = useRemoveTrackFromTrip(id ?? '')
   const { mutate: updateTracksOrder } = useUpdateTripTracksOrder(id ?? '')
   const { mutate: updateTrip, isPending } = useUpdateTrip()
-  const [isEditingName, setIsEditingName] = useState(false)
+  const { mutate: updateVisibility } = useUpdateTripVisibility()
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [nameInput, setNameInput] = useState(trip?.name ?? '')
   const [descriptionInput, setDescriptionInput] = useState(
     trip?.description ?? ''
@@ -81,13 +87,19 @@ export default function TripDetails() {
     ])
   )
 
+  function openEditModal() {
+    setNameInput(trip?.name ?? '')
+    setDescriptionInput(trip?.description ?? '')
+    setIsEditModalOpen(true)
+  }
+
   function handleRenameSubmit() {
     if (!id) return
     updateTrip(
       { id, name: nameInput, description: descriptionInput },
       {
         onSuccess: () => {
-          setIsEditingName(false)
+          setIsEditModalOpen(false)
         },
         onError: () => {
           message.error("erreur lors de l'édition des infos du voyage")
@@ -117,63 +129,43 @@ export default function TripDetails() {
               <Button
                 size="small"
                 className={styles.button}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setNameInput(trip?.name ?? '')
-                  setDescriptionInput(trip?.description ?? '')
-                  setIsEditingName(true)
-                }}
+                onClick={openEditModal}
               >
                 <FontAwesomeIcon icon={faPencil} className={styles.icon} />
               </Button>
             )}
           </div>
-          {isEditingName ? (
-            <div className={styles.editTripInfo}>
-              <Input
-                className={styles.editNameInput}
-                value={nameInput}
-                onChange={(e) => setNameInput(e.target.value)}
-                disabled={isPending}
-                autoFocus
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleRenameSubmit()
-                  if (e.key === 'Escape') setIsEditingName(false)
-                }}
-              />
-              <Input.TextArea
-                value={descriptionInput}
-                onChange={(e) => setDescriptionInput(e.target.value)}
-                disabled={isPending}
-              />
-              <Button
-                onClick={() => handleRenameSubmit()}
-                className={styles.button}
-              >
-                <FontAwesomeIcon icon={faCheck} className={styles.icon} />
-              </Button>
-            </div>
-          ) : (
-            <Collapse
-              ghost
-              className={styles.description}
-              items={[
-                {
-                  key: 'description',
-                  label: 'Description',
-                  children: trip?.description ?? 'Aucune description',
-                },
-              ]}
-            />
+
+          {accessToken && id && (
+            <span
+              className={`${styles.badge} ${trip?.isPublic ? styles.badgePublic : styles.badgePrivate}`}
+            >
+              <FontAwesomeIcon icon={trip?.isPublic ? faGlobe : faLock} />
+              {trip?.isPublic ? 'Public' : 'Privé'}
+            </span>
           )}
+
+          <Collapse
+            ghost
+            className={styles.description}
+            items={[
+              {
+                key: 'description',
+                label: 'Description',
+                children: trip?.description ?? 'Aucune description',
+              },
+            ]}
+          />
         </div>
-        <AddTrackToTripModal tripId={id} />
+
         <TracksList
           tracks={tracks ?? []}
           onDelete={removeTrackFromTrip}
           onReorder={updateTracksOrder}
           colorsById={colorsById}
         />
+        <AddTrackToTripModal tripId={id} />
+
         {coordinates.length > 0 && (
           <Suspense fallback={<div>Chargement de la carte...</div>}>
             <div style={{ height: '400px', marginTop: '20px' }}>
@@ -189,6 +181,49 @@ export default function TripDetails() {
             </div>
           </Suspense>
         )}
+
+        <Modal
+          title="Modifier le voyage"
+          open={isEditModalOpen}
+          onCancel={() => setIsEditModalOpen(false)}
+          onOk={handleRenameSubmit}
+          okText="Enregistrer"
+          cancelText="Annuler"
+          confirmLoading={isPending}
+        >
+          <div className={styles.modalContent}>
+            <Input
+              value={nameInput}
+              onChange={(e) => setNameInput(e.target.value)}
+              disabled={isPending}
+              placeholder="Nom du voyage"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleRenameSubmit()
+              }}
+            />
+            <Input.TextArea
+              value={descriptionInput}
+              onChange={(e) => setDescriptionInput(e.target.value)}
+              disabled={isPending}
+              placeholder="Description"
+            />
+            <div className={styles.modalVisibility}>
+              <Switch
+                size="small"
+                checked={trip?.isPublic}
+                onChange={(checked) =>
+                  id && updateVisibility({ id, isPublic: checked })
+                }
+                checkedChildren="Public"
+                unCheckedChildren="Privé"
+              />
+              <span className={styles.modalVisibilityLabel}>
+                {trip?.isPublic ? 'Voyage public' : 'Voyage privé'}
+              </span>
+            </div>
+          </div>
+        </Modal>
       </Box>
     </>
   )

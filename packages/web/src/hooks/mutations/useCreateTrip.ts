@@ -31,7 +31,7 @@ export function useCreateTrip() {
     onSuccess: async ({ id: tripId }, { name, description }) => {
       queryClient.setQueryData<TripSummary[]>(['trips'], (old = []) => [
         ...old,
-        { id: tripId, name, description },
+        { id: tripId, name, description, isPublic: false },
       ])
       await queryClient.invalidateQueries({
         queryKey: ['mutation-queue', 'pending'],

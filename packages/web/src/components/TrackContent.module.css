@@ -1,7 +1,6 @@
-.speedAndTime{
+.speedAndTime {
   width: 300px;
 }
-
 
 .mapBox {
   width: 100vw;
@@ -26,30 +25,29 @@
   margin-top: 10%;
 }
 
-.hourSetup{
+.hourSetup {
   margin-top: 20px;
   border-radius: 20px;
   background-color: var(--primary);
   color: var(--surface);
 }
 
-.startAndSpeed{
+.startAndSpeed {
   width: 85%;
   margin-top: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap : 12px;
+  gap: 12px;
 }
 
-.selectionBox{
+.selectionBox {
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
   color: var(--primary);
 }
-
 
 :global(.ant-picker-time-panel-column) {
   overflow-y: auto;
@@ -60,75 +58,97 @@
   touch-action: pan-y;
 }
 
-.mapHeader{
+.mapHeader {
   width: 90%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
+  gap: 8px;
 }
 
-.invertButton{
+.invertButton {
   background-color: var(--primary);
-  color: var(--surface) ;
+  color: var(--surface);
   border-radius: 20px;
   border-color: var(--primary);
 }
 
-.nameBox{
-  position: relative;
+.nameBox {
   display: flex;
-  justify-content: center;
-  padding: 3%;
+  justify-content: space-between;
   align-items: center;
-  width: 80%;
+  width: 90%;
+  padding: 3% 0;
 }
 
-.editNameButton {
+.backButton {
   background-color: var(--primary);
   border-radius: 50%;
   width: 36px;
   height: 36px;
   padding: 0;
   border: none;
-  margin-top: 5px;
+  flex-shrink: 0;
 }
 
-.icon{
+.headerSpacer {
+  width: 36px;
+  flex-shrink: 0;
+}
+
+.icon {
   color: var(--surface);
   font-size: 20px;
 }
 
-.editName {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 80%;
-  gap: 8px;
-}
-
-.editNameInput{
-  width: 80%;
-}
-
-.publicSwitch{
-  min-width: fit-content;
-}
-
-.validateName{
-  background-color: var(--primary);
-  border-radius: 50%;
-  min-width: 25px;
-  width: 25px;
-  height: 25px;
-  padding: 0;
-  border: none;
-}
-
-.invertAndDownload{
+.invertAndDownload {
   width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.badgeWrapper {
+  width: 90%;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.badgePublic {
+  background-color: #e6f4f1;
+  color: var(--primary);
+}
+
+.badgePrivate {
+  background-color: #f0f0f0;
+  color: #777;
+}
+
+.editModalContent {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.modalVisibility {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modalVisibilityLabel {
+  font-size: 0.85rem;
+  color: var(--text);
 }

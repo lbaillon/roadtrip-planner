@@ -73,6 +73,10 @@ export const UpdateTrackPublicStatusRequestSchema = z.object({
   isPublic: z.boolean(),
 })
 
+export const UpdateTripPublicStatusRequestSchema = z.object({
+  isPublic: z.boolean(),
+})
+
 // Response schemas
 
 export const GetWeatherResponseSchema = z.array(WeatherDataSchema)
@@ -91,9 +95,18 @@ export const GetTrackResponseSchema = z.object({
   isPublic: z.boolean(),
 })
 
+export const GetTrackVisibilityResponseSchema = z.object({
+  publicViaTrip: z.string().nullable(),
+})
+
 // Response types
 
-export type TripSummary = { id: string; name: string; description?: string }
+export type TripSummary = {
+  id: string
+  name: string
+  description?: string
+  isPublic: boolean
+}
 export type TripTrack = { id: string; order: number }
 export type TrackSummary = { id: string; name: string }
 
@@ -107,6 +120,9 @@ export type CreateTrackRequest = z.infer<typeof CreateTrackRequestSchema>
 export type UpdateUserRequest = z.infer<typeof UpdateUserRequestSchema>
 export type CreateTripRequest = z.infer<typeof CreateTripRequestSchema>
 export type GetTrackResponse = z.infer<typeof GetTrackResponseSchema>
+export type GetTrackVisibilityResponse = z.infer<
+  typeof GetTrackVisibilityResponseSchema
+>
 export type AddTrackToTripRequest = z.infer<typeof AddTrackToTripRequestSchema>
 export type UpdateTripTracksOrderRequest = z.infer<
   typeof UpdateTripTracksOrderRequestSchema
@@ -117,4 +133,7 @@ export type UpdateTrackGpxRequest = z.infer<typeof UpdateTrackGpxRequestSchema>
 export type UpdateTripRequest = z.infer<typeof UpdateTripRequestSchema>
 export type UpdateTrackPublicStatusRequest = z.infer<
   typeof UpdateTrackPublicStatusRequestSchema
+>
+export type UpdateTripPublicStatusRequest = z.infer<
+  typeof UpdateTripPublicStatusRequestSchema
 >

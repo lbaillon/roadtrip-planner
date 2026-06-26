@@ -8,6 +8,7 @@ import type { RemoveTrackFromTripMutation } from './useRemoveTrackFromTrip'
 import type { ReorderTripTracksMutation } from './useReorderTripTracks'
 import type { UpdateTrackVisibilityMutation } from './useUpdateTrackVisibility'
 import type { UpdateTripMutation } from './useUpdateTrip'
+import type { UpdateTripVisibilityMutation } from './useUpdateTripVisibility'
 
 export type FlushFn<P> = (payload: P) => Promise<void>
 
@@ -19,6 +20,7 @@ export type MutationDefinition =
   | DeleteTrackMutation
   | PutTrackGpxMutation
   | UpdateTrackVisibilityMutation
+  | UpdateTripVisibilityMutation
   | AddTrackToTripMutation
   | RemoveTrackFromTripMutation
   | ReorderTripTracksMutation
