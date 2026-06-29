@@ -33,12 +33,9 @@ export default function AuthForm<M extends 'login' | 'signup'>({
 
   useEffect(() => {
     if (alert?.type !== 'success') return
-    const timer = setTimeout(
-      () => navigate(mode === 'login' ? '/' : '/login'),
-      1500
-    )
+    const timer = setTimeout(() => navigate('/'), 1500)
     return () => clearTimeout(timer)
-  }, [alert, navigate, mode])
+  }, [alert, navigate])
 
   const onFinish = (values: FieldType<M>) => {
     if (mode === 'login') {
@@ -63,10 +60,26 @@ export default function AuthForm<M extends 'login' | 'signup'>({
         { username, password, email },
         {
           onSuccess: () =>
-            setAlert({
-              type: 'success',
-              message: 'Votre profil a été créé avec succes !',
-            }),
+            // Auto-connexion juste après l'inscription pour que l'utilisateur
+            // arrive authentifié (et déclenche la reprise d'une sauvegarde en
+            // attente).
+            login(
+              { username, password },
+              {
+                onSuccess: (data) => {
+                  setAccessToken(data.accessToken)
+                  setAlert({
+                    type: 'success',
+                    message: 'Votre compte a été créé avec succès !',
+                  })
+                },
+                onError: (err) =>
+                  setAlert({
+                    type: 'error',
+                    message: `Compte créé, mais connexion impossible : ${err.message}`,
+                  }),
+              }
+            ),
           onError: (err) =>
             setAlert({
               type: 'error',
