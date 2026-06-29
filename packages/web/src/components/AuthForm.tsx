@@ -3,7 +3,7 @@ import { useAuth } from '#web/hooks/useAuth'
 import type { FormProps } from 'antd'
 import { Alert, Button, Form, Input } from 'antd'
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import styles from './AuthForm.module.css'
 
 type LoginFields = { username: string; password: string }
@@ -33,12 +33,9 @@ export default function AuthForm<M extends 'login' | 'signup'>({
 
   useEffect(() => {
     if (alert?.type !== 'success') return
-    const timer = setTimeout(
-      () => navigate(mode === 'login' ? '/' : '/login'),
-      1500
-    )
+    const timer = setTimeout(() => navigate('/'), 1500)
     return () => clearTimeout(timer)
-  }, [alert, navigate, mode])
+  }, [alert, navigate])
 
   const onFinish = (values: FieldType<M>) => {
     if (mode === 'login') {
@@ -63,10 +60,26 @@ export default function AuthForm<M extends 'login' | 'signup'>({
         { username, password, email },
         {
           onSuccess: () =>
-            setAlert({
-              type: 'success',
-              message: 'Votre profil a été créé avec succes !',
-            }),
+            // Auto-connexion juste après l'inscription pour que l'utilisateur
+            // arrive authentifié (et déclenche la reprise d'une sauvegarde en
+            // attente).
+            login(
+              { username, password },
+              {
+                onSuccess: (data) => {
+                  setAccessToken(data.accessToken)
+                  setAlert({
+                    type: 'success',
+                    message: 'Votre compte a été créé avec succès !',
+                  })
+                },
+                onError: (err) =>
+                  setAlert({
+                    type: 'error',
+                    message: `Compte créé, mais connexion impossible : ${err.message}`,
+                  }),
+              }
+            ),
           onError: (err) =>
             setAlert({
               type: 'error',
@@ -169,6 +182,15 @@ export default function AuthForm<M extends 'login' | 'signup'>({
           </Button>
         </Form.Item>
       </Form>
+      {mode === 'login' ? (
+        <p className={styles.switchMode}>
+          Pas encore de compte ? <Link to="/signup">Créer un compte</Link>
+        </p>
+      ) : (
+        <p className={styles.switchMode}>
+          Déjà un compte ? <Link to="/login">Se connecter</Link>
+        </p>
+      )}
     </div>
   )
 }

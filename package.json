@@ -8,7 +8,7 @@
     "build": "tsc -b && pnpm --filter @roadtrip/web build",
     "build:clean": "tsc -b --clean",
     "type-check": "pnpm --filter @roadtrip/shared build && pnpm -r --bail exec tsc --noEmit",
-    "format": "pnpm exec prettier --write \"packages/**/*.{ts,tsx,js,jsx,json}\" && markdownlint-cli2 --fix \"**/*.md\" \"!**/node_modules/**\"",
+    "format": "pnpm exec prettier --write \"packages/**/*.{ts,tsx,js,jsx,json,md}\" && markdownlint-cli2 --fix \"**/*.md\" \"!**/node_modules/**\"",
     "format:check": "pnpm exec prettier --check \"packages/**/*.{ts,tsx,js,jsx,json,md}\" && markdownlint-cli2 \"**/*.md\" \"!**/node_modules/**\"",
     "lint": "pnpm -r --bail run lint",
     "test": "pnpm -r --bail run test"
