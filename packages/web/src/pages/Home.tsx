@@ -39,7 +39,7 @@ export default function Home() {
     const pending = sessionStorage.getItem(PENDING_SAVE_GPX_KEY)
     if (!pending) return
     sessionStorage.removeItem(PENDING_SAVE_GPX_KEY)
-    save(pending)
+    void save(pending)
   }, [accessToken, save])
 
   return (
@@ -59,7 +59,7 @@ export default function Home() {
           <TrackContent
             parsed={parsedGpx}
             headerAction={
-              <Button onClick={() => save(gpxContent)}>
+              <Button onClick={() => void save(gpxContent)}>
                 Sauvegarder ce circuit
               </Button>
             }

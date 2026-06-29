@@ -7,23 +7,24 @@ export const PENDING_SAVE_GPX_KEY = 'roadtrip:pending-save-gpx'
 
 export function useSaveTrack() {
   const { accessToken } = useAuth()
-  const { mutate: createTrack } = useCreateTrack()
+  const { mutateAsync: createTrack } = useCreateTrack()
   const navigate = useNavigate()
 
-  return (gpxContent: string) => {
+  return async (gpxContent: string) => {
     if (!accessToken) {
       sessionStorage.setItem(PENDING_SAVE_GPX_KEY, gpxContent)
       navigate('/login')
       return
     }
-    createTrack(
-      { gpxContent },
-      {
-        onSuccess: ({ id }) =>
-          navigate(`/tracks/${id}`, { state: { justSaved: true } }),
-        onError: (error) =>
-          message.error(`Erreur lors de la sauvegarde : ${error.message}`),
-      }
-    )
+    try {
+      const { id } = await createTrack({ gpxContent })
+      navigate(`/tracks/${id}`, { state: { justSaved: true } })
+    } catch (error) {
+      message.error(
+        `Erreur lors de la sauvegarde : ${
+          error instanceof Error ? error.message : 'inconnue'
+        }`
+      )
+    }
   }
 }

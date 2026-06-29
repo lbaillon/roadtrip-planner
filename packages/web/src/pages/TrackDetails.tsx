@@ -22,7 +22,7 @@ export default function TrackDetails() {
 
   useEffect(() => {
     if (!justSaved) return
-    messageApi.success('Circuit sauvegardé')
+    messageApi.success({ content: 'Circuit sauvegardé', key: 'track-saved' })
     // Nettoie le state pour ne pas ré-afficher le toast sur refresh / retour.
     navigate(location.pathname, { replace: true, state: null })
   }, [justSaved, messageApi, navigate, location.pathname])
