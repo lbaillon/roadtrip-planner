@@ -3,7 +3,7 @@ import { useAuth } from '#web/hooks/useAuth'
 import type { FormProps } from 'antd'
 import { Alert, Button, Form, Input } from 'antd'
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import styles from './AuthForm.module.css'
 
 type LoginFields = { username: string; password: string }
@@ -169,6 +169,15 @@ export default function AuthForm<M extends 'login' | 'signup'>({
           </Button>
         </Form.Item>
       </Form>
+      {mode === 'login' ? (
+        <p className={styles.switchMode}>
+          Pas encore de compte ? <Link to="/signup">Créer un compte</Link>
+        </p>
+      ) : (
+        <p className={styles.switchMode}>
+          Déjà un compte ? <Link to="/login">Se connecter</Link>
+        </p>
+      )}
     </div>
   )
 }

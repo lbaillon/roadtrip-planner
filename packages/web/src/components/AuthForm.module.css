@@ -28,4 +28,9 @@
   transform: translateY(3px);
 }
 
+.switchMode {
+  margin-top: 16px;
+  color: var(--primary);
+}
+
 
