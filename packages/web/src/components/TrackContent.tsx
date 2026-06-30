@@ -282,7 +282,7 @@ export default function TrackContent({
         <div className={styles.invertAndDownload}>
           {headerAction}
 
-          {accessToken && id && (
+          {accessToken && id && isOwner && (
             <Button
               className={styles.invertButton}
               onClick={() =>
@@ -319,7 +319,7 @@ export default function TrackContent({
           }
           waypoints={parsed.waypoints}
           isEditMode={isEditMode}
-          showEditToggle={!!accessToken && !!id}
+          showEditToggle={!!accessToken && !!id && !!isOwner}
           onToggleEditMode={() => setIsEditMode((prev) => !prev)}
           onMapClick={handleMapClick}
           onEditWaypoint={handleEditWaypoint}
