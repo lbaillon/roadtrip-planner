@@ -1,7 +1,7 @@
-import { useCreateUser, useLogin } from '#web/hooks/useApi'
+import { useCreateUser, useLogin, useResendConfirmation } from '#web/hooks/useApi'
 import { useAuth } from '#web/hooks/useAuth'
 import type { FormProps } from 'antd'
-import { Alert, Button, Form, Input } from 'antd'
+import { Alert, Button, Form, Input, Modal, message } from 'antd'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import styles from './AuthForm.module.css'
@@ -27,10 +27,30 @@ export default function AuthForm<M extends 'login' | 'signup'>({
 }) {
   const { mutate: login } = useLogin()
   const { mutate: postUser } = useCreateUser()
+  const { mutate: resendConfirmation, isPending: isResending } =
+    useResendConfirmation()
   const [alert, setAlert] = useState<AlertState>(null)
+  const [resendOpen, setResendOpen] = useState(false)
+  const [resendEmail, setResendEmail] = useState('')
   const { setAccessToken } = useAuth()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
+
+  const handleResend = () => {
+    resendConfirmation(
+      { email: resendEmail },
+      {
+        onSuccess: () => {
+          message.success(
+            'Si un compte non confirmé existe avec cet email, un nouveau lien vient d’être envoyé.'
+          )
+          setResendOpen(false)
+          setResendEmail('')
+        },
+        onError: () => message.error('Erreur lors de l’envoi'),
+      }
+    )
+  }
 
   useEffect(() => {
     if (alert?.type !== 'success') return
@@ -207,6 +227,30 @@ export default function AuthForm<M extends 'login' | 'signup'>({
         <p className={styles.switchMode}>
           Déjà un compte ? <Link to="/login">Se connecter</Link>
         </p>
+      )}
+      {mode === 'login' && (
+        <>
+          <Button type="link" onClick={() => setResendOpen(true)}>
+            Renvoyer l'email de confirmation
+          </Button>
+          <Modal
+            title="Renvoyer l'email de confirmation"
+            open={resendOpen}
+            onCancel={() => setResendOpen(false)}
+            onOk={handleResend}
+            okText="Envoyer"
+            cancelText="Annuler"
+            confirmLoading={isResending}
+          >
+            <Input
+              type="email"
+              value={resendEmail}
+              onChange={(e) => setResendEmail(e.target.value)}
+              placeholder="email@exemple.com"
+              onPressEnter={handleResend}
+            />
+          </Modal>
+        </>
       )}
     </div>
   )
