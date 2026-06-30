@@ -1,5 +1,12 @@
 import { db } from '#api/db/client.js'
-import { NewUser, users } from '#api/db/schema.js'
+import {
+  NewUser,
+  trackSharesEmails,
+  trackSharesUsers,
+  tripSharesEmails,
+  tripSharesUsers,
+  users,
+} from '#api/db/schema.js'
 import {
   ConflictError,
   ForbiddenError,
@@ -141,6 +148,32 @@ router.put(
   })
 )
 
+async function convertEmailShares(userId: string, email: string) {
+  const sharedTracks = await db
+    .select({ trackId: trackSharesEmails.trackId })
+    .from(trackSharesEmails)
+    .where(eq(trackSharesEmails.email, email))
+  for (const { trackId } of sharedTracks) {
+    await db
+      .insert(trackSharesUsers)
+      .values({ trackId, userId })
+      .onConflictDoNothing()
+  }
+  await db.delete(trackSharesEmails).where(eq(trackSharesEmails.email, email))
+
+  const sharedTrips = await db
+    .select({ tripId: tripSharesEmails.tripId })
+    .from(tripSharesEmails)
+    .where(eq(tripSharesEmails.email, email))
+  for (const { tripId } of sharedTrips) {
+    await db
+      .insert(tripSharesUsers)
+      .values({ tripId, userId })
+      .onConflictDoNothing()
+  }
+  await db.delete(tripSharesEmails).where(eq(tripSharesEmails.email, email))
+}
+
 export async function confirmUserHandler(req: Request, res: Response) {
   const confirmationKey = String(req.params.confirmationKey)
   try {
@@ -152,6 +185,7 @@ export async function confirmUserHandler(req: Request, res: Response) {
     if (!user) {
       return res.redirect(`${env.WEB_APP_URL}/login?confirmed=0`)
     }
+    await convertEmailShares(user.id, user.email)
     return res.redirect(`${env.WEB_APP_URL}/login?confirmed=1`)
   } catch {
     return res.redirect(`${env.WEB_APP_URL}/login?confirmed=0`)
