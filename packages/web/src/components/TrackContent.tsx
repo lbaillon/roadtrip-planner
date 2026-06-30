@@ -9,6 +9,8 @@ import {
   useRenameTrack,
 } from '#web/hooks/mutations/usePutTrackGpx'
 import { useUpdateTrackVisibility } from '#web/hooks/mutations/useUpdateTrackVisibility'
+import ShareSection from '#web/components/ShareSection'
+import { useGetTrackShares, useShareTrack } from '#web/hooks/useShares'
 import { useGetWeather } from '#web/hooks/useApi'
 import { useAuth } from '#web/hooks/useAuth'
 import { useGetTrackVisibility } from '#web/hooks/useTracks'
@@ -109,6 +111,8 @@ export default function TrackContent({
     id ?? ''
   )
   const { mutate: updateVisibility } = useUpdateTrackVisibility()
+  const { data: trackShares } = useGetTrackShares(id, isEditNameModalOpen)
+  const { mutate: shareTrack, isPending: isSharing } = useShareTrack(id ?? '')
 
   const getTimepointIndices = () => {
     if (!departureTime || !speedKmh || !weather || !parsed) return null
@@ -477,6 +481,16 @@ export default function TrackContent({
               {isPublic ? 'Circuit public' : 'Circuit privé'}
             </span>
           </div>
+          <ShareSection
+            shares={trackShares}
+            isSharing={isSharing}
+            onShare={(emails) =>
+              shareTrack(emails, {
+                onSuccess: () => messageApi.success('Circuit partagé'),
+                onError: () => messageApi.error('Erreur lors du partage'),
+              })
+            }
+          />
         </div>
       </Modal>
     </div>
