@@ -364,12 +364,6 @@ export default function TrackContent({
         loading={isAdding || isEditing}
       />
 
-      {weatherLoading && !weather && (
-        <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <p>Chargement de la météo...</p>
-        </div>
-      )}
-
       {weather && (
         <>
           {useCustomTime ? (
