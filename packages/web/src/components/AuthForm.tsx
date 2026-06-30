@@ -3,7 +3,7 @@ import { useAuth } from '#web/hooks/useAuth'
 import type { FormProps } from 'antd'
 import { Alert, Button, Form, Input } from 'antd'
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import styles from './AuthForm.module.css'
 
 type LoginFields = { username: string; password: string }
@@ -30,12 +30,42 @@ export default function AuthForm<M extends 'login' | 'signup'>({
   const [alert, setAlert] = useState<AlertState>(null)
   const { setAccessToken } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
 
   useEffect(() => {
     if (alert?.type !== 'success') return
-    const timer = setTimeout(() => navigate('/'), 1500)
+    const timer = setTimeout(
+      () => navigate(mode === 'login' ? '/' : '/login?registered=1'),
+      1500
+    )
     return () => clearTimeout(timer)
-  }, [alert, navigate])
+  }, [alert, navigate, mode])
+
+  const getNotice = (): AlertState => {
+    if (mode !== 'login') return null
+    const confirmed = searchParams.get('confirmed')
+    if (confirmed === '1') {
+      return {
+        type: 'success',
+        message: 'Email confirmé avec succès, vous pouvez vous connecter.',
+      }
+    }
+    if (confirmed === '0') {
+      return {
+        type: 'error',
+        message: 'Lien de confirmation invalide ou expiré.',
+      }
+    }
+    if (searchParams.get('registered') === '1') {
+      return {
+        type: 'success',
+        message:
+          'Compte créé ! Confirmez votre email (pensez à vérifier les spams) avant de vous connecter.',
+      }
+    }
+    return null
+  }
+  const notice = getNotice()
 
   const onFinish = (values: FieldType<M>) => {
     if (mode === 'login') {
@@ -60,26 +90,10 @@ export default function AuthForm<M extends 'login' | 'signup'>({
         { username, password, email },
         {
           onSuccess: () =>
-            // Auto-connexion juste après l'inscription pour que l'utilisateur
-            // arrive authentifié (et déclenche la reprise d'une sauvegarde en
-            // attente).
-            login(
-              { username, password },
-              {
-                onSuccess: (data) => {
-                  setAccessToken(data.accessToken)
-                  setAlert({
-                    type: 'success',
-                    message: 'Votre compte a été créé avec succès !',
-                  })
-                },
-                onError: (err) =>
-                  setAlert({
-                    type: 'error',
-                    message: `Compte créé, mais connexion impossible : ${err.message}`,
-                  }),
-              }
-            ),
+            setAlert({
+              type: 'success',
+              message: 'Votre compte a été créé avec succès !',
+            }),
           onError: (err) =>
             setAlert({
               type: 'error',
@@ -102,6 +116,9 @@ export default function AuthForm<M extends 'login' | 'signup'>({
 
   return (
     <div className={styles.inputBox}>
+      {notice && (
+        <Alert description={notice.message} type={notice.type} showIcon />
+      )}
       {alert && (
         <Alert description={alert.message} type={alert.type} showIcon />
       )}
