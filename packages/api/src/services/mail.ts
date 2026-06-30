@@ -37,3 +37,21 @@ export async function sendConfirmationEmail(
      <p><a href="${confirmationUrl}">Confirmer mon email</a></p>`
   )
 }
+
+export async function sendShareEmail(
+  to: string,
+  inviterName: string,
+  resourceLabel: 'circuit' | 'voyage',
+  resourceName: string,
+  url: string,
+  hasAccount: boolean
+) {
+  const callToAction = hasAccount
+    ? `<p><a href="${url}">Voir le ${resourceLabel}</a></p>`
+    : `<p>Créez un compte pour y accéder : <a href="${url}">${url}</a></p>`
+  await sendMail(
+    to,
+    `${inviterName} a partagé un ${resourceLabel} avec vous`,
+    `<p>${inviterName} a partagé le ${resourceLabel} « ${resourceName} » avec vous.</p>${callToAction}`
+  )
+}
