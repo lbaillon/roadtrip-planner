@@ -25,7 +25,7 @@ import {
   UpdateUserRequestSchema,
 } from '@roadtrip/shared'
 import { DrizzleQueryError, eq } from 'drizzle-orm'
-import { Router } from 'express'
+import { Request, Response, Router } from 'express'
 
 const router: Router = Router()
 
@@ -140,5 +140,22 @@ router.put(
     handler: ({ params, body, user }) => updateUser(params.id, body, user),
   })
 )
+
+export async function confirmUserHandler(req: Request, res: Response) {
+  const confirmationKey = String(req.params.confirmationKey)
+  try {
+    const [user] = await db
+      .update(users)
+      .set({ confirmationKey: null })
+      .where(eq(users.confirmationKey, confirmationKey))
+      .returning()
+    if (!user) {
+      return res.redirect(`${env.WEB_APP_URL}/login?confirmed=0`)
+    }
+    return res.redirect(`${env.WEB_APP_URL}/login?confirmed=1`)
+  } catch {
+    return res.redirect(`${env.WEB_APP_URL}/login?confirmed=0`)
+  }
+}
 
 export default router

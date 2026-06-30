@@ -2,11 +2,12 @@ import { Router } from 'express'
 import authRoutes from './auth.js'
 import tracksRoutes from './tracks.js'
 import tripRoutes from './trips.js'
-import usersRoutes from './users.js'
+import usersRoutes, { confirmUserHandler } from './users.js'
 import weatherRoutes from './weather.js'
 
 const router: Router = Router()
 
+router.get('/users_confirmation/:confirmationKey', confirmUserHandler)
 router.use('/users', usersRoutes)
 router.use('/auth', authRoutes)
 router.use('/weather', weatherRoutes)

@@ -5,7 +5,7 @@ const resend = env.RESEND_API_KEY ? new Resend(env.RESEND_API_KEY) : null
 
 async function sendMail(to: string, subject: string, html: string) {
   if (!resend) {
-    console.log(
+    console.info(
       `[mail] RESEND_API_KEY missing — skipping send to=${to} subject="${subject}"`
     )
     return
