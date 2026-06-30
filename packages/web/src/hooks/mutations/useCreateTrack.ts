@@ -43,6 +43,7 @@ export function useCreateTrack() {
         id: trackId,
         gpxContent,
         isPublic: false,
+        isOwner: true,
       })
       await queryClient.invalidateQueries({
         queryKey: ['mutation-queue', 'pending'],

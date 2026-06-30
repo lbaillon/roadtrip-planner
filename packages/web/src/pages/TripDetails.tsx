@@ -24,6 +24,8 @@ import { useUpdateTrip } from '#web/hooks/mutations/useUpdateTrip'
 import { useUpdateTripVisibility } from '#web/hooks/mutations/useUpdateTripVisibility'
 import { Button, Collapse, Input, Modal, Switch, message } from 'antd'
 import { useAuth } from '#web/hooks/useAuth'
+import ShareSection from '#web/components/ShareSection'
+import { useGetTripShares, useShareTrip } from '#web/hooks/useShares'
 
 const MapView = lazy(() => import('#web/components/MapView'))
 
@@ -46,6 +48,8 @@ export default function TripDetails() {
   )
   const api = useApi()
   const { accessToken } = useAuth()
+  const { data: tripShares } = useGetTripShares(id, isEditModalOpen)
+  const { mutate: shareTrip, isPending: isSharing } = useShareTrip(id ?? '')
 
   const trackQueries = useQueries({
     queries: (tracks ?? []).map((track) => ({
@@ -125,7 +129,7 @@ export default function TripDetails() {
             <h2 className={styles.tripName}>
               {trip?.name ?? 'Route inconnue'}
             </h2>
-            {accessToken && id && (
+            {accessToken && id && trip?.isOwner && (
               <Button
                 size="small"
                 className={styles.button}
@@ -222,6 +226,16 @@ export default function TripDetails() {
                 {trip?.isPublic ? 'Voyage public' : 'Voyage privé'}
               </span>
             </div>
+            <ShareSection
+              shares={tripShares}
+              isSharing={isSharing}
+              onShare={(emails) =>
+                shareTrip(emails, {
+                  onSuccess: () => message.success('Voyage partagé'),
+                  onError: () => message.error('Erreur lors du partage'),
+                })
+              }
+            />
           </div>
         </Modal>
       </Box>

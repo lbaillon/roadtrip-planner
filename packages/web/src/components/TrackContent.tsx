@@ -9,6 +9,8 @@ import {
   useRenameTrack,
 } from '#web/hooks/mutations/usePutTrackGpx'
 import { useUpdateTrackVisibility } from '#web/hooks/mutations/useUpdateTrackVisibility'
+import ShareSection from '#web/components/ShareSection'
+import { useGetTrackShares, useShareTrack } from '#web/hooks/useShares'
 import { useGetWeather } from '#web/hooks/useApi'
 import { useAuth } from '#web/hooks/useAuth'
 import { useGetTrackVisibility } from '#web/hooks/useTracks'
@@ -49,11 +51,13 @@ export default function TrackContent({
   parsed,
   headerAction,
   isPublic,
+  isOwner,
 }: {
   trackName?: string
   parsed: ParsedGpx
   headerAction?: React.ReactNode
   isPublic?: boolean
+  isOwner?: boolean
 }) {
   const [timepointIndex, setTimepointIndex] = useState(0)
   const [isEditMode, setIsEditMode] = useState(false)
@@ -78,7 +82,7 @@ export default function TrackContent({
   const { id } = useParams()
   const { accessToken } = useAuth()
   const navigate = useNavigate()
-  const { data: visibility } = useGetTrackVisibility(id, !!accessToken)
+  const { data: visibility } = useGetTrackVisibility(id, !!isOwner)
   const publicViaTrip = !isPublic ? (visibility?.publicViaTrip ?? null) : null
 
   const actualCoords = userPosition
@@ -109,6 +113,8 @@ export default function TrackContent({
     id ?? ''
   )
   const { mutate: updateVisibility } = useUpdateTrackVisibility()
+  const { data: trackShares } = useGetTrackShares(id, isEditNameModalOpen)
+  const { mutate: shareTrack, isPending: isSharing } = useShareTrack(id ?? '')
 
   const getTimepointIndices = () => {
     if (!departureTime || !speedKmh || !weather || !parsed) return null
@@ -227,7 +233,7 @@ export default function TrackContent({
           <FontAwesomeIcon icon={faArrowLeftLong} className={styles.icon} />
         </Button>
         <h2 className={styles.routeName}>{parsed.name ?? 'Route inconnue'}</h2>
-        {accessToken && id ? (
+        {accessToken && id && isOwner ? (
           <Button
             size="small"
             className={styles.backButton}
@@ -276,7 +282,7 @@ export default function TrackContent({
         <div className={styles.invertAndDownload}>
           {headerAction}
 
-          {accessToken && id && (
+          {accessToken && id && isOwner && (
             <Button
               className={styles.invertButton}
               onClick={() =>
@@ -313,7 +319,7 @@ export default function TrackContent({
           }
           waypoints={parsed.waypoints}
           isEditMode={isEditMode}
-          showEditToggle={!!accessToken && !!id}
+          showEditToggle={!!accessToken && !!id && !!isOwner}
           onToggleEditMode={() => setIsEditMode((prev) => !prev)}
           onMapClick={handleMapClick}
           onEditWaypoint={handleEditWaypoint}
@@ -471,6 +477,16 @@ export default function TrackContent({
               {isPublic ? 'Circuit public' : 'Circuit privé'}
             </span>
           </div>
+          <ShareSection
+            shares={trackShares}
+            isSharing={isSharing}
+            onShare={(emails) =>
+              shareTrack(emails, {
+                onSuccess: () => messageApi.success('Circuit partagé'),
+                onError: () => messageApi.error('Erreur lors du partage'),
+              })
+            }
+          />
         </div>
       </Modal>
     </div>

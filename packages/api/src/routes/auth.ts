@@ -10,7 +10,7 @@ import {
   verifyToken,
 } from '#api/services/authentication.js'
 import { LogInRequest, LogInRequestSchema } from '@roadtrip/shared'
-import { eq } from 'drizzle-orm'
+import { and, eq, isNull } from 'drizzle-orm'
 import { Router } from 'express'
 
 const router: Router = Router()
@@ -19,7 +19,9 @@ async function login(body: LogInRequest) {
   const [user] = await db
     .select()
     .from(users)
-    .where(eq(users.username, body.username))
+    .where(
+      and(eq(users.username, body.username), isNull(users.confirmationKey))
+    )
   if (!user || !(await comparePassword(body.password, user.password))) {
     throw new UnauthorizedError('Invalid credentials', codes.WRONG_LOGIN)
   }

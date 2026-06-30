@@ -1,9 +1,13 @@
-import { useCreateUser, useLogin } from '#web/hooks/useApi'
+import {
+  useCreateUser,
+  useLogin,
+  useResendConfirmation,
+} from '#web/hooks/useApi'
 import { useAuth } from '#web/hooks/useAuth'
 import type { FormProps } from 'antd'
-import { Alert, Button, Form, Input } from 'antd'
+import { Alert, Button, Form, Input, Modal, message } from 'antd'
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import styles from './AuthForm.module.css'
 
 type LoginFields = { username: string; password: string }
@@ -27,15 +31,62 @@ export default function AuthForm<M extends 'login' | 'signup'>({
 }) {
   const { mutate: login } = useLogin()
   const { mutate: postUser } = useCreateUser()
+  const { mutate: resendConfirmation, isPending: isResending } =
+    useResendConfirmation()
   const [alert, setAlert] = useState<AlertState>(null)
+  const [resendOpen, setResendOpen] = useState(false)
+  const [resendEmail, setResendEmail] = useState('')
   const { setAccessToken } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+
+  const handleResend = () => {
+    resendConfirmation(
+      { email: resendEmail },
+      {
+        onSuccess: () => {
+          message.success(
+            'Si un compte non confirmé existe avec cet email, un nouveau lien vient d’être envoyé.'
+          )
+          setResendOpen(false)
+          setResendEmail('')
+        },
+        onError: () => message.error('Erreur lors de l’envoi'),
+      }
+    )
+  }
 
   useEffect(() => {
     if (alert?.type !== 'success') return
-    const timer = setTimeout(() => navigate('/'), 1500)
+    const timer = setTimeout(() => navigate('/tracks'), 1500)
     return () => clearTimeout(timer)
   }, [alert, navigate])
+
+  const getNotice = (): AlertState => {
+    if (mode !== 'login') return null
+    const confirmed = searchParams.get('confirmed')
+    if (confirmed === '1') {
+      return {
+        type: 'success',
+        message: 'Email confirmé avec succès, vous pouvez vous connecter.',
+      }
+    }
+    if (confirmed === '0') {
+      return {
+        type: 'error',
+        message: 'Lien de confirmation invalide ou expiré.',
+      }
+    }
+    if (searchParams.get('registered') === '1') {
+      return {
+        type: 'success',
+        message:
+          'Compte créé ! Confirmez votre email (pensez à vérifier les spams) avant de vous connecter.',
+      }
+    }
+    return null
+  }
+  const notice = getNotice()
 
   const onFinish = (values: FieldType<M>) => {
     if (mode === 'login') {
@@ -59,27 +110,7 @@ export default function AuthForm<M extends 'login' | 'signup'>({
       postUser(
         { username, password, email },
         {
-          onSuccess: () =>
-            // Auto-connexion juste après l'inscription pour que l'utilisateur
-            // arrive authentifié (et déclenche la reprise d'une sauvegarde en
-            // attente).
-            login(
-              { username, password },
-              {
-                onSuccess: (data) => {
-                  setAccessToken(data.accessToken)
-                  setAlert({
-                    type: 'success',
-                    message: 'Votre compte a été créé avec succès !',
-                  })
-                },
-                onError: (err) =>
-                  setAlert({
-                    type: 'error',
-                    message: `Compte créé, mais connexion impossible : ${err.message}`,
-                  }),
-              }
-            ),
+          onSuccess: () => navigate('/login?registered=1'),
           onError: (err) =>
             setAlert({
               type: 'error',
@@ -102,6 +133,9 @@ export default function AuthForm<M extends 'login' | 'signup'>({
 
   return (
     <div className={styles.inputBox}>
+      {notice && (
+        <Alert description={notice.message} type={notice.type} showIcon />
+      )}
       {alert && (
         <Alert description={alert.message} type={alert.type} showIcon />
       )}
@@ -190,6 +224,30 @@ export default function AuthForm<M extends 'login' | 'signup'>({
         <p className={styles.switchMode}>
           Déjà un compte ? <Link to="/login">Se connecter</Link>
         </p>
+      )}
+      {mode === 'login' && (
+        <>
+          <Button type="link" onClick={() => setResendOpen(true)}>
+            Renvoyer l'email de confirmation
+          </Button>
+          <Modal
+            title="Renvoyer l'email de confirmation"
+            open={resendOpen}
+            onCancel={() => setResendOpen(false)}
+            onOk={handleResend}
+            okText="Envoyer"
+            cancelText="Annuler"
+            confirmLoading={isResending}
+          >
+            <Input
+              type="email"
+              value={resendEmail}
+              onChange={(e) => setResendEmail(e.target.value)}
+              placeholder="email@exemple.com"
+              onPressEnter={handleResend}
+            />
+          </Modal>
+        </>
       )}
     </div>
   )

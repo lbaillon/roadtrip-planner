@@ -6,6 +6,7 @@ import {
   type GetWeatherResponse,
   type LogInRequest,
   type LogInResponse,
+  type ResendConfirmationRequest,
 } from '@roadtrip/shared'
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
 import { useEffect, useRef } from 'react'
@@ -98,6 +99,17 @@ export function useLogin() {
   return useMutation({
     mutationFn: (request: LogInRequest) =>
       api<LogInResponse>('/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify(request),
+      }),
+  })
+}
+
+export function useResendConfirmation() {
+  const api = useApi()
+  return useMutation({
+    mutationFn: (request: ResendConfirmationRequest) =>
+      api<void>('/api/users/resend-confirmation', {
         method: 'POST',
         body: JSON.stringify(request),
       }),

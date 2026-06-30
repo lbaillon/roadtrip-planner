@@ -77,6 +77,14 @@ export const UpdateTripPublicStatusRequestSchema = z.object({
   isPublic: z.boolean(),
 })
 
+export const ShareRequestSchema = z.object({
+  emails: z.array(z.email()).min(1, 'At least one email is required'),
+})
+
+export const ResendConfirmationRequestSchema = z.object({
+  email: z.email(),
+})
+
 // Response schemas
 
 export const GetWeatherResponseSchema = z.array(WeatherDataSchema)
@@ -93,10 +101,16 @@ export const GetTrackResponseSchema = z.object({
   id: z.string(),
   gpxContent: z.string(),
   isPublic: z.boolean(),
+  isOwner: z.boolean().optional(),
 })
 
 export const GetTrackVisibilityResponseSchema = z.object({
   publicViaTrip: z.string().nullable(),
+})
+
+export const GetSharesResponseSchema = z.object({
+  users: z.array(z.object({ email: z.string(), username: z.string() })),
+  emails: z.array(z.string()),
 })
 
 // Response types
@@ -106,6 +120,7 @@ export type TripSummary = {
   name: string
   description?: string
   isPublic: boolean
+  isOwner?: boolean
 }
 export type TripTrack = { id: string; order: number }
 export type TrackSummary = { id: string; name: string }
@@ -136,4 +151,9 @@ export type UpdateTrackPublicStatusRequest = z.infer<
 >
 export type UpdateTripPublicStatusRequest = z.infer<
   typeof UpdateTripPublicStatusRequestSchema
+>
+export type ShareRequest = z.infer<typeof ShareRequestSchema>
+export type GetSharesResponse = z.infer<typeof GetSharesResponseSchema>
+export type ResendConfirmationRequest = z.infer<
+  typeof ResendConfirmationRequestSchema
 >
