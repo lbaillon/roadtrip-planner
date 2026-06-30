@@ -151,6 +151,35 @@ router.get(
   processGet({ handler: ({ user }) => getUserTrips(user) })
 )
 
+async function getSharedTrips(user?: JWTPayload): Promise<TripSummary[]> {
+  if (!user) {
+    throw new UnauthorizedError('Missing user', codes.MISSING_USER)
+  }
+  return (
+    await db
+      .select({
+        id: trips.id,
+        name: trips.name,
+        description: trips.description,
+        isPublic: trips.isPublic,
+      })
+      .from(tripSharesUsers)
+      .innerJoin(trips, eq(trips.id, tripSharesUsers.tripId))
+      .where(eq(tripSharesUsers.userId, user.userId))
+  ).map((trip) => ({
+    id: trip.id,
+    name: trip.name,
+    description: trip.description ?? undefined,
+    isPublic: trip.isPublic,
+  }))
+}
+
+router.get(
+  '/shared',
+  authenticate,
+  processGet({ handler: ({ user }) => getSharedTrips(user) })
+)
+
 async function getTrip(id: string, user?: JWTPayload): Promise<TripSummary> {
   const [trip] = await db
     .select({

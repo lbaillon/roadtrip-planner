@@ -168,6 +168,23 @@ router.get(
   processGet({ handler: ({ user }) => getUserTracks(user) })
 )
 
+async function getSharedTracks(user?: JWTPayload): Promise<TrackSummary[]> {
+  if (!user) {
+    throw new UnauthorizedError('Missing user', codes.MISSING_USER)
+  }
+  return await db
+    .select({ id: tracks.id, name: tracks.name })
+    .from(trackSharesUsers)
+    .innerJoin(tracks, eq(tracks.id, trackSharesUsers.trackId))
+    .where(eq(trackSharesUsers.userId, user.userId))
+}
+
+router.get(
+  '/shared',
+  authenticate,
+  processGet({ handler: ({ user }) => getSharedTracks(user) })
+)
+
 async function getTrack(
   id: string,
   user?: JWTPayload
