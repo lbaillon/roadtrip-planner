@@ -28,6 +28,8 @@ import {
   CreateUserRequest,
   CreateUserRequestSchema,
   IdParamsSchema,
+  ResendConfirmationRequest,
+  ResendConfirmationRequestSchema,
   UpdateUserRequest,
   UpdateUserRequestSchema,
 } from '@roadtrip/shared'
@@ -73,6 +75,29 @@ router.post(
   processPost({
     bodySchema: CreateUserRequestSchema,
     handler: ({ body }) => createUser(body),
+  })
+)
+
+async function resendConfirmation(
+  body: ResendConfirmationRequest
+): Promise<void> {
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, body.email))
+  if (user?.confirmationKey) {
+    await sendConfirmationEmail(
+      user.email,
+      `${env.API_URL}/api/users_confirmation/${user.confirmationKey}`
+    )
+  }
+}
+
+router.post(
+  '/resend-confirmation',
+  processPost({
+    bodySchema: ResendConfirmationRequestSchema,
+    handler: ({ body }) => resendConfirmation(body),
   })
 )
 

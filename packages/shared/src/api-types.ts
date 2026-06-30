@@ -81,6 +81,10 @@ export const ShareRequestSchema = z.object({
   emails: z.array(z.email()).min(1, 'At least one email is required'),
 })
 
+export const ResendConfirmationRequestSchema = z.object({
+  email: z.email(),
+})
+
 // Response schemas
 
 export const GetWeatherResponseSchema = z.array(WeatherDataSchema)
@@ -148,3 +152,6 @@ export type UpdateTripPublicStatusRequest = z.infer<
 >
 export type ShareRequest = z.infer<typeof ShareRequestSchema>
 export type GetSharesResponse = z.infer<typeof GetSharesResponseSchema>
+export type ResendConfirmationRequest = z.infer<
+  typeof ResendConfirmationRequestSchema
+>
