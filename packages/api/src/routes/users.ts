@@ -8,6 +8,8 @@ import {
 import { codes } from '#api/errors/error-codes.js'
 import { authenticate } from '#api/middlewares/auth.js'
 import { hashPassword, JWTPayload } from '#api/services/authentication.js'
+import { sendConfirmationEmail } from '#api/services/mail.js'
+import { env } from '#api/env.js'
 import {
   processDelete,
   processPost,
@@ -29,6 +31,7 @@ const router: Router = Router()
 
 async function createUser(body: CreateUserRequest): Promise<CreateResponse> {
   const hashedPassword = await hashPassword(body.password)
+  const confirmationKey = crypto.randomUUID()
   try {
     const [user] = await db
       .insert(users)
@@ -36,8 +39,13 @@ async function createUser(body: CreateUserRequest): Promise<CreateResponse> {
         username: body.username,
         email: body.email,
         password: hashedPassword,
+        confirmationKey,
       })
       .returning()
+    await sendConfirmationEmail(
+      user.email,
+      `${env.API_URL}/api/users_confirmation/${confirmationKey}`
+    )
     return { id: user.id }
   } catch (err) {
     if (
