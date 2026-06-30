@@ -8,7 +8,7 @@ export default function TripsList({
   onDelete,
 }: {
   trips: { id: string; name: string }[]
-  onDelete: (id: string) => void
+  onDelete?: (id: string) => void
 }) {
   return trips.map((trip) => (
     <p className={styles.trip} key={trip.id}>
@@ -16,11 +16,13 @@ export default function TripsList({
       <Link to={`/trips/${trip.id}`} className={styles.tripName}>
         {trip.name}
       </Link>
-      <FontAwesomeIcon
-        icon={faXmark}
-        className={styles.deleteIcon}
-        onClick={() => onDelete(trip.id)}
-      />
+      {onDelete && (
+        <FontAwesomeIcon
+          icon={faXmark}
+          className={styles.deleteIcon}
+          onClick={() => onDelete(trip.id)}
+        />
+      )}
     </p>
   ))
 }

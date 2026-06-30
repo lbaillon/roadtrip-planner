@@ -33,7 +33,7 @@ function TrackItem({
   color,
 }: {
   track: Track
-  onDelete: (id: string) => void
+  onDelete?: (id: string) => void
   color?: string
 }) {
   const { data } = useGetTrack(track.id)
@@ -49,11 +49,13 @@ function TrackItem({
       <Link to={`/tracks/${track.id}`} className={styles.trackName}>
         {name}
       </Link>
-      <FontAwesomeIcon
-        icon={faXmark}
-        className={styles.deleteIcon}
-        onClick={() => onDelete(track.id)}
-      />
+      {onDelete && (
+        <FontAwesomeIcon
+          icon={faXmark}
+          className={styles.deleteIcon}
+          onClick={() => onDelete(track.id)}
+        />
+      )}
     </>
   )
 }
@@ -64,7 +66,7 @@ function SortableItem({
   color,
 }: {
   track: Track
-  onDelete: (id: string) => void
+  onDelete?: (id: string) => void
   color?: string
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
@@ -92,7 +94,7 @@ export default function TracksList({
   colorsById,
 }: {
   tracks: Track[]
-  onDelete: (id: string) => void
+  onDelete?: (id: string) => void
   onReorder?: (trackIds: string[]) => void
   colorsById?: Record<string, string>
 }) {
