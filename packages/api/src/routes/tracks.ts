@@ -1,5 +1,13 @@
 import { db } from '#api/db/client.js'
-import { tracks, trips, tripTracks } from '#api/db/schema.js'
+import {
+  trackSharesEmails,
+  trackSharesUsers,
+  tracks,
+  trips,
+  tripTracks,
+  users,
+} from '#api/db/schema.js'
+import { env } from '#api/env.js'
 import { NotFoundError, UnauthorizedError } from '#api/errors/app-errors.js'
 import { codes } from '#api/errors/error-codes.js'
 import {
@@ -8,6 +16,7 @@ import {
   authorize,
 } from '#api/middlewares/auth.js'
 import { JWTPayload } from '#api/services/authentication.js'
+import { sendShareEmail } from '#api/services/mail.js'
 import {
   deleteGpx,
   getGpxFile,
@@ -24,9 +33,12 @@ import {
   CreateResponse,
   CreateTrackRequest,
   CreateTrackRequestSchema,
+  GetSharesResponse,
   GetTrackResponse,
   GetTrackVisibilityResponse,
   IdParamsSchema,
+  ShareRequest,
+  ShareRequestSchema,
   TrackSummary,
   UpdateTrackGpxRequest,
   UpdateTrackGpxRequestSchema,
@@ -170,13 +182,15 @@ async function getTrack(
     .from(tracks)
     .leftJoin(tripTracks, eq(tripTracks.trackId, tracks.id))
     .leftJoin(trips, eq(trips.id, tripTracks.tripId))
+    .leftJoin(trackSharesUsers, eq(trackSharesUsers.trackId, tracks.id))
     .where(
       and(
         eq(tracks.id, id),
         or(
           eq(tracks.isPublic, true),
           eq(tracks.userId, user?.userId ?? ''),
-          eq(trips.isPublic, true)
+          eq(trips.isPublic, true),
+          eq(trackSharesUsers.userId, user?.userId ?? '')
         )
       )
     )
@@ -264,6 +278,87 @@ router.put(
     bodySchema: UpdateTrackPublicStatusRequestSchema,
     handler: ({ params, body, user }) =>
       updateTrackVisibility(params.id, body.isPublic, user),
+  })
+)
+
+export async function shareTrack(
+  id: string,
+  body: ShareRequest,
+  user?: JWTPayload
+) {
+  if (!user) {
+    throw new UnauthorizedError('Missing user', codes.MISSING_USER)
+  }
+  const [track] = await db
+    .select()
+    .from(tracks)
+    .where(and(eq(tracks.id, id), eq(tracks.userId, user.userId)))
+  if (!track) {
+    throw new NotFoundError('track not found', codes.MISSING_TRACK)
+  }
+  const url = `${env.WEB_APP_URL}/tracks/${id}`
+  for (const email of body.emails) {
+    const [existing] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, email))
+    if (existing) {
+      await db
+        .insert(trackSharesUsers)
+        .values({ trackId: id, userId: existing.id })
+        .onConflictDoNothing()
+    } else {
+      await db
+        .insert(trackSharesEmails)
+        .values({ trackId: id, email })
+        .onConflictDoNothing()
+    }
+    await sendShareEmail(email, user.username, 'circuit', track.name, url, !!existing)
+  }
+}
+
+router.post(
+  '/:id/shares',
+  authenticate,
+  processPost({
+    paramsSchema: IdParamsSchema,
+    bodySchema: ShareRequestSchema,
+    handler: ({ params, body, user }) => shareTrack(params.id, body, user),
+  })
+)
+
+async function getTrackShares(
+  id: string,
+  user?: JWTPayload
+): Promise<GetSharesResponse> {
+  if (!user) {
+    throw new UnauthorizedError('Missing user', codes.MISSING_USER)
+  }
+  const [track] = await db
+    .select({ id: tracks.id })
+    .from(tracks)
+    .where(and(eq(tracks.id, id), eq(tracks.userId, user.userId)))
+  if (!track) {
+    throw new NotFoundError('track not found', codes.MISSING_TRACK)
+  }
+  const sharedUsers = await db
+    .select({ email: users.email, username: users.username })
+    .from(trackSharesUsers)
+    .innerJoin(users, eq(users.id, trackSharesUsers.userId))
+    .where(eq(trackSharesUsers.trackId, id))
+  const sharedEmails = await db
+    .select({ email: trackSharesEmails.email })
+    .from(trackSharesEmails)
+    .where(eq(trackSharesEmails.trackId, id))
+  return { users: sharedUsers, emails: sharedEmails.map((e) => e.email) }
+}
+
+router.get(
+  '/:id/shares',
+  authenticate,
+  processGet({
+    paramsSchema: IdParamsSchema,
+    handler: ({ params, user }) => getTrackShares(params.id, user),
   })
 )
 
