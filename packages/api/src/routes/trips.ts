@@ -462,7 +462,14 @@ export async function shareTrip(
         .values({ tripId: id, email })
         .onConflictDoNothing()
     }
-    await sendShareEmail(email, user.username, 'voyage', trip.name, url, !!existing)
+    await sendShareEmail(
+      email,
+      user.username,
+      'voyage',
+      trip.name,
+      url,
+      !!existing
+    )
   }
 }
 

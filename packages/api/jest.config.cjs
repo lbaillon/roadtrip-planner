@@ -2,6 +2,7 @@
 module.exports = {
   testEnvironment: 'node',
   testPathIgnorePatterns: ['<rootDir>/dist/'],
+  setupFiles: ['<rootDir>/jest.setup.cjs'],
   clearMocks: true,
   moduleNameMapper: {
     '^@roadtrip/shared$': '<rootDir>/../shared/src/index.ts',

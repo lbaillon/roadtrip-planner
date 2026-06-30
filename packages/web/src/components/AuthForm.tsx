@@ -1,4 +1,8 @@
-import { useCreateUser, useLogin, useResendConfirmation } from '#web/hooks/useApi'
+import {
+  useCreateUser,
+  useLogin,
+  useResendConfirmation,
+} from '#web/hooks/useApi'
 import { useAuth } from '#web/hooks/useAuth'
 import type { FormProps } from 'antd'
 import { Alert, Button, Form, Input, Modal, message } from 'antd'

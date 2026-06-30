@@ -335,7 +335,14 @@ export async function shareTrack(
         .values({ trackId: id, email })
         .onConflictDoNothing()
     }
-    await sendShareEmail(email, user.username, 'circuit', track.name, url, !!existing)
+    await sendShareEmail(
+      email,
+      user.username,
+      'circuit',
+      track.name,
+      url,
+      !!existing
+    )
   }
 }
 
