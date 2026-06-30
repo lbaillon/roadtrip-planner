@@ -187,6 +187,7 @@ async function getTrip(id: string, user?: JWTPayload): Promise<TripSummary> {
       name: trips.name,
       description: trips.description,
       isPublic: trips.isPublic,
+      userId: trips.userId,
     })
     .from(trips)
     .leftJoin(tripSharesUsers, eq(tripSharesUsers.tripId, trips.id))
@@ -209,6 +210,7 @@ async function getTrip(id: string, user?: JWTPayload): Promise<TripSummary> {
     name: trip.name,
     description: trip.description ?? undefined,
     isPublic: trip.isPublic,
+    isOwner: trip.userId === (user?.userId ?? ''),
   }
 }
 

@@ -51,11 +51,13 @@ export default function TrackContent({
   parsed,
   headerAction,
   isPublic,
+  isOwner,
 }: {
   trackName?: string
   parsed: ParsedGpx
   headerAction?: React.ReactNode
   isPublic?: boolean
+  isOwner?: boolean
 }) {
   const [timepointIndex, setTimepointIndex] = useState(0)
   const [isEditMode, setIsEditMode] = useState(false)
@@ -231,7 +233,7 @@ export default function TrackContent({
           <FontAwesomeIcon icon={faArrowLeftLong} className={styles.icon} />
         </Button>
         <h2 className={styles.routeName}>{parsed.name ?? 'Route inconnue'}</h2>
-        {accessToken && id ? (
+        {accessToken && id && isOwner ? (
           <Button
             size="small"
             className={styles.backButton}

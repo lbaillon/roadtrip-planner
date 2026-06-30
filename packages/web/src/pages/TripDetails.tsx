@@ -129,7 +129,7 @@ export default function TripDetails() {
             <h2 className={styles.tripName}>
               {trip?.name ?? 'Route inconnue'}
             </h2>
-            {accessToken && id && (
+            {accessToken && id && trip?.isOwner && (
               <Button
                 size="small"
                 className={styles.button}

@@ -217,7 +217,12 @@ async function getTrack(
   }
   const gpxContent = await getGpxFile(track.gpxFile)
 
-  return { id: track.id, gpxContent, isPublic: track.isPublic }
+  return {
+    id: track.id,
+    gpxContent,
+    isPublic: track.isPublic,
+    isOwner: track.userId === (user?.userId ?? ''),
+  }
 }
 
 router.get(
