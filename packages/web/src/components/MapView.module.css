@@ -229,3 +229,20 @@
   gap: 6px;
   margin-top: 8px;
 }
+
+.directionsLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 16px;
+  background-color: var(--primary);
+  color: var(--surface);
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+
+.directionsLink:hover {
+  opacity: 0.85;
+}
