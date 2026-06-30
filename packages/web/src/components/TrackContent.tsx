@@ -82,7 +82,7 @@ export default function TrackContent({
   const { id } = useParams()
   const { accessToken } = useAuth()
   const navigate = useNavigate()
-  const { data: visibility } = useGetTrackVisibility(id, !!accessToken)
+  const { data: visibility } = useGetTrackVisibility(id, !!isOwner)
   const publicViaTrip = !isPublic ? (visibility?.publicViaTrip ?? null) : null
 
   const actualCoords = userPosition
