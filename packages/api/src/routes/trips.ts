@@ -1,5 +1,13 @@
 import { db } from '#api/db/client.js'
-import { tracks, trips, tripTracks } from '#api/db/schema.js'
+import {
+  tracks,
+  trips,
+  tripSharesEmails,
+  tripSharesUsers,
+  tripTracks,
+  users,
+} from '#api/db/schema.js'
+import { env } from '#api/env.js'
 import {
   BadRequestError,
   NotFoundError,
@@ -12,6 +20,7 @@ import {
   authorize,
 } from '#api/middlewares/auth.js'
 import { JWTPayload } from '#api/services/authentication.js'
+import { sendShareEmail } from '#api/services/mail.js'
 import {
   processDelete,
   processGet,
@@ -23,7 +32,10 @@ import {
   CreateResponse,
   CreateTripRequest,
   CreateTripRequestSchema,
+  GetSharesResponse,
   IdParamsSchema,
+  ShareRequest,
+  ShareRequestSchema,
   TrackOfTripParamsSchema,
   TripSummary,
   TripTrack,
@@ -141,14 +153,25 @@ router.get(
 
 async function getTrip(id: string, user?: JWTPayload): Promise<TripSummary> {
   const [trip] = await db
-    .select()
+    .select({
+      id: trips.id,
+      name: trips.name,
+      description: trips.description,
+      isPublic: trips.isPublic,
+    })
     .from(trips)
+    .leftJoin(tripSharesUsers, eq(tripSharesUsers.tripId, trips.id))
     .where(
       and(
         eq(trips.id, id),
-        or(eq(trips.isPublic, true), eq(trips.userId, user?.userId ?? ''))
+        or(
+          eq(trips.isPublic, true),
+          eq(trips.userId, user?.userId ?? ''),
+          eq(tripSharesUsers.userId, user?.userId ?? '')
+        )
       )
     )
+    .limit(1)
   if (!trip) {
     throw new NotFoundError('Trip not found', codes.MISSING_TRIP)
   }
@@ -174,14 +197,20 @@ async function getTripTracks(
   user?: JWTPayload
 ): Promise<TripTrack[]> {
   const [trip] = await db
-    .select()
+    .select({ id: trips.id })
     .from(trips)
+    .leftJoin(tripSharesUsers, eq(tripSharesUsers.tripId, trips.id))
     .where(
       and(
         eq(trips.id, tripId),
-        or(eq(trips.isPublic, true), eq(trips.userId, user?.userId ?? ''))
+        or(
+          eq(trips.isPublic, true),
+          eq(trips.userId, user?.userId ?? ''),
+          eq(tripSharesUsers.userId, user?.userId ?? '')
+        )
       )
     )
+    .limit(1)
   if (!trip) {
     throw new NotFoundError('Trip not found', codes.MISSING_TRIP)
   }
@@ -367,6 +396,87 @@ router.put(
     bodySchema: UpdateTripPublicStatusRequestSchema,
     handler: ({ params, body, user }) =>
       updateTripVisibility(params.id, body.isPublic, user),
+  })
+)
+
+export async function shareTrip(
+  id: string,
+  body: ShareRequest,
+  user?: JWTPayload
+) {
+  if (!user) {
+    throw new UnauthorizedError('Missing user', codes.MISSING_USER)
+  }
+  const [trip] = await db
+    .select()
+    .from(trips)
+    .where(and(eq(trips.id, id), eq(trips.userId, user.userId)))
+  if (!trip) {
+    throw new NotFoundError('trip not found', codes.MISSING_TRIP)
+  }
+  const url = `${env.WEB_APP_URL}/trips/${id}`
+  for (const email of body.emails) {
+    const [existing] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, email))
+    if (existing) {
+      await db
+        .insert(tripSharesUsers)
+        .values({ tripId: id, userId: existing.id })
+        .onConflictDoNothing()
+    } else {
+      await db
+        .insert(tripSharesEmails)
+        .values({ tripId: id, email })
+        .onConflictDoNothing()
+    }
+    await sendShareEmail(email, user.username, 'voyage', trip.name, url, !!existing)
+  }
+}
+
+router.post(
+  '/:id/shares',
+  authenticate,
+  processPost({
+    paramsSchema: IdParamsSchema,
+    bodySchema: ShareRequestSchema,
+    handler: ({ params, body, user }) => shareTrip(params.id, body, user),
+  })
+)
+
+async function getTripShares(
+  id: string,
+  user?: JWTPayload
+): Promise<GetSharesResponse> {
+  if (!user) {
+    throw new UnauthorizedError('Missing user', codes.MISSING_USER)
+  }
+  const [trip] = await db
+    .select({ id: trips.id })
+    .from(trips)
+    .where(and(eq(trips.id, id), eq(trips.userId, user.userId)))
+  if (!trip) {
+    throw new NotFoundError('trip not found', codes.MISSING_TRIP)
+  }
+  const sharedUsers = await db
+    .select({ email: users.email, username: users.username })
+    .from(tripSharesUsers)
+    .innerJoin(users, eq(users.id, tripSharesUsers.userId))
+    .where(eq(tripSharesUsers.tripId, id))
+  const sharedEmails = await db
+    .select({ email: tripSharesEmails.email })
+    .from(tripSharesEmails)
+    .where(eq(tripSharesEmails.tripId, id))
+  return { users: sharedUsers, emails: sharedEmails.map((e) => e.email) }
+}
+
+router.get(
+  '/:id/shares',
+  authenticate,
+  processGet({
+    paramsSchema: IdParamsSchema,
+    handler: ({ params, user }) => getTripShares(params.id, user),
   })
 )
 
