@@ -1,12 +1,14 @@
 import Footer from '#web/components/Footer'
 import Header from '#web/components/Header'
 import { useNetworkSync } from '#web/hooks/useNetworkSync'
+import { useResumePendingSave } from '#web/hooks/useSaveTrack'
 import { Outlet } from 'react-router-dom'
 import OfflineStatus from './OfflineStatus'
 import styles from './MainLayout.module.css'
 
 export default function MainLayout() {
   const { isSyncing } = useNetworkSync()
+  useResumePendingSave()
   return (
     <>
       <Header />

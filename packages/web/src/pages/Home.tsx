@@ -1,13 +1,12 @@
 import { GpxUploader } from '#web/components/GpxUploader'
 import { Title } from '#web/components/Title'
 import TrackContent from '#web/components/TrackContent'
-import { useAuth } from '#web/hooks/useAuth'
 import { useHealth } from '#web/hooks/useHealth'
-import { PENDING_SAVE_GPX_KEY, useSaveTrack } from '#web/hooks/useSaveTrack'
+import { useSaveTrack } from '#web/hooks/useSaveTrack'
 import { parseGpxFile } from '#web/lib/gpx-utils'
 import type { ParsedGpx } from '@roadtrip/shared'
 import { Button, message } from 'antd'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import styles from './Home.module.css'
 
 export default function Home() {
@@ -15,7 +14,6 @@ export default function Home() {
   const [gpxContent, setGpxContent] = useState<string | null>(null)
   const [messageApi, contextHolder] = message.useMessage()
   const { isReady } = useHealth()
-  const { accessToken } = useAuth()
   const save = useSaveTrack()
 
   const handleFileSelect = (content: string) => {
@@ -31,16 +29,6 @@ export default function Home() {
       )
     }
   }
-
-  // Après connexion, reprend la sauvegarde du circuit mis en attente avant
-  // la redirection vers /login.
-  useEffect(() => {
-    if (!accessToken) return
-    const pending = sessionStorage.getItem(PENDING_SAVE_GPX_KEY)
-    if (!pending) return
-    sessionStorage.removeItem(PENDING_SAVE_GPX_KEY)
-    void save(pending)
-  }, [accessToken, save])
 
   return (
     <>
