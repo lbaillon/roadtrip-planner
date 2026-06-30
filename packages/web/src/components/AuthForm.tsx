@@ -54,12 +54,9 @@ export default function AuthForm<M extends 'login' | 'signup'>({
 
   useEffect(() => {
     if (alert?.type !== 'success') return
-    const timer = setTimeout(
-      () => navigate(mode === 'login' ? '/' : '/login?registered=1'),
-      1500
-    )
+    const timer = setTimeout(() => navigate('/tracks'), 1500)
     return () => clearTimeout(timer)
-  }, [alert, navigate, mode])
+  }, [alert, navigate])
 
   const getNotice = (): AlertState => {
     if (mode !== 'login') return null
@@ -109,11 +106,7 @@ export default function AuthForm<M extends 'login' | 'signup'>({
       postUser(
         { username, password, email },
         {
-          onSuccess: () =>
-            setAlert({
-              type: 'success',
-              message: 'Votre compte a été créé avec succès !',
-            }),
+          onSuccess: () => navigate('/login?registered=1'),
           onError: (err) =>
             setAlert({
               type: 'error',
