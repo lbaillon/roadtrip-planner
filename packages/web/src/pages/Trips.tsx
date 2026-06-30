@@ -5,8 +5,10 @@ import TripsList from '#web/components/TripsList'
 import UserGreeting from '#web/components/UserGreeting'
 import { useDeleteTrip } from '#web/hooks/mutations/useDeleteTrip'
 import { useGetTrips } from '#web/hooks/useTrips'
+import { useGetSharedTrips } from '#web/hooks/useShares'
 export default function Trips() {
   const { data: trips } = useGetTrips()
+  const { data: sharedTrips } = useGetSharedTrips()
   const { mutate: deleteTrip } = useDeleteTrip()
   return (
     <>
@@ -16,6 +18,12 @@ export default function Trips() {
         <NewTripModal />
         <TripsList trips={trips ?? []} onDelete={deleteTrip} />
       </Box>
+      {sharedTrips && sharedTrips.length > 0 && (
+        <Box>
+          <BoxTitle>Partagés avec moi</BoxTitle>
+          <TripsList trips={sharedTrips} />
+        </Box>
+      )}
     </>
   )
 }
