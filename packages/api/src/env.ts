@@ -13,7 +13,7 @@ export const env = {
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
   RESEND_API_KEY: process.env.RESEND_API_KEY,
-  MAIL_FROM: process.env.MAIL_FROM || 'onboarding@resend.dev',
+  MAIL_FROM: process.env.MAIL_FROM || 'no-reply@my-roadtrip.fr',
   WEB_APP_URL: process.env.WEB_APP_URL || 'http://localhost:5173',
   API_URL: process.env.API_URL || 'http://localhost:3000',
   PORT: parseInt(process.env.PORT || '3000', 10),
