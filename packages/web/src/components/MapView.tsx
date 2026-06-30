@@ -1,4 +1,5 @@
 import { findNearestIndex } from '#web/lib/gpx-utils'
+import { getDirectionsUrl } from '#web/lib/maps-utils'
 import type { GpxCoordinate, GpxWaypoint, WeatherData } from '@roadtrip/shared'
 import type { MenuProps } from 'antd'
 import { Button, Dropdown, Switch } from 'antd'
@@ -401,6 +402,20 @@ export default function MapView({
                   ⛰️ {selectedWaypoint.ele.toFixed(0)} m
                 </>
               )}
+              <div className={styles.waypointActions}>
+                <a
+                  href={getDirectionsUrl(
+                    selectedWaypoint.lat,
+                    selectedWaypoint.lon,
+                    selectedWaypoint.name ?? undefined
+                  )}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.directionsLink}
+                >
+                  🧭 S'y rendre
+                </a>
+              </div>
               {isEditMode && (
                 <div className={styles.waypointActions}>
                   <Button size="small" onClick={handleEditClick}>
