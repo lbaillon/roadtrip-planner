@@ -54,6 +54,11 @@
   color: #777;
 }
 
+.tripDistance {
+  font-weight: 600;
+  color: var(--primary);
+}
+
 .descriptionSection {
   margin-top: 4px;
 }

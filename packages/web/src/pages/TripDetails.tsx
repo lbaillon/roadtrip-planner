@@ -85,6 +85,9 @@ export default function TripDetails() {
     (track) => track.parsedGpx.coordinates
   )
 
+  const totalDistanceKm =
+    parsedTracks.reduce((sum, track) => sum + track.parsedGpx.distance, 0) / 1000
+
   const colorsById = Object.fromEntries(
     parsedTracks.map((track, index) => [
       track.id,
@@ -159,6 +162,12 @@ export default function TripDetails() {
               <FontAwesomeIcon icon={trip?.isPublic ? faGlobe : faLock} />
               {trip?.isPublic ? 'Public' : 'Privé'}
             </span>
+          )}
+
+          {totalDistanceKm > 0 && (
+            <p className={styles.tripDistance}>
+              Distance totale : {totalDistanceKm.toFixed(2)} km
+            </p>
           )}
 
           <Collapse
