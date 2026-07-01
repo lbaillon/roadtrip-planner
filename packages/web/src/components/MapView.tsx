@@ -534,10 +534,14 @@ export default function MapView({
               °C
               <br />
               💨{' '}
-              {selectedWeather.timepoints[
-                selectedWeatherTimepointIdx
-              ].windSpeed?.toFixed(1)}{' '}
-              m/s
+              {selectedWeather.timepoints[selectedWeatherTimepointIdx]
+                .windSpeed != null
+                ? (
+                    selectedWeather.timepoints[selectedWeatherTimepointIdx]
+                      .windSpeed * 3.6
+                  ).toFixed(1)
+                : '—'}{' '}
+              km/h
               <br />
               💧{' '}
               {selectedWeather.timepoints[selectedWeatherTimepointIdx].humidity}
