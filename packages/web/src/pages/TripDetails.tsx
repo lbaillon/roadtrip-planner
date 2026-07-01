@@ -86,7 +86,8 @@ export default function TripDetails() {
   )
 
   const totalDistanceKm =
-    parsedTracks.reduce((sum, track) => sum + track.parsedGpx.distance, 0) / 1000
+    parsedTracks.reduce((sum, track) => sum + track.parsedGpx.distance, 0) /
+    1000
 
   const colorsById = Object.fromEntries(
     parsedTracks.map((track, index) => [

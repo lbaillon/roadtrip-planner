@@ -13,6 +13,20 @@ export function computeRouteSegments(
   colors: string[],
   toleranceMeters = 15
 ): RenderSegment[] {
+  // Un seul trajet : aucun overlap inter-trajets possible, on évite la grille.
+  if (subTracks.length < 2) {
+    const single: RenderSegment[] = []
+    subTracks.forEach((t, i) => {
+      if (t.coordinates.length >= 2) {
+        single.push({
+          coordinates: t.coordinates.map((c) => [c.lon, c.lat]),
+          color: colors[i],
+        })
+      }
+    })
+    return single
+  }
+
   const cell = toleranceMeters / DEG_METERS
 
   const grid = new Map<string, Set<number>>()

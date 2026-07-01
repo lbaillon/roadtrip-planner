@@ -5,7 +5,7 @@ import type { GpxCoordinate, GpxWaypoint, WeatherData } from '@roadtrip/shared'
 import type { MenuProps } from 'antd'
 import { Button, Dropdown, Switch } from 'antd'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { MapMouseEvent } from 'react-map-gl/maplibre'
 import Map, { Layer, Marker, Popup, Source } from 'react-map-gl/maplibre'
 import styles from './MapView.module.css'
@@ -96,12 +96,37 @@ export default function MapView({
     return () => navigator.geolocation.clearWatch(watchId)
   }, [locationEnabled, isGeolocationSupported, setUserPosition])
 
-  const routeSegments = useMemo(() => {
-    const colors = subTracks.map(
-      (_, i) => routeColor ?? TRACK_COLORS[i % TRACK_COLORS.length]
-    )
-    return computeRouteSegments(subTracks, colors)
-  }, [subTracks, routeColor])
+  const routeColors = subTracks.map(
+    (_, i) => routeColor ?? TRACK_COLORS[i % TRACK_COLORS.length]
+  )
+
+  const routeData = {
+    type: 'FeatureCollection' as const,
+    features: computeRouteSegments(subTracks, routeColors).map((seg) => ({
+      type: 'Feature' as const,
+      properties: {
+        color: seg.color,
+        altColor: seg.altColor ?? '',
+        dashed: seg.altColor != null,
+      },
+      geometry: {
+        type: 'LineString' as const,
+        coordinates: seg.coordinates,
+      },
+    })),
+  }
+
+  const arrowData = {
+    type: 'FeatureCollection' as const,
+    features: subTracks.map((st, i) => ({
+      type: 'Feature' as const,
+      properties: { color: routeColors[i] },
+      geometry: {
+        type: 'LineString' as const,
+        coordinates: st.coordinates.map((c) => [c.lon, c.lat]),
+      },
+    })),
+  }
 
   if (coordinates.length === 0) return null
 
@@ -304,84 +329,50 @@ export default function MapView({
         mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
         onClick={handleMapClick}
       >
-        {/* Route lines: solid on exclusive portions, alternating dashes on
-            shared (overlapping) portions */}
-        {routeSegments.map((seg, index) => {
-          const geoJSON = {
-            type: 'Feature' as const,
-            properties: {},
-            geometry: {
-              type: 'LineString' as const,
-              coordinates: seg.coordinates,
-            },
-          }
-          return (
-            <Source
-              key={`seg-${index}`}
-              id={`route-seg-${index}`}
-              type="geojson"
-              data={geoJSON}
-            >
-              <Layer
-                id={`route-seg-line-${index}`}
-                type="line"
-                paint={{
-                  'line-color': seg.color,
-                  'line-width': 4,
-                  'line-opacity': 0.8,
-                }}
-              />
-              {seg.altColor && (
-                <Layer
-                  id={`route-seg-dash-${index}`}
-                  type="line"
-                  paint={{
-                    'line-color': seg.altColor,
-                    'line-width': 4,
-                    'line-opacity': 0.95,
-                    'line-dasharray': [2, 2],
-                  }}
-                />
-              )}
-            </Source>
-          )
-        })}
+        {/* Route lines: a single source with data-driven styling — solid base
+            for every segment + dashed overlay on shared (overlapping) portions.
+            One GL source regardless of how many segments the split produces. */}
+        <Source id="routes" type="geojson" data={routeData}>
+          <Layer
+            id="routes-solid"
+            type="line"
+            paint={{
+              'line-color': ['get', 'color'],
+              'line-width': 4,
+              'line-opacity': 0.8,
+            }}
+          />
+          <Layer
+            id="routes-dash"
+            type="line"
+            filter={['==', ['get', 'dashed'], true]}
+            paint={{
+              'line-color': ['get', 'altColor'],
+              'line-width': 4,
+              'line-opacity': 0.95,
+              'line-dasharray': [2, 2],
+            }}
+          />
+        </Source>
 
-        {/* Direction arrows on the full track geometry */}
-        {directionEnable &&
-          subTracks.map((subTrack, index) => {
-            const color = routeColor ?? TRACK_COLORS[index % TRACK_COLORS.length]
-            const geoJSON = {
-              type: 'Feature' as const,
-              properties: {},
-              geometry: {
-                type: 'LineString' as const,
-                coordinates: subTrack.coordinates.map((c) => [c.lon, c.lat]),
-              },
-            }
-            return (
-              <Source
-                key={`dir-${index}`}
-                id={`route-dir-${index}`}
-                type="geojson"
-                data={geoJSON}
-              >
-                <Layer
-                  id={`direction-signs-${index}`}
-                  type="symbol"
-                  layout={{
-                    'symbol-placement': 'line',
-                    'text-field': '>',
-                    'text-size': 20,
-                    'symbol-spacing': 5,
-                    'text-keep-upright': false,
-                    'text-font': ['Open Sans Bold'],
-                  }}
-                  paint={{ 'text-color': color }}
-                />
-              </Source>
-            )
-          })}
+        {/* Direction arrows on the full track geometry (single source) */}
+        {directionEnable && (
+          <Source id="route-arrows" type="geojson" data={arrowData}>
+            <Layer
+              id="direction-signs"
+              type="symbol"
+              layout={{
+                'symbol-placement': 'line',
+                'text-field': '>',
+                'text-size': 20,
+                'symbol-spacing': 5,
+                'text-keep-upright': false,
+                'text-font': ['Open Sans Bold'],
+              }}
+              paint={{ 'text-color': ['get', 'color'] }}
+            />
+          </Source>
+        )}
         {startflagEnable && (
           <Marker
             key="departure point"
