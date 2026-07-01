@@ -36,6 +36,7 @@ interface MapViewProps {
       lon: number
     } | null
   ) => void
+  routeColor?: string
 }
 
 export default function MapView({
@@ -52,6 +53,7 @@ export default function MapView({
   onDeleteWaypoint,
   userPosition,
   setUserPosition,
+  routeColor,
 }: MapViewProps) {
   const [selectedWeather, setSelectedWeather] = useState<WeatherData | null>(
     null
@@ -96,10 +98,10 @@ export default function MapView({
 
   const routeSegments = useMemo(() => {
     const colors = subTracks.map(
-      (_, i) => TRACK_COLORS[i % TRACK_COLORS.length]
+      (_, i) => routeColor ?? TRACK_COLORS[i % TRACK_COLORS.length]
     )
     return computeRouteSegments(subTracks, colors)
-  }, [subTracks])
+  }, [subTracks, routeColor])
 
   if (coordinates.length === 0) return null
 
@@ -348,7 +350,7 @@ export default function MapView({
         {/* Direction arrows on the full track geometry */}
         {directionEnable &&
           subTracks.map((subTrack, index) => {
-            const color = TRACK_COLORS[index % TRACK_COLORS.length]
+            const color = routeColor ?? TRACK_COLORS[index % TRACK_COLORS.length]
             const geoJSON = {
               type: 'Feature' as const,
               properties: {},

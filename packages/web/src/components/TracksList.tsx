@@ -46,7 +46,11 @@ function TrackItem({
         className={styles.itemIcon}
         style={color ? { color } : undefined}
       />
-      <Link to={`/tracks/${track.id}`} className={styles.trackName}>
+      <Link
+        to={`/tracks/${track.id}`}
+        state={{ color }}
+        className={styles.trackName}
+      >
         {name}
       </Link>
       {onDelete && (
