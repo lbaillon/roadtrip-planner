@@ -52,12 +52,14 @@ export default function TrackContent({
   headerAction,
   isPublic,
   isOwner,
+  routeColor,
 }: {
   trackName?: string
   parsed: ParsedGpx
   headerAction?: React.ReactNode
   isPublic?: boolean
   isOwner?: boolean
+  routeColor?: string
 }) {
   const [timepointIndex, setTimepointIndex] = useState(0)
   const [isEditMode, setIsEditMode] = useState(false)
@@ -326,6 +328,7 @@ export default function TrackContent({
           onDeleteWaypoint={handleDeleteWaypoint}
           userPosition={userPosition}
           setUserPosition={setUserPosition}
+          routeColor={routeColor}
         />
       </Suspense>
 

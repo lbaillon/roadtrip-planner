@@ -1,4 +1,6 @@
+import AuthRequiredNotice from '#web/components/AuthRequiredNotice'
 import TrackContent from '#web/components/TrackContent'
+import { useAuth } from '#web/hooks/useAuth'
 import { useGetTrack } from '#web/hooks/useTracks'
 import { parseGpxFile, prettifyGpx } from '#web/lib/gpx-utils'
 import { Button, message } from 'antd'
@@ -14,11 +16,13 @@ export default function TrackDetails() {
   const navigate = useNavigate()
   const [messageApi, contextHolder] = message.useMessage()
 
-  const { data: track, isLoading } = useGetTrack(id)
+  const { accessToken } = useAuth()
+  const { data: track, isLoading, isError } = useGetTrack(id)
   const parsed = track ? parseGpxFile?.(track.gpxContent) : undefined
 
   const justSaved = (location.state as { justSaved?: boolean } | null)
     ?.justSaved
+  const stateColor = (location.state as { color?: string } | null)?.color
 
   useEffect(() => {
     if (!justSaved) return
@@ -43,6 +47,7 @@ export default function TrackDetails() {
   return (
     <div className={styles.contentBox}>
       {contextHolder}
+      {!accessToken && isError && <AuthRequiredNotice resource="circuit" />}
       {isLoading && (
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
           <p>Chargement du circuit...</p>
@@ -53,6 +58,7 @@ export default function TrackDetails() {
         <TrackContent
           isPublic={track?.isPublic ?? false}
           isOwner={track?.isOwner ?? false}
+          routeColor={stateColor}
           parsed={parsed}
           headerAction={
             <Button onClick={handleDownload} className={styles.downloadButton}>

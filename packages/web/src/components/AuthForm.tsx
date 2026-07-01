@@ -4,6 +4,7 @@ import {
   useResendConfirmation,
 } from '#web/hooks/useApi'
 import { useAuth } from '#web/hooks/useAuth'
+import { POST_AUTH_REDIRECT_KEY } from '#web/lib/auth-redirect'
 import type { FormProps } from 'antd'
 import { Alert, Button, Form, Input, Modal, message } from 'antd'
 import { useEffect, useState } from 'react'
@@ -58,7 +59,12 @@ export default function AuthForm<M extends 'login' | 'signup'>({
 
   useEffect(() => {
     if (alert?.type !== 'success') return
-    const timer = setTimeout(() => navigate('/tracks'), 1500)
+    const stored = localStorage.getItem(POST_AUTH_REDIRECT_KEY)
+    const target = stored?.startsWith('/') ? stored : '/tracks'
+    const timer = setTimeout(() => {
+      localStorage.removeItem(POST_AUTH_REDIRECT_KEY)
+      navigate(target)
+    }, 1500)
     return () => clearTimeout(timer)
   }, [alert, navigate])
 

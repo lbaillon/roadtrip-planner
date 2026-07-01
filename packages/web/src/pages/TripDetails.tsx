@@ -1,4 +1,5 @@
 import AddTrackToTripModal from '#web/components/AddTrackToTripModal'
+import AuthRequiredNotice from '#web/components/AuthRequiredNotice'
 import Box from '#web/components/Box'
 import styles from './TripDetails.module.css'
 import TracksList from '#web/components/TracksList'
@@ -35,7 +36,7 @@ export default function TripDetails() {
     lon: number
   } | null>(null)
   const { id } = useParams()
-  const { data: trip } = useGetTrip(id)
+  const { data: trip, isError } = useGetTrip(id)
   const { data: tracks } = useGetTripTracks(id)
   const { mutate: removeTrackFromTrip } = useRemoveTrackFromTrip(id ?? '')
   const { mutate: updateTracksOrder } = useUpdateTripTracksOrder(id ?? '')
@@ -84,6 +85,10 @@ export default function TripDetails() {
     (track) => track.parsedGpx.coordinates
   )
 
+  const totalDistanceKm =
+    parsedTracks.reduce((sum, track) => sum + track.parsedGpx.distance, 0) /
+    1000
+
   const colorsById = Object.fromEntries(
     parsedTracks.map((track, index) => [
       track.id,
@@ -109,6 +114,17 @@ export default function TripDetails() {
           message.error("erreur lors de l'édition des infos du voyage")
         },
       }
+    )
+  }
+
+  if (!accessToken && isError) {
+    return (
+      <>
+        <UserGreeting />
+        <Box>
+          <AuthRequiredNotice resource="voyage" />
+        </Box>
+      </>
     )
   }
 
@@ -147,6 +163,12 @@ export default function TripDetails() {
               <FontAwesomeIcon icon={trip?.isPublic ? faGlobe : faLock} />
               {trip?.isPublic ? 'Public' : 'Privé'}
             </span>
+          )}
+
+          {totalDistanceKm > 0 && (
+            <p className={styles.tripDistance}>
+              Distance totale : {totalDistanceKm.toFixed(2)} km
+            </p>
           )}
 
           <Collapse

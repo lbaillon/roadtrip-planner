@@ -1,10 +1,11 @@
 import { findNearestIndex } from '#web/lib/gpx-utils'
 import { getDirectionsUrl } from '#web/lib/maps-utils'
+import { computeRouteSegments } from '#web/lib/route-overlap'
 import type { GpxCoordinate, GpxWaypoint, WeatherData } from '@roadtrip/shared'
 import type { MenuProps } from 'antd'
 import { Button, Dropdown, Switch } from 'antd'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { MapMouseEvent } from 'react-map-gl/maplibre'
 import Map, { Layer, Marker, Popup, Source } from 'react-map-gl/maplibre'
 import styles from './MapView.module.css'
@@ -35,6 +36,7 @@ interface MapViewProps {
       lon: number
     } | null
   ) => void
+  routeColor?: string
 }
 
 export default function MapView({
@@ -51,6 +53,7 @@ export default function MapView({
   onDeleteWaypoint,
   userPosition,
   setUserPosition,
+  routeColor,
 }: MapViewProps) {
   const [selectedWeather, setSelectedWeather] = useState<WeatherData | null>(
     null
@@ -66,8 +69,8 @@ export default function MapView({
   const [locationEnabled, setLocationEnabled] = useState(false)
   const [waypointsEnabled, setWaypointsEnabled] = useState(false)
   const [weatherEnabled, setWeatherEnabled] = useState(true)
-  const [startflagEnable, setStartFlagEnable] = useState(false)
-  const [directionEnable, setDirectionEnable] = useState(false)
+  const [startflagEnable, setStartFlagEnable] = useState(true)
+  const [directionEnable, setDirectionEnable] = useState(true)
 
   const isGeolocationSupported =
     typeof navigator !== 'undefined' && !!navigator.geolocation
@@ -92,6 +95,44 @@ export default function MapView({
     )
     return () => navigator.geolocation.clearWatch(watchId)
   }, [locationEnabled, isGeolocationSupported, setUserPosition])
+
+  const routeData = useMemo(() => {
+    const colors = subTracks.map(
+      (_, i) => routeColor ?? TRACK_COLORS[i % TRACK_COLORS.length]
+    )
+    return {
+      type: 'FeatureCollection' as const,
+      features: computeRouteSegments(subTracks, colors).map((seg) => ({
+        type: 'Feature' as const,
+        properties: {
+          color: seg.color,
+          altColor: seg.altColor ?? '',
+          dashed: seg.altColor != null,
+        },
+        geometry: {
+          type: 'LineString' as const,
+          coordinates: seg.coordinates,
+        },
+      })),
+    }
+  }, [subTracks, routeColor])
+
+  const arrowData = useMemo(
+    () => ({
+      type: 'FeatureCollection' as const,
+      features: subTracks.map((st, i) => ({
+        type: 'Feature' as const,
+        properties: {
+          color: routeColor ?? TRACK_COLORS[i % TRACK_COLORS.length],
+        },
+        geometry: {
+          type: 'LineString' as const,
+          coordinates: st.coordinates.map((c) => [c.lon, c.lat]),
+        },
+      })),
+    }),
+    [subTracks, routeColor]
+  )
 
   if (coordinates.length === 0) return null
 
@@ -294,51 +335,50 @@ export default function MapView({
         mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
         onClick={handleMapClick}
       >
-        {/* Route line */}
-        {subTracks.map((subTrack, index) => {
-          const color = TRACK_COLORS[index % TRACK_COLORS.length]
-          const geoJSON = {
-            type: 'Feature' as const,
-            properties: {},
-            geometry: {
-              type: 'LineString' as const,
-              coordinates: subTrack.coordinates.map((c) => [c.lon, c.lat]),
-            },
-          }
-          return (
-            <Source
-              key={index}
-              id={`route-${index}`}
-              type="geojson"
-              data={geoJSON}
-            >
-              <Layer
-                id={`route-line-${index}`}
-                type="line"
-                paint={{
-                  'line-color': color,
-                  'line-width': 4,
-                  'line-opacity': 0.8,
-                }}
-              />
-              {directionEnable && (
-                <Layer
-                  id={`direction-signs-${index}`}
-                  type="symbol"
-                  layout={{
-                    'symbol-placement': 'line',
-                    'text-field': '>',
-                    'text-size': 20,
-                    'symbol-spacing': 5,
-                    'text-keep-upright': false,
-                    'text-font': ['Open Sans Bold'],
-                  }}
-                  paint={{ 'text-color': color }}
-                />
-              )}
-            </Source>
-          )
-        })}
+        {/* Route lines: a single source with data-driven styling — solid base
+            for every segment + dashed overlay on shared (overlapping) portions.
+            One GL source regardless of how many segments the split produces. */}
+        <Source id="routes" type="geojson" data={routeData}>
+          <Layer
+            id="routes-solid"
+            type="line"
+            paint={{
+              'line-color': ['get', 'color'],
+              'line-width': 4,
+              'line-opacity': 0.8,
+            }}
+          />
+          <Layer
+            id="routes-dash"
+            type="line"
+            filter={['==', ['get', 'dashed'], true]}
+            paint={{
+              'line-color': ['get', 'altColor'],
+              'line-width': 4,
+              'line-opacity': 0.95,
+              'line-dasharray': [2, 2],
+            }}
+          />
+        </Source>
+
+        {/* Direction arrows on the full track geometry (single source) */}
+        {directionEnable && (
+          <Source id="route-arrows" type="geojson" data={arrowData}>
+            <Layer
+              id="direction-signs"
+              type="symbol"
+              layout={{
+                'symbol-placement': 'line',
+                'text-field': '>',
+                'text-size': 20,
+                'symbol-spacing': 5,
+                'text-keep-upright': false,
+                'text-font': ['Open Sans Bold'],
+              }}
+              paint={{ 'text-color': ['get', 'color'] }}
+            />
+          </Source>
+        )}
         {startflagEnable && (
           <Marker
             key="departure point"
@@ -491,10 +531,14 @@ export default function MapView({
               °C
               <br />
               💨{' '}
-              {selectedWeather.timepoints[
-                selectedWeatherTimepointIdx
-              ].windSpeed?.toFixed(1)}{' '}
-              m/s
+              {selectedWeather.timepoints[selectedWeatherTimepointIdx]
+                .windSpeed != null
+                ? (
+                    selectedWeather.timepoints[selectedWeatherTimepointIdx]
+                      .windSpeed * 3.6
+                  ).toFixed(1)
+                : '—'}{' '}
+              km/h
               <br />
               💧{' '}
               {selectedWeather.timepoints[selectedWeatherTimepointIdx].humidity}

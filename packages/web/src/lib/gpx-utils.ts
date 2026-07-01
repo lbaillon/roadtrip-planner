@@ -24,7 +24,13 @@ const xmlBuilder = new XMLBuilder({
   format: true,
 })
 
+const parsedGpxCache = new Map<string, ParsedGpx>()
+const PARSE_CACHE_MAX = 50
+
 export function parseGpxFile(gpxContent: string): ParsedGpx {
+  const cached = parsedGpxCache.get(gpxContent)
+  if (cached) return cached
+
   const parsed = xmlParser.parse(gpxContent)
   const gpxData = parsed?.gpx
 
@@ -69,13 +75,20 @@ export function parseGpxFile(gpxContent: string): ParsedGpx {
   )
 
   const waypoints = extractWaypoints(gpxContent)
-  return ParsedGpxSchema.parse({
+  const result = ParsedGpxSchema.parse({
     name,
     coordinates,
     distance: distanceM,
     waypoints,
     subTracks,
   })
+
+  if (parsedGpxCache.size >= PARSE_CACHE_MAX) {
+    const oldest = parsedGpxCache.keys().next().value
+    if (oldest !== undefined) parsedGpxCache.delete(oldest)
+  }
+  parsedGpxCache.set(gpxContent, result)
+  return result
 }
 
 // Extracts <wpt> and <rtept> via fast-xml-parser
@@ -305,14 +318,8 @@ export function addWaypointToGpx(
     name: waypoint.name,
     ...(waypoint.description ? { desc: waypoint.description } : {}),
   }
-  const rtes: unknown[] = Array.isArray(parsed.gpx?.rte) ? parsed.gpx.rte : []
-  if (
-    rtes.length > 0 &&
-    Array.isArray((rtes[0] as Record<string, unknown>).rtept)
-  ) {
-    const rtept = (rtes[0] as Record<string, unknown>).rtept as unknown[]
-    rtept.push(newPoint)
-  } else if (Array.isArray(parsed.gpx?.wpt)) {
+  // L'ajout ne crée que des waypoints (<wpt>), jamais des routepoints (<rtept>).
+  if (Array.isArray(parsed.gpx?.wpt)) {
     parsed.gpx.wpt.push(newPoint)
   } else {
     parsed.gpx.wpt = [newPoint]
