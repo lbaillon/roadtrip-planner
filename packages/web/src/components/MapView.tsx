@@ -5,7 +5,7 @@ import type { GpxCoordinate, GpxWaypoint, WeatherData } from '@roadtrip/shared'
 import type { MenuProps } from 'antd'
 import { Button, Dropdown, Switch } from 'antd'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { MapMouseEvent } from 'react-map-gl/maplibre'
 import Map, { Layer, Marker, Popup, Source } from 'react-map-gl/maplibre'
 import styles from './MapView.module.css'
@@ -96,37 +96,43 @@ export default function MapView({
     return () => navigator.geolocation.clearWatch(watchId)
   }, [locationEnabled, isGeolocationSupported, setUserPosition])
 
-  const routeColors = subTracks.map(
-    (_, i) => routeColor ?? TRACK_COLORS[i % TRACK_COLORS.length]
+  const routeData = useMemo(() => {
+    const colors = subTracks.map(
+      (_, i) => routeColor ?? TRACK_COLORS[i % TRACK_COLORS.length]
+    )
+    return {
+      type: 'FeatureCollection' as const,
+      features: computeRouteSegments(subTracks, colors).map((seg) => ({
+        type: 'Feature' as const,
+        properties: {
+          color: seg.color,
+          altColor: seg.altColor ?? '',
+          dashed: seg.altColor != null,
+        },
+        geometry: {
+          type: 'LineString' as const,
+          coordinates: seg.coordinates,
+        },
+      })),
+    }
+  }, [subTracks, routeColor])
+
+  const arrowData = useMemo(
+    () => ({
+      type: 'FeatureCollection' as const,
+      features: subTracks.map((st, i) => ({
+        type: 'Feature' as const,
+        properties: {
+          color: routeColor ?? TRACK_COLORS[i % TRACK_COLORS.length],
+        },
+        geometry: {
+          type: 'LineString' as const,
+          coordinates: st.coordinates.map((c) => [c.lon, c.lat]),
+        },
+      })),
+    }),
+    [subTracks, routeColor]
   )
-
-  const routeData = {
-    type: 'FeatureCollection' as const,
-    features: computeRouteSegments(subTracks, routeColors).map((seg) => ({
-      type: 'Feature' as const,
-      properties: {
-        color: seg.color,
-        altColor: seg.altColor ?? '',
-        dashed: seg.altColor != null,
-      },
-      geometry: {
-        type: 'LineString' as const,
-        coordinates: seg.coordinates,
-      },
-    })),
-  }
-
-  const arrowData = {
-    type: 'FeatureCollection' as const,
-    features: subTracks.map((st, i) => ({
-      type: 'Feature' as const,
-      properties: { color: routeColors[i] },
-      geometry: {
-        type: 'LineString' as const,
-        coordinates: st.coordinates.map((c) => [c.lon, c.lat]),
-      },
-    })),
-  }
 
   if (coordinates.length === 0) return null
 

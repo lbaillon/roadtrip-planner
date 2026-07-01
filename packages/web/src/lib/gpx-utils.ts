@@ -24,7 +24,13 @@ const xmlBuilder = new XMLBuilder({
   format: true,
 })
 
+const parsedGpxCache = new Map<string, ParsedGpx>()
+const PARSE_CACHE_MAX = 50
+
 export function parseGpxFile(gpxContent: string): ParsedGpx {
+  const cached = parsedGpxCache.get(gpxContent)
+  if (cached) return cached
+
   const parsed = xmlParser.parse(gpxContent)
   const gpxData = parsed?.gpx
 
@@ -69,13 +75,20 @@ export function parseGpxFile(gpxContent: string): ParsedGpx {
   )
 
   const waypoints = extractWaypoints(gpxContent)
-  return ParsedGpxSchema.parse({
+  const result = ParsedGpxSchema.parse({
     name,
     coordinates,
     distance: distanceM,
     waypoints,
     subTracks,
   })
+
+  if (parsedGpxCache.size >= PARSE_CACHE_MAX) {
+    const oldest = parsedGpxCache.keys().next().value
+    if (oldest !== undefined) parsedGpxCache.delete(oldest)
+  }
+  parsedGpxCache.set(gpxContent, result)
+  return result
 }
 
 // Extracts <wpt> and <rtept> via fast-xml-parser
