@@ -1,10 +1,11 @@
 import { findNearestIndex } from '#web/lib/gpx-utils'
 import { getDirectionsUrl } from '#web/lib/maps-utils'
+import { computeRouteSegments } from '#web/lib/route-overlap'
 import type { GpxCoordinate, GpxWaypoint, WeatherData } from '@roadtrip/shared'
 import type { MenuProps } from 'antd'
 import { Button, Dropdown, Switch } from 'antd'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { MapMouseEvent } from 'react-map-gl/maplibre'
 import Map, { Layer, Marker, Popup, Source } from 'react-map-gl/maplibre'
 import styles from './MapView.module.css'
@@ -92,6 +93,13 @@ export default function MapView({
     )
     return () => navigator.geolocation.clearWatch(watchId)
   }, [locationEnabled, isGeolocationSupported, setUserPosition])
+
+  const routeSegments = useMemo(() => {
+    const colors = subTracks.map(
+      (_, i) => TRACK_COLORS[i % TRACK_COLORS.length]
+    )
+    return computeRouteSegments(subTracks, colors)
+  }, [subTracks])
 
   if (coordinates.length === 0) return null
 
@@ -294,34 +302,68 @@ export default function MapView({
         mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
         onClick={handleMapClick}
       >
-        {/* Route line */}
-        {subTracks.map((subTrack, index) => {
-          const color = TRACK_COLORS[index % TRACK_COLORS.length]
+        {/* Route lines: solid on exclusive portions, alternating dashes on
+            shared (overlapping) portions */}
+        {routeSegments.map((seg, index) => {
           const geoJSON = {
             type: 'Feature' as const,
             properties: {},
             geometry: {
               type: 'LineString' as const,
-              coordinates: subTrack.coordinates.map((c) => [c.lon, c.lat]),
+              coordinates: seg.coordinates,
             },
           }
           return (
             <Source
-              key={index}
-              id={`route-${index}`}
+              key={`seg-${index}`}
+              id={`route-seg-${index}`}
               type="geojson"
               data={geoJSON}
             >
               <Layer
-                id={`route-line-${index}`}
+                id={`route-seg-line-${index}`}
                 type="line"
                 paint={{
-                  'line-color': color,
+                  'line-color': seg.color,
                   'line-width': 4,
                   'line-opacity': 0.8,
                 }}
               />
-              {directionEnable && (
+              {seg.altColor && (
+                <Layer
+                  id={`route-seg-dash-${index}`}
+                  type="line"
+                  paint={{
+                    'line-color': seg.altColor,
+                    'line-width': 4,
+                    'line-opacity': 0.95,
+                    'line-dasharray': [2, 2],
+                  }}
+                />
+              )}
+            </Source>
+          )
+        })}
+
+        {/* Direction arrows on the full track geometry */}
+        {directionEnable &&
+          subTracks.map((subTrack, index) => {
+            const color = TRACK_COLORS[index % TRACK_COLORS.length]
+            const geoJSON = {
+              type: 'Feature' as const,
+              properties: {},
+              geometry: {
+                type: 'LineString' as const,
+                coordinates: subTrack.coordinates.map((c) => [c.lon, c.lat]),
+              },
+            }
+            return (
+              <Source
+                key={`dir-${index}`}
+                id={`route-dir-${index}`}
+                type="geojson"
+                data={geoJSON}
+              >
                 <Layer
                   id={`direction-signs-${index}`}
                   type="symbol"
@@ -335,10 +377,9 @@ export default function MapView({
                   }}
                   paint={{ 'text-color': color }}
                 />
-              )}
-            </Source>
-          )
-        })}
+              </Source>
+            )
+          })}
         {startflagEnable && (
           <Marker
             key="departure point"
