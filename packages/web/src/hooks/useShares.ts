@@ -4,7 +4,12 @@ import type {
   TrackSummary,
   TripSummary,
 } from '@roadtrip/shared'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import { useApi } from './useApi'
 
 export function useGetSharedTracks() {
@@ -12,6 +17,7 @@ export function useGetSharedTracks() {
   return useQuery({
     queryKey: ['tracks', 'shared'],
     queryFn: () => api<TrackSummary[]>('/api/tracks/shared'),
+    placeholderData: keepPreviousData,
   })
 }
 
@@ -20,6 +26,7 @@ export function useGetSharedTrips() {
   return useQuery({
     queryKey: ['trips', 'shared'],
     queryFn: () => api<TripSummary[]>('/api/trips/shared'),
+    placeholderData: keepPreviousData,
   })
 }
 
@@ -29,6 +36,7 @@ export function useGetTrackShares(id: string | undefined, enabled = true) {
     queryKey: ['tracks', id, 'shares'],
     queryFn: () => api<GetSharesResponse>(`/api/tracks/${id}/shares`),
     enabled: !!id && enabled,
+    placeholderData: keepPreviousData,
   })
 }
 
@@ -38,6 +46,7 @@ export function useGetTripShares(id: string | undefined, enabled = true) {
     queryKey: ['trips', id, 'shares'],
     queryFn: () => api<GetSharesResponse>(`/api/trips/${id}/shares`),
     enabled: !!id && enabled,
+    placeholderData: keepPreviousData,
   })
 }
 
