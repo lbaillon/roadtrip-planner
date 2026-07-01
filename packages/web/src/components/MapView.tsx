@@ -66,8 +66,8 @@ export default function MapView({
   const [locationEnabled, setLocationEnabled] = useState(false)
   const [waypointsEnabled, setWaypointsEnabled] = useState(false)
   const [weatherEnabled, setWeatherEnabled] = useState(true)
-  const [startflagEnable, setStartFlagEnable] = useState(false)
-  const [directionEnable, setDirectionEnable] = useState(false)
+  const [startflagEnable, setStartFlagEnable] = useState(true)
+  const [directionEnable, setDirectionEnable] = useState(true)
 
   const isGeolocationSupported =
     typeof navigator !== 'undefined' && !!navigator.geolocation
