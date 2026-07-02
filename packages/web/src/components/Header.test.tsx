@@ -1,5 +1,7 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import type { ReactNode } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import Header from './Header'
@@ -8,6 +10,17 @@ vi.mock('#web/hooks/useAuth')
 
 const { useAuth } = await import('#web/hooks/useAuth')
 const mockUseAuth = vi.mocked(useAuth)
+
+function renderHeader(ui: ReactNode) {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  })
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter>{ui}</MemoryRouter>
+    </QueryClientProvider>
+  )
+}
 
 describe('Header', () => {
   it('displays logout, my tracks and my trips when logged in', async () => {
@@ -20,14 +33,10 @@ describe('Header', () => {
     })
     const user = userEvent.setup()
 
-    render(
-      <MemoryRouter>
-        <Header />
-      </MemoryRouter>
-    )
+    renderHeader(<Header />)
 
     const barsIcon = screen.getByRole('img', { name: 'Menu de navigation' })
-    const userIcon = screen.getByRole('img', { name: 'Menu utilisateur' })
+    const userIcon = screen.getByLabelText('Menu utilisateur')
 
     await user.click(barsIcon)
 
@@ -51,14 +60,10 @@ describe('Header', () => {
 
     const user = userEvent.setup()
 
-    render(
-      <MemoryRouter>
-        <Header />
-      </MemoryRouter>
-    )
+    renderHeader(<Header />)
 
     const barsIcon = screen.getByRole('img', { name: 'Menu de navigation' })
-    const userIcon = screen.getByRole('img', { name: 'Menu utilisateur' })
+    const userIcon = screen.getByLabelText('Menu utilisateur')
 
     await user.click(barsIcon)
 
