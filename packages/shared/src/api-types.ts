@@ -92,6 +92,10 @@ export const ShareRequestSchema = z.object({
   emails: z.array(z.email()).min(1, 'At least one email is required'),
 })
 
+export const SetParticipationRequestSchema = z.object({
+  status: z.enum(['accepted', 'declined']),
+})
+
 export const ResendConfirmationRequestSchema = z.object({
   email: z.email(),
 })
@@ -152,6 +156,19 @@ export type TripSummary = {
 }
 export type TripTrack = { id: string; order: number }
 export type TrackSummary = { id: string; name: string }
+
+export type ParticipationStatus = 'pending' | 'accepted' | 'declined'
+export type TripParticipant = {
+  userId: string
+  username: string
+  profilePicture: string | null
+  status: ParticipationStatus
+  isOwner: boolean
+}
+export type GetTripParticipantsResponse = TripParticipant[]
+export type SetParticipationRequest = z.infer<
+  typeof SetParticipationRequestSchema
+>
 
 export type IdParams = z.infer<typeof IdParamsSchema>
 export type TrackOfTripParams = z.infer<typeof TrackOfTripParamsSchema>
