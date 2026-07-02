@@ -61,6 +61,7 @@ export function useGetSharedTracks() {
     queryKey: ['tracks', 'shared'],
     queryFn: () => api<TrackSummary[]>('/api/tracks/shared'),
     placeholderData: keepPreviousData,
+    staleTime: 0,
   })
 }
 
@@ -70,6 +71,7 @@ export function useGetSharedTrips() {
     queryKey: ['trips', 'shared'],
     queryFn: () => api<TripSummary[]>('/api/trips/shared'),
     placeholderData: keepPreviousData,
+    staleTime: 0,
   })
 }
 
