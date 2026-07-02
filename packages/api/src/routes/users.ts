@@ -19,6 +19,7 @@ import { sendConfirmationEmail } from '#api/services/mail.js'
 import { env } from '#api/env.js'
 import {
   processDelete,
+  processGet,
   processPost,
   processPut,
 } from '#api/utils/route-handler.js'
@@ -27,6 +28,7 @@ import {
   CreateResponse,
   CreateUserRequest,
   CreateUserRequestSchema,
+  GetMeResponse,
   IdParamsSchema,
   ResendConfirmationRequest,
   ResendConfirmationRequestSchema,
@@ -99,6 +101,34 @@ router.post(
     bodySchema: ResendConfirmationRequestSchema,
     handler: ({ body }) => resendConfirmation(body),
   })
+)
+
+async function getMe(user?: JWTPayload): Promise<GetMeResponse> {
+  if (!user) {
+    throw new ForbiddenError('Action is forbidden', codes.FORBIDDEN)
+  }
+  const [row] = await db
+    .select({
+      username: users.username,
+      email: users.email,
+      profilePicture: users.profilePicture,
+    })
+    .from(users)
+    .where(eq(users.id, user.userId))
+  if (!row) {
+    throw new NotFoundError('user not found', codes.MISSING_USER)
+  }
+  return {
+    username: row.username,
+    email: row.email,
+    profilePicture: row.profilePicture ?? null,
+  }
+}
+
+router.get(
+  '/me',
+  authenticate,
+  processGet({ handler: ({ user }) => getMe(user) })
 )
 
 async function deleteUser(id: string, user?: JWTPayload) {

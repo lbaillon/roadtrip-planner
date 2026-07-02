@@ -113,6 +113,12 @@ export const GetSharesResponseSchema = z.object({
   emails: z.array(z.string()),
 })
 
+export const GetMeResponseSchema = z.object({
+  username: z.string(),
+  email: z.string(),
+  profilePicture: z.string().nullable(),
+})
+
 // Response types
 
 export type TripSummary = {
@@ -154,6 +160,7 @@ export type UpdateTripPublicStatusRequest = z.infer<
 >
 export type ShareRequest = z.infer<typeof ShareRequestSchema>
 export type GetSharesResponse = z.infer<typeof GetSharesResponseSchema>
+export type GetMeResponse = z.infer<typeof GetMeResponseSchema>
 export type ResendConfirmationRequest = z.infer<
   typeof ResendConfirmationRequestSchema
 >
