@@ -1,5 +1,7 @@
 import type {
   GetSharesResponse,
+  GetTripParticipantsResponse,
+  SetParticipationRequest,
   ShareRequest,
   TrackSummary,
   TripSummary,
@@ -11,6 +13,32 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 import { useApi } from './useApi'
+
+export function useGetTripParticipants(id: string | undefined) {
+  const api = useApi()
+  return useQuery({
+    queryKey: ['trips', id, 'participants'],
+    queryFn: () =>
+      api<GetTripParticipantsResponse>(`/api/trips/${id}/participants`),
+    enabled: !!id,
+  })
+}
+
+export function useSetParticipation(id: string) {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (status: SetParticipationRequest['status']) =>
+      api<void>(`/api/trips/${id}/participation`, {
+        method: 'POST',
+        body: JSON.stringify({ status } satisfies SetParticipationRequest),
+      }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: ['trips', id, 'participants'],
+      }),
+  })
+}
 
 export function useGetSharedTracks() {
   const api = useApi()
