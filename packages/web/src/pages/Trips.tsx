@@ -5,12 +5,13 @@ import TripsList from '#web/components/TripsList'
 import UserGreeting from '#web/components/UserGreeting'
 import { useDeleteTrip } from '#web/hooks/mutations/useDeleteTrip'
 import { useGetTrips } from '#web/hooks/useTrips'
-import { useGetSharedTrips } from '#web/hooks/useShares'
+import { useGetSharedTrips, useLeaveSharedTrip } from '#web/hooks/useShares'
 import { Divider } from 'antd'
 export default function Trips() {
   const { data: trips } = useGetTrips()
   const { data: sharedTrips } = useGetSharedTrips()
   const { mutate: deleteTrip } = useDeleteTrip()
+  const { mutate: leaveSharedTrip } = useLeaveSharedTrip()
   return (
     <>
       <UserGreeting />
@@ -22,7 +23,7 @@ export default function Trips() {
           <>
             <Divider style={{ marginTop: 32 }} />
             <BoxTitle>Partagés avec moi</BoxTitle>
-            <TripsList trips={sharedTrips} />
+            <TripsList trips={sharedTrips} onDelete={leaveSharedTrip} />
           </>
         )}
       </Box>

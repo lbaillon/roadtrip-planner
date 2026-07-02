@@ -2,7 +2,10 @@ import AuthForm from '#web/components/AuthForm'
 import { Route, Routes } from 'react-router-dom'
 import MainLayout from './components/MainLayout'
 import SWUpdatePrompt from './components/SWUpdatePrompt'
+import Account from './pages/Account'
+import ForgotPassword from './pages/ForgotPassword'
 import Home from './pages/Home'
+import ResetPassword from './pages/ResetPassword'
 import TrackDetails from './pages/TrackDetails'
 import Tracks from './pages/Tracks'
 import TripDetails from './pages/TripDetails'
@@ -18,11 +21,14 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<AuthForm mode="login" />} />
           <Route path="/signup" element={<AuthForm mode="signup" />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/tracks" element={<Tracks />} />
           <Route path="/tracks/:id" element={<TrackDetails />} />
           <Route path="/trips" element={<Trips />} />
           <Route path="/trips/:id" element={<TripDetails />} />
           <Route path="/about" element={<About />} />
+          <Route path="/account" element={<Account />} />
         </Route>
       </Routes>
     </>

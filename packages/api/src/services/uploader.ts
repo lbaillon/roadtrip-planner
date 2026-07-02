@@ -54,6 +54,27 @@ export async function deleteGpx(publicId: string): Promise<void> {
   await cloudinary.uploader.destroy(publicId, { resource_type: 'raw' })
 }
 
+export async function uploadProfilePicture(
+  userId: string,
+  dataUrl: string
+): Promise<string> {
+  const result = await cloudinary.uploader.upload(dataUrl, {
+    folder: 'profile-pictures',
+    public_id: userId,
+    overwrite: true,
+    invalidate: true,
+    resource_type: 'image',
+  })
+  return result.secure_url
+}
+
+export async function deleteProfilePicture(userId: string): Promise<void> {
+  await cloudinary.uploader.destroy(`profile-pictures/${userId}`, {
+    resource_type: 'image',
+    invalidate: true,
+  })
+}
+
 export async function getGpxFile(publicId: string): Promise<string> {
   const url = cloudinary.url(publicId, { resource_type: 'raw' })
   const response = await fetch(url)

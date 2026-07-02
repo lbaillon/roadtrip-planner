@@ -195,8 +195,10 @@ async function getTrack(
       userId: tracks.userId,
       gpxFile: tracks.gpxFile,
       isPublic: tracks.isPublic,
+      owner: users.username,
     })
     .from(tracks)
+    .innerJoin(users, eq(users.id, tracks.userId))
     .leftJoin(tripTracks, eq(tripTracks.trackId, tracks.id))
     .leftJoin(trips, eq(trips.id, tripTracks.tripId))
     .leftJoin(trackSharesUsers, eq(trackSharesUsers.trackId, tracks.id))
@@ -222,6 +224,7 @@ async function getTrack(
     gpxContent,
     isPublic: track.isPublic,
     isOwner: track.userId === (user?.userId ?? ''),
+    sharedBy: track.owner,
   }
 }
 
@@ -388,6 +391,33 @@ router.get(
   processGet({
     paramsSchema: IdParamsSchema,
     handler: ({ params, user }) => getTrackShares(params.id, user),
+  })
+)
+
+async function leaveTrack(id: string, user?: JWTPayload): Promise<void> {
+  if (!user) {
+    throw new UnauthorizedError('Missing user', codes.MISSING_USER)
+  }
+  const result = await db
+    .delete(trackSharesUsers)
+    .where(
+      and(
+        eq(trackSharesUsers.trackId, id),
+        eq(trackSharesUsers.userId, user.userId)
+      )
+    )
+    .returning()
+  if (result.length === 0) {
+    throw new NotFoundError('Track share not found', codes.MISSING_TRACK)
+  }
+}
+
+router.delete(
+  '/:id/shares/me',
+  authenticate,
+  processDelete({
+    paramsSchema: IdParamsSchema,
+    handler: ({ params, user }) => leaveTrack(params.id, user),
   })
 )
 

@@ -15,6 +15,8 @@ export const users = sqliteTable('users', {
   password: text('password').notNull(),
   profilePicture: text('profile-picture'),
   confirmationKey: text('confirmation_key'),
+  resetKey: text('reset_key'),
+  resetKeyExpiresAt: integer('reset_key_expires_at', { mode: 'timestamp' }),
   createdAt: integer('created_at', { mode: 'timestamp' })
     .notNull()
     .$defaultFn(() => new Date()),
@@ -59,6 +61,11 @@ export const trips = sqliteTable(
     isPublic: integer('is_public', { mode: 'boolean' })
       .notNull()
       .default(false),
+    ownerStatus: text('owner_status', {
+      enum: ['pending', 'accepted', 'declined'],
+    })
+      .notNull()
+      .default('accepted'),
   },
   (table) => [index('trips_user_id_idx').on(table.userId)]
 )
@@ -124,6 +131,11 @@ export const tripSharesUsers = sqliteTable(
     userId: text('fk_user_id')
       .references(() => users.id, { onDelete: 'cascade' })
       .notNull(),
+    status: text('status', {
+      enum: ['pending', 'accepted', 'declined'],
+    })
+      .notNull()
+      .default('pending'),
   },
   (table) => [primaryKey({ columns: [table.tripId, table.userId] })]
 )

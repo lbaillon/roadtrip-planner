@@ -3,6 +3,7 @@ import {
   NewUser,
   trackSharesEmails,
   trackSharesUsers,
+  tracks,
   tripSharesEmails,
   tripSharesUsers,
   users,
@@ -11,14 +12,27 @@ import {
   ConflictError,
   ForbiddenError,
   NotFoundError,
+  UnauthorizedError,
 } from '#api/errors/app-errors.js'
 import { codes } from '#api/errors/error-codes.js'
-import { authenticate } from '#api/middlewares/auth.js'
-import { hashPassword, JWTPayload } from '#api/services/authentication.js'
-import { sendConfirmationEmail } from '#api/services/mail.js'
-import { env } from '#api/env.js'
+import { authenticate, AuthenticatedRequest } from '#api/middlewares/auth.js'
 import {
-  processDelete,
+  comparePassword,
+  hashPassword,
+  JWTPayload,
+  signAccessToken,
+  signRefreshToken,
+} from '#api/services/authentication.js'
+import { sendConfirmationEmail } from '#api/services/mail.js'
+import {
+  deleteGpx,
+  deleteProfilePicture,
+  uploadProfilePicture,
+} from '#api/services/uploader.js'
+import { env } from '#api/env.js'
+import { refreshTokenCookieParameters } from './auth.js'
+import {
+  processGet,
   processPost,
   processPut,
 } from '#api/utils/route-handler.js'
@@ -27,11 +41,11 @@ import {
   CreateResponse,
   CreateUserRequest,
   CreateUserRequestSchema,
-  IdParamsSchema,
+  GetMeResponse,
   ResendConfirmationRequest,
   ResendConfirmationRequestSchema,
-  UpdateUserRequest,
-  UpdateUserRequestSchema,
+  UpdateMeRequestSchema,
+  UpdateProfilePictureRequestSchema,
 } from '@roadtrip/shared'
 import { DrizzleQueryError, eq } from 'drizzle-orm'
 import { Request, Response, Router } from 'express'
@@ -101,76 +115,199 @@ router.post(
   })
 )
 
-async function deleteUser(id: string, user?: JWTPayload) {
-  if (!user || user.role != 'admin' || user.userId != id) {
+async function getMe(user?: JWTPayload): Promise<GetMeResponse> {
+  if (!user) {
     throw new ForbiddenError('Action is forbidden', codes.FORBIDDEN)
   }
-  const [deletedUser] = await db
-    .delete(users)
-    .where(eq(users.id, id))
-    .returning()
-  if (!deletedUser) {
+  const [row] = await db
+    .select({
+      username: users.username,
+      email: users.email,
+      profilePicture: users.profilePicture,
+    })
+    .from(users)
+    .where(eq(users.id, user.userId))
+  if (!row) {
     throw new NotFoundError('user not found', codes.MISSING_USER)
+  }
+  return {
+    username: row.username,
+    email: row.email,
+    profilePicture: row.profilePicture ?? null,
   }
 }
 
-router.delete(
-  '/:id',
+router.get(
+  '/me',
   authenticate,
-  processDelete({
-    paramsSchema: IdParamsSchema,
-    handler: ({ params, user }) => deleteUser(params.id, user),
-  })
+  processGet({ handler: ({ user }) => getMe(user) })
 )
 
-async function updateUser(
-  id: string,
-  body: UpdateUserRequest,
-  user?: JWTPayload
-) {
-  if (!user || user.role != 'admin' || user.userId != id) {
-    throw new ForbiddenError('Action is forbidden', codes.FORBIDDEN)
-  }
-  const updateData: Partial<NewUser> = {
-    username: body.username,
-    email: body.email,
-  }
-  if (body.password) {
-    updateData.password = await hashPassword(body.password)
-  }
-  try {
-    const [updatedUser] = await db
-      .update(users)
-      .set(updateData)
-      .where(eq(users.id, id))
+router.delete(
+  '/me',
+  authenticate,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const user = req.user
+    if (!user) {
+      res.status(401).json({ message: 'Unauthorized' })
+      return
+    }
+    const userTracks = await db
+      .select({ gpxFile: tracks.gpxFile })
+      .from(tracks)
+      .where(eq(tracks.userId, user.userId))
+
+    const [deleted] = await db
+      .delete(users)
+      .where(eq(users.id, user.userId))
       .returning()
-    if (!updatedUser) {
+    if (!deleted) {
       throw new NotFoundError('user not found', codes.MISSING_USER)
     }
-  } catch (err) {
-    if (
-      err instanceof DrizzleQueryError &&
-      err.cause instanceof LibsqlError &&
-      err.cause?.extendedCode === 'SQLITE_CONSTRAINT_UNIQUE'
-    ) {
-      throw new ConflictError(
-        'username or email already exists',
-        codes.USER_CONFLICT,
-        { cause: err }
+
+    // Best-effort cleanup of Cloudinary assets (the DB rows are already gone).
+    try {
+      await Promise.all([
+        ...userTracks.map((t) => deleteGpx(t.gpxFile)),
+        deleteProfilePicture(user.userId),
+      ])
+    } catch (err) {
+      console.error('[account-deletion] Cloudinary cleanup failed:', err)
+    }
+
+    res.status(204).send()
+  }
+)
+
+router.put(
+  '/me',
+  authenticate,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const user = req.user
+    if (!user) {
+      res.status(401).json({ message: 'Unauthorized' })
+      return
+    }
+    const body = UpdateMeRequestSchema.parse(req.body)
+
+    const [current] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, user.userId))
+    if (!current) {
+      throw new NotFoundError('user not found', codes.MISSING_USER)
+    }
+
+    const changingEmail = body.email != null && body.email !== current.email
+    const changingPassword = body.password != null
+
+    if (changingEmail || changingPassword) {
+      const ok =
+        body.currentPassword != null &&
+        (await comparePassword(body.currentPassword, current.password))
+      if (!ok) {
+        throw new UnauthorizedError(
+          'Invalid current password',
+          codes.WRONG_LOGIN
+        )
+      }
+    }
+
+    const updateData: Partial<NewUser> = {}
+    if (body.username) updateData.username = body.username
+    if (changingPassword) {
+      updateData.password = await hashPassword(body.password as string)
+    }
+
+    let confirmationKey: string | null = null
+    if (changingEmail) {
+      confirmationKey = crypto.randomUUID()
+      updateData.email = body.email
+      updateData.confirmationKey = confirmationKey
+    }
+
+    if (Object.keys(updateData).length > 0) {
+      try {
+        await db.update(users).set(updateData).where(eq(users.id, user.userId))
+      } catch (err) {
+        if (
+          err instanceof DrizzleQueryError &&
+          err.cause instanceof LibsqlError &&
+          err.cause?.extendedCode === 'SQLITE_CONSTRAINT_UNIQUE'
+        ) {
+          throw new ConflictError(
+            'username or email already exists',
+            codes.USER_CONFLICT,
+            { cause: err }
+          )
+        }
+        throw err
+      }
+    }
+
+    if (changingEmail && confirmationKey) {
+      await sendConfirmationEmail(
+        body.email as string,
+        `${env.API_URL}/api/users_confirmation/${confirmationKey}`
       )
     }
-    throw err
+
+    const payload = {
+      userId: user.userId,
+      email: body.email ?? current.email,
+      username: body.username ?? current.username,
+      role: user.role,
+    }
+    const accessToken = await signAccessToken(payload)
+    const refreshToken = await signRefreshToken(payload)
+    res.cookie('refreshToken', refreshToken, refreshTokenCookieParameters)
+    res.json({ accessToken })
   }
+)
+
+async function updateProfilePicture(
+  image: string,
+  user?: JWTPayload
+): Promise<void> {
+  if (!user) {
+    throw new UnauthorizedError('Missing user', codes.MISSING_USER)
+  }
+  const url = await uploadProfilePicture(user.userId, image)
+  await db
+    .update(users)
+    .set({ profilePicture: url })
+    .where(eq(users.id, user.userId))
 }
 
 router.put(
-  '/:id',
+  '/me/photo',
   authenticate,
   processPut({
-    paramsSchema: IdParamsSchema,
-    bodySchema: UpdateUserRequestSchema,
-    handler: ({ params, body, user }) => updateUser(params.id, body, user),
+    bodySchema: UpdateProfilePictureRequestSchema,
+    handler: ({ body, user }) => updateProfilePicture(body.image, user),
   })
+)
+
+router.delete(
+  '/me/photo',
+  authenticate,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const user = req.user
+    if (!user) {
+      res.status(401).json({ message: 'Unauthorized' })
+      return
+    }
+    await db
+      .update(users)
+      .set({ profilePicture: null })
+      .where(eq(users.id, user.userId))
+    try {
+      await deleteProfilePicture(user.userId)
+    } catch (err) {
+      console.error('[profile-picture] Cloudinary delete failed:', err)
+    }
+    res.status(204).send()
+  }
 )
 
 async function convertEmailShares(userId: string, email: string) {

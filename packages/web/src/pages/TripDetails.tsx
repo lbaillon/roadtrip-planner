@@ -26,6 +26,7 @@ import { useUpdateTripVisibility } from '#web/hooks/mutations/useUpdateTripVisib
 import { Button, Collapse, Input, Modal, Switch, message } from 'antd'
 import { useAuth } from '#web/hooks/useAuth'
 import ShareSection from '#web/components/ShareSection'
+import TripParticipants from '#web/components/TripParticipants'
 import { useGetTripShares, useShareTrip } from '#web/hooks/useShares'
 
 const MapView = lazy(() => import('#web/components/MapView'))
@@ -165,6 +166,10 @@ export default function TripDetails() {
             </span>
           )}
 
+          {!trip?.isOwner && trip?.sharedBy && (
+            <p style={{ opacity: 0.7 }}>Partagé par {trip.sharedBy}</p>
+          )}
+
           {totalDistanceKm > 0 && (
             <p className={styles.tripDistance}>
               Distance totale : {totalDistanceKm.toFixed(2)} km
@@ -178,7 +183,12 @@ export default function TripDetails() {
               {
                 key: 'description',
                 label: 'Description',
-                children: trip?.description ?? 'Aucune description',
+                children: (
+                  <>
+                    <p>{trip?.description ?? 'Aucune description'}</p>
+                    <TripParticipants tripId={id} />
+                  </>
+                ),
               },
             ]}
           />
@@ -194,17 +204,16 @@ export default function TripDetails() {
 
         {coordinates.length > 0 && (
           <Suspense fallback={<div>Chargement de la carte...</div>}>
-            <div style={{ height: '400px', marginTop: '20px' }}>
-              <MapView
-                subTracks={subTracks}
-                coordinates={coordinates}
-                weather={[]}
-                timepointIndex={[]}
-                waypoints={[]}
-                userPosition={userPosition}
-                setUserPosition={setUserPosition}
-              />
-            </div>
+            <MapView
+              subTracks={subTracks}
+              coordinates={coordinates}
+              weather={[]}
+              timepointIndex={[]}
+              waypoints={[]}
+              userPosition={userPosition}
+              setUserPosition={setUserPosition}
+              style={{ width: '100%', margin: '20px auto 0' }}
+            />
           </Suspense>
         )}
 

@@ -90,6 +90,12 @@ export default function AuthForm<M extends 'login' | 'signup'>({
           'Compte créé ! Confirmez votre email (pensez à vérifier les spams) avant de vous connecter.',
       }
     }
+    if (searchParams.get('reset') === '1') {
+      return {
+        type: 'success',
+        message: 'Mot de passe réinitialisé. Vous pouvez vous connecter.',
+      }
+    }
     return null
   }
   const notice = getNotice()
@@ -224,7 +230,7 @@ export default function AuthForm<M extends 'login' | 'signup'>({
       </Form>
       {mode === 'login' ? (
         <p className={styles.switchMode}>
-          Pas encore de compte ? <Link to="/signup">Créer un compte</Link>
+          <Link to="/signup">Créer un compte</Link>
         </p>
       ) : (
         <p className={styles.switchMode}>
@@ -233,9 +239,14 @@ export default function AuthForm<M extends 'login' | 'signup'>({
       )}
       {mode === 'login' && (
         <>
-          <Button type="link" onClick={() => setResendOpen(true)}>
-            Renvoyer l'email de confirmation
-          </Button>
+          <p className={styles.switchMode}>
+            <Link to="/forgot-password">Mot de passe oublié ?</Link>
+          </p>
+          {alert?.type === 'error' && (
+            <Button type="link" onClick={() => setResendOpen(true)}>
+              Renvoyer l'email de confirmation
+            </Button>
+          )}
           <Modal
             title="Renvoyer l'email de confirmation"
             open={resendOpen}

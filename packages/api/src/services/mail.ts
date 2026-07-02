@@ -38,6 +38,16 @@ export async function sendConfirmationEmail(
   )
 }
 
+export async function sendPasswordResetEmail(to: string, resetUrl: string) {
+  await sendMail(
+    to,
+    'Réinitialisation de votre mot de passe',
+    `<p>Vous avez demandé à réinitialiser votre mot de passe.</p>
+     <p><a href="${resetUrl}">Réinitialiser mon mot de passe</a></p>
+     <p>Ce lien expire dans 1 heure. Si vous n'êtes pas à l'origine de cette demande, ignorez cet email.</p>`
+  )
+}
+
 export async function sendShareEmail(
   to: string,
   inviterName: string,

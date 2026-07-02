@@ -26,10 +26,15 @@
   --line-height-base: 1.6;
 }
 
+html {
+  background-color: var(--surface);
+}
+
 body {
   font-family: var(--font-family);
   line-height: var(--line-height-base);
   color: var(--text);
+  background-color: var(--surface);
   background-image: url('https://res.cloudinary.com/djvbcdtwl/image/upload/v1772637448/background2_krlt4t.png');
   background-size: cover;
   background-position: center;

@@ -1,5 +1,7 @@
 import type {
   GetSharesResponse,
+  GetTripParticipantsResponse,
+  SetParticipationRequest,
   ShareRequest,
   TrackSummary,
   TripSummary,
@@ -12,12 +14,55 @@ import {
 } from '@tanstack/react-query'
 import { useApi } from './useApi'
 
+export function useGetTripParticipants(id: string | undefined) {
+  const api = useApi()
+  return useQuery({
+    queryKey: ['trips', id, 'participants'],
+    queryFn: () =>
+      api<GetTripParticipantsResponse>(`/api/trips/${id}/participants`),
+    enabled: !!id,
+    staleTime: 0,
+  })
+}
+
+export function useSetParticipation(id: string) {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (status: SetParticipationRequest['status']) =>
+      api<void>(`/api/trips/${id}/participation`, {
+        method: 'POST',
+        body: JSON.stringify({ status } satisfies SetParticipationRequest),
+      }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: ['trips', id, 'participants'],
+      }),
+  })
+}
+
+export function useRemoveParticipant(id: string) {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (participantUserId: string) =>
+      api<void>(`/api/trips/${id}/participants/${participantUserId}`, {
+        method: 'DELETE',
+      }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: ['trips', id, 'participants'],
+      }),
+  })
+}
+
 export function useGetSharedTracks() {
   const api = useApi()
   return useQuery({
     queryKey: ['tracks', 'shared'],
     queryFn: () => api<TrackSummary[]>('/api/tracks/shared'),
     placeholderData: keepPreviousData,
+    staleTime: 0,
   })
 }
 
@@ -27,6 +72,7 @@ export function useGetSharedTrips() {
     queryKey: ['trips', 'shared'],
     queryFn: () => api<TripSummary[]>('/api/trips/shared'),
     placeholderData: keepPreviousData,
+    staleTime: 0,
   })
 }
 
@@ -37,6 +83,7 @@ export function useGetTrackShares(id: string | undefined, enabled = true) {
     queryFn: () => api<GetSharesResponse>(`/api/tracks/${id}/shares`),
     enabled: !!id && enabled,
     placeholderData: keepPreviousData,
+    staleTime: 0,
   })
 }
 
@@ -47,6 +94,29 @@ export function useGetTripShares(id: string | undefined, enabled = true) {
     queryFn: () => api<GetSharesResponse>(`/api/trips/${id}/shares`),
     enabled: !!id && enabled,
     placeholderData: keepPreviousData,
+    staleTime: 0,
+  })
+}
+
+export function useLeaveSharedTrack() {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (trackId: string) =>
+      api<void>(`/api/tracks/${trackId}/shares/me`, { method: 'DELETE' }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ['tracks', 'shared'] }),
+  })
+}
+
+export function useLeaveSharedTrip() {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (tripId: string) =>
+      api<void>(`/api/trips/${tripId}/shares/me`, { method: 'DELETE' }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ['trips', 'shared'] }),
   })
 }
 

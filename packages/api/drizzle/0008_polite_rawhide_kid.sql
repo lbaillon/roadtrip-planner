@@ -1,0 +1,1 @@
+ALTER TABLE `trips` ADD `owner_status` text DEFAULT 'accepted' NOT NULL;

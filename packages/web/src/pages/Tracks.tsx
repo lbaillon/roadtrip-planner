@@ -5,13 +5,14 @@ import TracksList from '#web/components/TracksList'
 import UserGreeting from '#web/components/UserGreeting'
 import { useDeleteTrack } from '#web/hooks/mutations/useDeleteTrack'
 import { useGetTracks } from '#web/hooks/useTracks'
-import { useGetSharedTracks } from '#web/hooks/useShares'
+import { useGetSharedTracks, useLeaveSharedTrack } from '#web/hooks/useShares'
 import { Divider } from 'antd'
 
 export default function Tracks() {
   const { data: tracks } = useGetTracks()
   const { data: sharedTracks } = useGetSharedTracks()
   const { mutate: deleteTrack } = useDeleteTrack()
+  const { mutate: leaveSharedTrack } = useLeaveSharedTrack()
 
   return (
     <>
@@ -24,7 +25,7 @@ export default function Tracks() {
           <>
             <Divider style={{ marginTop: 32 }} />
             <BoxTitle>Partagés avec moi</BoxTitle>
-            <TracksList tracks={sharedTracks} />
+            <TracksList tracks={sharedTracks} onDelete={leaveSharedTrack} />
           </>
         )}
       </Box>

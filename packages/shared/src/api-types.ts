@@ -10,6 +10,11 @@ export const TrackOfTripParamsSchema = z.object({
   trackId: z.string().min(1, 'Cannot be empty'),
 })
 
+export const TripParticipantParamsSchema = z.object({
+  id: z.string().min(1, 'Cannot be empty'),
+  userId: z.string().min(1, 'Cannot be empty'),
+})
+
 // Request schemas
 
 export const GetWeatherRequestSchema = z.object({
@@ -34,6 +39,17 @@ export const LogInRequestSchema = z.object({
 export const CreateTrackRequestSchema = z.object({
   id: z.uuidv7(),
   gpxContent: z.string().min(1, 'GPX content cannot be empty'),
+})
+
+export const UpdateMeRequestSchema = z.object({
+  username: z.string().min(1).optional(),
+  email: z.email().optional(),
+  password: z.string().min(1).optional(),
+  currentPassword: z.string().optional(),
+})
+
+export const UpdateProfilePictureRequestSchema = z.object({
+  image: z.string().min(1),
 })
 
 export const UpdateUserRequestSchema = z.object({
@@ -81,8 +97,21 @@ export const ShareRequestSchema = z.object({
   emails: z.array(z.email()).min(1, 'At least one email is required'),
 })
 
+export const SetParticipationRequestSchema = z.object({
+  status: z.enum(['accepted', 'declined']),
+})
+
 export const ResendConfirmationRequestSchema = z.object({
   email: z.email(),
+})
+
+export const ForgotPasswordRequestSchema = z.object({
+  email: z.email(),
+})
+
+export const ResetPasswordRequestSchema = z.object({
+  token: z.string().min(1),
+  password: z.string().min(1),
 })
 
 // Response schemas
@@ -102,6 +131,7 @@ export const GetTrackResponseSchema = z.object({
   gpxContent: z.string(),
   isPublic: z.boolean(),
   isOwner: z.boolean().optional(),
+  sharedBy: z.string().optional(),
 })
 
 export const GetTrackVisibilityResponseSchema = z.object({
@@ -113,6 +143,12 @@ export const GetSharesResponseSchema = z.object({
   emails: z.array(z.string()),
 })
 
+export const GetMeResponseSchema = z.object({
+  username: z.string(),
+  email: z.string(),
+  profilePicture: z.string().nullable(),
+})
+
 // Response types
 
 export type TripSummary = {
@@ -121,9 +157,23 @@ export type TripSummary = {
   description?: string
   isPublic: boolean
   isOwner?: boolean
+  sharedBy?: string
 }
 export type TripTrack = { id: string; order: number }
 export type TrackSummary = { id: string; name: string }
+
+export type ParticipationStatus = 'pending' | 'accepted' | 'declined'
+export type TripParticipant = {
+  userId: string
+  username: string
+  profilePicture: string | null
+  status: ParticipationStatus
+  isOwner: boolean
+}
+export type GetTripParticipantsResponse = TripParticipant[]
+export type SetParticipationRequest = z.infer<
+  typeof SetParticipationRequestSchema
+>
 
 export type IdParams = z.infer<typeof IdParamsSchema>
 export type TrackOfTripParams = z.infer<typeof TrackOfTripParamsSchema>
@@ -154,6 +204,13 @@ export type UpdateTripPublicStatusRequest = z.infer<
 >
 export type ShareRequest = z.infer<typeof ShareRequestSchema>
 export type GetSharesResponse = z.infer<typeof GetSharesResponseSchema>
+export type GetMeResponse = z.infer<typeof GetMeResponseSchema>
+export type UpdateMeRequest = z.infer<typeof UpdateMeRequestSchema>
+export type UpdateProfilePictureRequest = z.infer<
+  typeof UpdateProfilePictureRequestSchema
+>
 export type ResendConfirmationRequest = z.infer<
   typeof ResendConfirmationRequestSchema
 >
+export type ForgotPasswordRequest = z.infer<typeof ForgotPasswordRequestSchema>
+export type ResetPasswordRequest = z.infer<typeof ResetPasswordRequestSchema>

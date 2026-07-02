@@ -1,10 +1,11 @@
 import { faBars, faUser } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import type { MenuProps } from 'antd'
-import { Alert, Dropdown } from 'antd'
+import { Alert, Avatar, Dropdown } from 'antd'
 import { Link } from 'react-router-dom'
 import styles from './Header.module.css'
 import { useAuth } from '#web/hooks/useAuth'
+import { useGetMe } from '#web/hooks/useAccount'
 import { useEffect, useState } from 'react'
 
 type AlertState = {
@@ -14,7 +15,8 @@ type AlertState = {
 
 export default function Header() {
   const [alert, setAlert] = useState<AlertState>(null)
-  const { userId, logout } = useAuth()
+  const { userId, username, logout } = useAuth()
+  const { data: me } = useGetMe()
 
   useEffect(() => {
     if (!alert) return
@@ -51,6 +53,10 @@ export default function Header() {
 
   if (userId) {
     userMenu = [
+      {
+        label: <Link to="/account">Mon compte</Link>,
+        key: 'account',
+      },
       {
         label: (
           <Link to="/login" onClick={onLogout}>
@@ -94,11 +100,21 @@ export default function Header() {
         <Alert description={alert.message} type={alert.type} showIcon />
       )}
       <Dropdown menu={{ items: userMenu }} trigger={['click']}>
-        <FontAwesomeIcon
-          className={styles.headerIcon}
-          icon={faUser}
-          aria-label="Menu utilisateur"
-        />
+        {userId ? (
+          <Avatar
+            src={me?.profilePicture ?? undefined}
+            style={{ cursor: 'pointer' }}
+            aria-label="Menu utilisateur"
+          >
+            {username?.[0]?.toUpperCase()}
+          </Avatar>
+        ) : (
+          <FontAwesomeIcon
+            className={styles.headerIcon}
+            icon={faUser}
+            aria-label="Menu utilisateur"
+          />
+        )}
       </Dropdown>
     </div>
   )
