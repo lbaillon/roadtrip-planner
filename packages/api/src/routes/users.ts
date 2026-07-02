@@ -23,12 +23,14 @@ import {
   signRefreshToken,
 } from '#api/services/authentication.js'
 import { sendConfirmationEmail } from '#api/services/mail.js'
+import { uploadProfilePicture } from '#api/services/uploader.js'
 import { env } from '#api/env.js'
 import { refreshTokenCookieParameters } from './auth.js'
 import {
   processDelete,
   processGet,
   processPost,
+  processPut,
 } from '#api/utils/route-handler.js'
 import { LibsqlError } from '@libsql/client'
 import {
@@ -40,6 +42,7 @@ import {
   ResendConfirmationRequest,
   ResendConfirmationRequestSchema,
   UpdateMeRequestSchema,
+  UpdateProfilePictureRequestSchema,
 } from '@roadtrip/shared'
 import { DrizzleQueryError, eq } from 'drizzle-orm'
 import { Request, Response, Router } from 'express'
@@ -243,6 +246,29 @@ router.put(
     res.cookie('refreshToken', refreshToken, refreshTokenCookieParameters)
     res.json({ accessToken })
   }
+)
+
+async function updateProfilePicture(
+  image: string,
+  user?: JWTPayload
+): Promise<void> {
+  if (!user) {
+    throw new UnauthorizedError('Missing user', codes.MISSING_USER)
+  }
+  const url = await uploadProfilePicture(user.userId, image)
+  await db
+    .update(users)
+    .set({ profilePicture: url })
+    .where(eq(users.id, user.userId))
+}
+
+router.put(
+  '/me/photo',
+  authenticate,
+  processPut({
+    bodySchema: UpdateProfilePictureRequestSchema,
+    handler: ({ body, user }) => updateProfilePicture(body.image, user),
+  })
 )
 
 async function convertEmailShares(userId: string, email: string) {

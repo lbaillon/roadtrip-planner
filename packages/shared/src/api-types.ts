@@ -43,6 +43,10 @@ export const UpdateMeRequestSchema = z.object({
   currentPassword: z.string().optional(),
 })
 
+export const UpdateProfilePictureRequestSchema = z.object({
+  image: z.string().min(1),
+})
+
 export const UpdateUserRequestSchema = z.object({
   email: z.string().min(1, 'Cannot be empty').optional(),
   password: z.string().min(1, 'Cannot be empty').optional(),
@@ -169,6 +173,9 @@ export type ShareRequest = z.infer<typeof ShareRequestSchema>
 export type GetSharesResponse = z.infer<typeof GetSharesResponseSchema>
 export type GetMeResponse = z.infer<typeof GetMeResponseSchema>
 export type UpdateMeRequest = z.infer<typeof UpdateMeRequestSchema>
+export type UpdateProfilePictureRequest = z.infer<
+  typeof UpdateProfilePictureRequestSchema
+>
 export type ResendConfirmationRequest = z.infer<
   typeof ResendConfirmationRequestSchema
 >
