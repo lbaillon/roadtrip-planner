@@ -58,6 +58,7 @@ export default function TrackDetails() {
         <TrackContent
           isPublic={track?.isPublic ?? false}
           isOwner={track?.isOwner ?? false}
+          sharedBy={track?.sharedBy}
           routeColor={stateColor}
           parsed={parsed}
           headerAction={

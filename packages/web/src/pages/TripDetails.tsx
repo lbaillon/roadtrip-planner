@@ -165,6 +165,10 @@ export default function TripDetails() {
             </span>
           )}
 
+          {!trip?.isOwner && trip?.sharedBy && (
+            <p style={{ opacity: 0.7 }}>Partagé par {trip.sharedBy}</p>
+          )}
+
           {totalDistanceKm > 0 && (
             <p className={styles.tripDistance}>
               Distance totale : {totalDistanceKm.toFixed(2)} km

@@ -195,8 +195,10 @@ async function getTrack(
       userId: tracks.userId,
       gpxFile: tracks.gpxFile,
       isPublic: tracks.isPublic,
+      owner: users.username,
     })
     .from(tracks)
+    .innerJoin(users, eq(users.id, tracks.userId))
     .leftJoin(tripTracks, eq(tripTracks.trackId, tracks.id))
     .leftJoin(trips, eq(trips.id, tripTracks.tripId))
     .leftJoin(trackSharesUsers, eq(trackSharesUsers.trackId, tracks.id))
@@ -222,6 +224,7 @@ async function getTrack(
     gpxContent,
     isPublic: track.isPublic,
     isOwner: track.userId === (user?.userId ?? ''),
+    sharedBy: track.owner,
   }
 }
 

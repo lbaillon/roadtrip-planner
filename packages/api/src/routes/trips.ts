@@ -188,8 +188,10 @@ async function getTrip(id: string, user?: JWTPayload): Promise<TripSummary> {
       description: trips.description,
       isPublic: trips.isPublic,
       userId: trips.userId,
+      owner: users.username,
     })
     .from(trips)
+    .innerJoin(users, eq(users.id, trips.userId))
     .leftJoin(tripSharesUsers, eq(tripSharesUsers.tripId, trips.id))
     .where(
       and(
@@ -211,6 +213,7 @@ async function getTrip(id: string, user?: JWTPayload): Promise<TripSummary> {
     description: trip.description ?? undefined,
     isPublic: trip.isPublic,
     isOwner: trip.userId === (user?.userId ?? ''),
+    sharedBy: trip.owner,
   }
 }
 

@@ -122,6 +122,7 @@ export const GetTrackResponseSchema = z.object({
   gpxContent: z.string(),
   isPublic: z.boolean(),
   isOwner: z.boolean().optional(),
+  sharedBy: z.string().optional(),
 })
 
 export const GetTrackVisibilityResponseSchema = z.object({
@@ -147,6 +148,7 @@ export type TripSummary = {
   description?: string
   isPublic: boolean
   isOwner?: boolean
+  sharedBy?: string
 }
 export type TripTrack = { id: string; order: number }
 export type TrackSummary = { id: string; name: string }

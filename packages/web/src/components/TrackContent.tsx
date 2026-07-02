@@ -53,6 +53,7 @@ export default function TrackContent({
   isPublic,
   isOwner,
   routeColor,
+  sharedBy,
 }: {
   trackName?: string
   parsed: ParsedGpx
@@ -60,6 +61,7 @@ export default function TrackContent({
   isPublic?: boolean
   isOwner?: boolean
   routeColor?: string
+  sharedBy?: string
 }) {
   const [timepointIndex, setTimepointIndex] = useState(0)
   const [isEditMode, setIsEditMode] = useState(false)
@@ -250,6 +252,11 @@ export default function TrackContent({
           <div className={styles.headerSpacer} />
         )}
       </div>
+      {!isOwner && sharedBy && (
+        <p style={{ opacity: 0.7, textAlign: 'center' }}>
+          Partagé par {sharedBy}
+        </p>
+      )}
       {accessToken && id && (
         <div className={styles.badgeWrapper}>
           <span
