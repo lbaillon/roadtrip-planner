@@ -33,7 +33,9 @@ import {
   CreateTripRequest,
   CreateTripRequestSchema,
   GetSharesResponse,
+  GetTripParticipantsResponse,
   IdParamsSchema,
+  SetParticipationRequestSchema,
   ShareRequest,
   ShareRequestSchema,
   TrackOfTripParamsSchema,
@@ -518,6 +520,121 @@ router.get(
   processGet({
     paramsSchema: IdParamsSchema,
     handler: ({ params, user }) => getTripShares(params.id, user),
+  })
+)
+
+async function getTripParticipants(
+  id: string,
+  user?: JWTPayload
+): Promise<GetTripParticipantsResponse> {
+  if (!user) {
+    throw new UnauthorizedError('Missing user', codes.MISSING_USER)
+  }
+  const [trip] = await db
+    .select({ userId: trips.userId })
+    .from(trips)
+    .where(eq(trips.id, id))
+  if (!trip) {
+    throw new NotFoundError('Trip not found', codes.MISSING_TRIP)
+  }
+  const isOwner = trip.userId === user.userId
+  if (!isOwner) {
+    // Participants are only visible to the people involved (owner + shared).
+    const [share] = await db
+      .select({ userId: tripSharesUsers.userId })
+      .from(tripSharesUsers)
+      .where(
+        and(
+          eq(tripSharesUsers.tripId, id),
+          eq(tripSharesUsers.userId, user.userId)
+        )
+      )
+    if (!share) {
+      throw new NotFoundError('Trip not found', codes.MISSING_TRIP)
+    }
+  }
+
+  const [owner] = await db
+    .select({
+      userId: users.id,
+      username: users.username,
+      profilePicture: users.profilePicture,
+    })
+    .from(users)
+    .where(eq(users.id, trip.userId))
+
+  const shared = await db
+    .select({
+      userId: users.id,
+      username: users.username,
+      profilePicture: users.profilePicture,
+      status: tripSharesUsers.status,
+    })
+    .from(tripSharesUsers)
+    .innerJoin(users, eq(users.id, tripSharesUsers.userId))
+    .where(eq(tripSharesUsers.tripId, id))
+
+  return [
+    {
+      userId: owner.userId,
+      username: owner.username,
+      profilePicture: owner.profilePicture ?? null,
+      status: 'accepted',
+      isOwner: true,
+    },
+    ...shared.map((s) => ({
+      userId: s.userId,
+      username: s.username,
+      profilePicture: s.profilePicture ?? null,
+      status: s.status,
+      isOwner: false,
+    })),
+  ]
+}
+
+router.get(
+  '/:id/participants',
+  authenticate,
+  processGet({
+    paramsSchema: IdParamsSchema,
+    handler: ({ params, user }) => getTripParticipants(params.id, user),
+  })
+)
+
+async function setParticipation(
+  id: string,
+  status: 'accepted' | 'declined',
+  user?: JWTPayload
+): Promise<void> {
+  if (!user) {
+    throw new UnauthorizedError('Missing user', codes.MISSING_USER)
+  }
+  const updated = await db
+    .update(tripSharesUsers)
+    .set({ status })
+    .where(
+      and(
+        eq(tripSharesUsers.tripId, id),
+        eq(tripSharesUsers.userId, user.userId)
+      )
+    )
+    .returning()
+  if (updated.length === 0) {
+    throw new NotFoundError(
+      'Not a participant of this trip',
+      codes.MISSING_TRIP
+    )
+  }
+}
+
+router.post(
+  '/:id/participation',
+  authenticate,
+  processPost({
+    paramsSchema: IdParamsSchema,
+    bodySchema: SetParticipationRequestSchema,
+    handler: ({ params, body, user }) =>
+      setParticipation(params.id, body.status, user),
   })
 )
 
