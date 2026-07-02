@@ -3,6 +3,7 @@ import {
   NewUser,
   trackSharesEmails,
   trackSharesUsers,
+  tracks,
   tripSharesEmails,
   tripSharesUsers,
   users,
@@ -23,7 +24,11 @@ import {
   signRefreshToken,
 } from '#api/services/authentication.js'
 import { sendConfirmationEmail } from '#api/services/mail.js'
-import { uploadProfilePicture } from '#api/services/uploader.js'
+import {
+  deleteGpx,
+  deleteProfilePicture,
+  uploadProfilePicture,
+} from '#api/services/uploader.js'
 import { env } from '#api/env.js'
 import { refreshTokenCookieParameters } from './auth.js'
 import {
@@ -147,6 +152,11 @@ router.delete(
       res.status(401).json({ message: 'Unauthorized' })
       return
     }
+    const userTracks = await db
+      .select({ gpxFile: tracks.gpxFile })
+      .from(tracks)
+      .where(eq(tracks.userId, user.userId))
+
     const [deleted] = await db
       .delete(users)
       .where(eq(users.id, user.userId))
@@ -154,6 +164,17 @@ router.delete(
     if (!deleted) {
       throw new NotFoundError('user not found', codes.MISSING_USER)
     }
+
+    // Best-effort cleanup of Cloudinary assets (the DB rows are already gone).
+    try {
+      await Promise.all([
+        ...userTracks.map((t) => deleteGpx(t.gpxFile)),
+        deleteProfilePicture(user.userId),
+      ])
+    } catch (err) {
+      console.error('[account-deletion] Cloudinary cleanup failed:', err)
+    }
+
     res.status(204).send()
   }
 )
@@ -265,6 +286,28 @@ router.put(
     bodySchema: UpdateProfilePictureRequestSchema,
     handler: ({ body, user }) => updateProfilePicture(body.image, user),
   })
+)
+
+router.delete(
+  '/me/photo',
+  authenticate,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const user = req.user
+    if (!user) {
+      res.status(401).json({ message: 'Unauthorized' })
+      return
+    }
+    await db
+      .update(users)
+      .set({ profilePicture: null })
+      .where(eq(users.id, user.userId))
+    try {
+      await deleteProfilePicture(user.userId)
+    } catch (err) {
+      console.error('[profile-picture] Cloudinary delete failed:', err)
+    }
+    res.status(204).send()
+  }
 )
 
 async function convertEmailShares(userId: string, email: string) {

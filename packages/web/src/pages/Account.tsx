@@ -3,6 +3,7 @@ import BoxTitle from '#web/components/BoxTitle'
 import UserGreeting from '#web/components/UserGreeting'
 import {
   useDeleteMe,
+  useDeleteProfilePicture,
   useGetMe,
   useUpdateMe,
   useUpdateProfilePicture,
@@ -29,6 +30,8 @@ export default function Account() {
   const { mutate: updateMe, isPending } = useUpdateMe()
   const { mutate: updatePhoto, isPending: isUploadingPhoto } =
     useUpdateProfilePicture()
+  const { mutate: deletePhoto, isPending: isDeletingPhoto } =
+    useDeleteProfilePicture()
   const { mutate: deleteMe, isPending: isDeleting } = useDeleteMe()
   const { logout } = useAuth()
   const navigate = useNavigate()
@@ -37,6 +40,7 @@ export default function Account() {
   const [isInfoOpen, setIsInfoOpen] = useState(false)
   const [isPasswordOpen, setIsPasswordOpen] = useState(false)
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+  const [isPhotoMenuOpen, setIsPhotoMenuOpen] = useState(false)
 
   const handleDelete = () => {
     deleteMe(undefined, {
@@ -67,6 +71,13 @@ export default function Account() {
       })
     }
     reader.readAsDataURL(file)
+  }
+
+  const handleDeletePhoto = () => {
+    deletePhoto(undefined, {
+      onSuccess: () => messageApi.success('Photo de profil supprimée'),
+      onError: (e) => messageApi.error(`Erreur : ${e.message}`),
+    })
   }
 
   const openInfo = () => {
@@ -131,19 +142,29 @@ export default function Account() {
               alignItems: 'flex-start',
             }}
           >
-            <Avatar size={96} src={me.profilePicture ?? undefined}>
-              {me.username?.[0]?.toUpperCase()}
-            </Avatar>
-            <Upload
-              accept="image/*"
-              showUploadList={false}
-              beforeUpload={(file) => {
-                handlePhoto(file)
-                return false
-              }}
-            >
-              <Button loading={isUploadingPhoto}>Changer la photo</Button>
-            </Upload>
+            {me.profilePicture ? (
+              <Avatar
+                size={96}
+                src={me.profilePicture}
+                style={{ cursor: 'pointer' }}
+                onClick={() => setIsPhotoMenuOpen(true)}
+              >
+                {me.username?.[0]?.toUpperCase()}
+              </Avatar>
+            ) : (
+              <Upload
+                accept="image/*"
+                showUploadList={false}
+                beforeUpload={(file) => {
+                  handlePhoto(file)
+                  return false
+                }}
+              >
+                <Avatar size={96} style={{ cursor: 'pointer' }}>
+                  {me.username?.[0]?.toUpperCase()}
+                </Avatar>
+              </Upload>
+            )}
 
             <div>
               <p>
@@ -281,6 +302,37 @@ export default function Account() {
           Cette action est irréversible. Vos circuits et voyages seront
           définitivement supprimés. Confirmer la suppression de votre compte ?
         </p>
+      </Modal>
+
+      <Modal
+        title="Photo de profil"
+        open={isPhotoMenuOpen}
+        onCancel={() => setIsPhotoMenuOpen(false)}
+        footer={null}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <Upload
+            accept="image/*"
+            showUploadList={false}
+            beforeUpload={(file) => {
+              handlePhoto(file)
+              setIsPhotoMenuOpen(false)
+              return false
+            }}
+          >
+            <Button loading={isUploadingPhoto}>Modifier la photo</Button>
+          </Upload>
+          <Button
+            danger
+            loading={isDeletingPhoto}
+            onClick={() => {
+              handleDeletePhoto()
+              setIsPhotoMenuOpen(false)
+            }}
+          >
+            Supprimer la photo
+          </Button>
+        </div>
       </Modal>
     </>
   )
