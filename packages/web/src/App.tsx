@@ -2,6 +2,7 @@ import AuthForm from '#web/components/AuthForm'
 import { Route, Routes } from 'react-router-dom'
 import MainLayout from './components/MainLayout'
 import SWUpdatePrompt from './components/SWUpdatePrompt'
+import Account from './pages/Account'
 import Home from './pages/Home'
 import TrackDetails from './pages/TrackDetails'
 import Tracks from './pages/Tracks'
@@ -23,6 +24,7 @@ export default function App() {
           <Route path="/trips" element={<Trips />} />
           <Route path="/trips/:id" element={<TripDetails />} />
           <Route path="/about" element={<About />} />
+          <Route path="/account" element={<Account />} />
         </Route>
       </Routes>
     </>

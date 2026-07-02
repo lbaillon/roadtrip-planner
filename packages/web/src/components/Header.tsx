@@ -52,6 +52,10 @@ export default function Header() {
   if (userId) {
     userMenu = [
       {
+        label: <Link to="/account">Mon compte</Link>,
+        key: 'account',
+      },
+      {
         label: (
           <Link to="/login" onClick={onLogout}>
             Se déconnecter
