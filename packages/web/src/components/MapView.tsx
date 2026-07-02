@@ -291,6 +291,17 @@ export default function MapView({
     }
   }
 
+  function handleToggleEditMode() {
+    // En entrant en mode édition, on active les points d'intérêt et on masque
+    // la météo pour dégager la carte pendant l'ajout de waypoints.
+    if (!isEditMode) {
+      setWaypointsEnabled(true)
+      setWeatherEnabled(false)
+      setSelectedWeather(null)
+    }
+    onToggleEditMode?.()
+  }
+
   return (
     <div
       className={`${styles.mapMain} ${isEditMode ? styles.mapEditMode : ''}`}
@@ -318,7 +329,7 @@ export default function MapView({
       {showEditToggle && (
         <button
           className={`${styles.editModeButton} ${isEditMode ? styles.editModeActive : ''}`}
-          onClick={onToggleEditMode}
+          onClick={handleToggleEditMode}
           aria-label={
             isEditMode
               ? 'Quitter le mode édition'
