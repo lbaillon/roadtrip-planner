@@ -40,6 +40,21 @@ export function useSetParticipation(id: string) {
   })
 }
 
+export function useRemoveParticipant(id: string) {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (participantUserId: string) =>
+      api<void>(`/api/trips/${id}/participants/${participantUserId}`, {
+        method: 'DELETE',
+      }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: ['trips', id, 'participants'],
+      }),
+  })
+}
+
 export function useGetSharedTracks() {
   const api = useApi()
   return useQuery({

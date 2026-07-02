@@ -39,6 +39,7 @@ import {
   ShareRequest,
   ShareRequestSchema,
   TrackOfTripParamsSchema,
+  TripParticipantParamsSchema,
   TripSummary,
   TripTrack,
   UpdateTripPublicStatusRequestSchema,
@@ -635,6 +636,45 @@ router.post(
     bodySchema: SetParticipationRequestSchema,
     handler: ({ params, body, user }) =>
       setParticipation(params.id, body.status, user),
+  })
+)
+
+async function removeParticipant(
+  tripId: string,
+  participantUserId: string,
+  user?: JWTPayload
+): Promise<void> {
+  if (!user) {
+    throw new UnauthorizedError('Missing user', codes.MISSING_USER)
+  }
+  const [trip] = await db
+    .select({ userId: trips.userId })
+    .from(trips)
+    .where(and(eq(trips.id, tripId), eq(trips.userId, user.userId)))
+  if (!trip) {
+    throw new NotFoundError('Trip not found', codes.MISSING_TRIP)
+  }
+  const result = await db
+    .delete(tripSharesUsers)
+    .where(
+      and(
+        eq(tripSharesUsers.tripId, tripId),
+        eq(tripSharesUsers.userId, participantUserId)
+      )
+    )
+    .returning()
+  if (result.length === 0) {
+    throw new NotFoundError('Participant not found', codes.MISSING_USER)
+  }
+}
+
+router.delete(
+  '/:id/participants/:userId',
+  authenticate,
+  processDelete({
+    paramsSchema: TripParticipantParamsSchema,
+    handler: ({ params, user }) =>
+      removeParticipant(params.id, params.userId, user),
   })
 )
 

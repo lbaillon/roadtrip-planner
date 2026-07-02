@@ -10,6 +10,11 @@ export const TrackOfTripParamsSchema = z.object({
   trackId: z.string().min(1, 'Cannot be empty'),
 })
 
+export const TripParticipantParamsSchema = z.object({
+  id: z.string().min(1, 'Cannot be empty'),
+  userId: z.string().min(1, 'Cannot be empty'),
+})
+
 // Request schemas
 
 export const GetWeatherRequestSchema = z.object({

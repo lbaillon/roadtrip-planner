@@ -1,6 +1,7 @@
 import { useAuth } from '#web/hooks/useAuth'
 import {
   useGetTripParticipants,
+  useRemoveParticipant,
   useSetParticipation,
 } from '#web/hooks/useShares'
 import type { ParticipationStatus } from '@roadtrip/shared'
@@ -27,10 +28,12 @@ export default function TripParticipants({
   const { userId } = useAuth()
   const { data: participants } = useGetTripParticipants(tripId)
   const { mutate: setParticipation } = useSetParticipation(tripId ?? '')
+  const { mutate: removeParticipant } = useRemoveParticipant(tripId ?? '')
   const [dismissed, setDismissed] = useState(false)
 
   if (!participants || participants.length === 0) return null
 
+  const amOwner = participants.some((p) => p.isOwner && p.userId === userId)
   const me = participants.find((p) => p.userId === userId && !p.isOwner)
   const promptOpen = me?.status === 'pending' && !dismissed
 
@@ -39,29 +42,43 @@ export default function TripParticipants({
     setDismissed(true)
   }
 
-  const menuItems = [
-    {
-      key: 'accepted',
-      label: 'Je participe',
-      onClick: () => setParticipation('accepted'),
-    },
-    {
-      key: 'declined',
-      label: 'Je ne participe pas',
-      onClick: () => setParticipation('declined'),
-    },
-  ]
-
   return (
     <>
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
         {participants.map((p) => {
           const isMe = p.userId === userId && !p.isOwner
+          const canRemove = amOwner && !p.isOwner && p.userId !== userId
+          const clickable = isMe || canRemove
+
+          const items = isMe
+            ? [
+                {
+                  key: 'accepted',
+                  label: 'Je participe',
+                  onClick: () => setParticipation('accepted'),
+                },
+                {
+                  key: 'declined',
+                  label: 'Je ne participe pas',
+                  onClick: () => setParticipation('declined'),
+                },
+              ]
+            : canRemove
+              ? [
+                  {
+                    key: 'remove',
+                    label: 'Retirer du voyage',
+                    danger: true,
+                    onClick: () => removeParticipant(p.userId),
+                  },
+                ]
+              : []
+
           const avatar = (
             <span
               style={{
                 display: 'inline-flex',
-                cursor: isMe ? 'pointer' : 'default',
+                cursor: clickable ? 'pointer' : 'default',
               }}
             >
               <Avatar
@@ -78,8 +95,8 @@ export default function TripParticipants({
               key={p.userId}
               title={`${p.username}${p.isOwner ? ' (organisateur)' : ''} — ${STATUS_LABEL[p.status]}`}
             >
-              {isMe ? (
-                <Dropdown menu={{ items: menuItems }} trigger={['click']}>
+              {clickable ? (
+                <Dropdown menu={{ items }} trigger={['click']}>
                   {avatar}
                 </Dropdown>
               ) : (
