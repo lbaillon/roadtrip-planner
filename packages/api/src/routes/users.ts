@@ -27,7 +27,6 @@ import { uploadProfilePicture } from '#api/services/uploader.js'
 import { env } from '#api/env.js'
 import { refreshTokenCookieParameters } from './auth.js'
 import {
-  processDelete,
   processGet,
   processPost,
   processPut,
@@ -38,7 +37,6 @@ import {
   CreateUserRequest,
   CreateUserRequestSchema,
   GetMeResponse,
-  IdParamsSchema,
   ResendConfirmationRequest,
   ResendConfirmationRequestSchema,
   UpdateMeRequestSchema,
@@ -140,26 +138,24 @@ router.get(
   processGet({ handler: ({ user }) => getMe(user) })
 )
 
-async function deleteUser(id: string, user?: JWTPayload) {
-  if (!user || user.role != 'admin' || user.userId != id) {
-    throw new ForbiddenError('Action is forbidden', codes.FORBIDDEN)
-  }
-  const [deletedUser] = await db
-    .delete(users)
-    .where(eq(users.id, id))
-    .returning()
-  if (!deletedUser) {
-    throw new NotFoundError('user not found', codes.MISSING_USER)
-  }
-}
-
 router.delete(
-  '/:id',
+  '/me',
   authenticate,
-  processDelete({
-    paramsSchema: IdParamsSchema,
-    handler: ({ params, user }) => deleteUser(params.id, user),
-  })
+  async (req: AuthenticatedRequest, res: Response) => {
+    const user = req.user
+    if (!user) {
+      res.status(401).json({ message: 'Unauthorized' })
+      return
+    }
+    const [deleted] = await db
+      .delete(users)
+      .where(eq(users.id, user.userId))
+      .returning()
+    if (!deleted) {
+      throw new NotFoundError('user not found', codes.MISSING_USER)
+    }
+    res.status(204).send()
+  }
 )
 
 router.put(

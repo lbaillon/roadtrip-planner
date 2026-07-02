@@ -2,12 +2,15 @@ import Box from '#web/components/Box'
 import BoxTitle from '#web/components/BoxTitle'
 import UserGreeting from '#web/components/UserGreeting'
 import {
+  useDeleteMe,
   useGetMe,
   useUpdateMe,
   useUpdateProfilePicture,
 } from '#web/hooks/useAccount'
+import { useAuth } from '#web/hooks/useAuth'
 import { Avatar, Button, Form, Input, message, Modal, Upload } from 'antd'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 type InfoFormValues = {
   username: string
@@ -26,10 +29,24 @@ export default function Account() {
   const { mutate: updateMe, isPending } = useUpdateMe()
   const { mutate: updatePhoto, isPending: isUploadingPhoto } =
     useUpdateProfilePicture()
+  const { mutate: deleteMe, isPending: isDeleting } = useDeleteMe()
+  const { logout } = useAuth()
+  const navigate = useNavigate()
   const [messageApi, contextHolder] = message.useMessage()
 
   const [isInfoOpen, setIsInfoOpen] = useState(false)
   const [isPasswordOpen, setIsPasswordOpen] = useState(false)
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+
+  const handleDelete = () => {
+    deleteMe(undefined, {
+      onSuccess: () => {
+        logout()
+        navigate('/')
+      },
+      onError: (e) => messageApi.error(`Erreur : ${e.message}`),
+    })
+  }
   const [infoForm] = Form.useForm<InfoFormValues>()
   const [passwordForm] = Form.useForm<PasswordFormValues>()
 
@@ -143,6 +160,10 @@ export default function Account() {
             <Button onClick={() => setIsPasswordOpen(true)}>
               Modifier le mot de passe
             </Button>
+
+            <Button danger onClick={() => setIsDeleteOpen(true)}>
+              Supprimer mon compte
+            </Button>
           </div>
         )}
       </Box>
@@ -244,6 +265,22 @@ export default function Account() {
             <Input.Password autoComplete="new-password" />
           </Form.Item>
         </Form>
+      </Modal>
+
+      <Modal
+        title="Supprimer mon compte"
+        open={isDeleteOpen}
+        onCancel={() => setIsDeleteOpen(false)}
+        onOk={handleDelete}
+        okText="Supprimer"
+        cancelText="Annuler"
+        okButtonProps={{ danger: true }}
+        confirmLoading={isDeleting}
+      >
+        <p>
+          Cette action est irréversible. Vos circuits et voyages seront
+          définitivement supprimés. Confirmer la suppression de votre compte ?
+        </p>
       </Modal>
     </>
   )

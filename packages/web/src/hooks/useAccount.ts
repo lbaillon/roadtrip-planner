@@ -47,3 +47,10 @@ export function useUpdateProfilePicture() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['me'] }),
   })
 }
+
+export function useDeleteMe() {
+  const api = useApi()
+  return useMutation({
+    mutationFn: () => api<void>('/api/users/me', { method: 'DELETE' }),
+  })
+}
