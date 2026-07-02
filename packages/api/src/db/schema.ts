@@ -15,6 +15,8 @@ export const users = sqliteTable('users', {
   password: text('password').notNull(),
   profilePicture: text('profile-picture'),
   confirmationKey: text('confirmation_key'),
+  resetKey: text('reset_key'),
+  resetKeyExpiresAt: integer('reset_key_expires_at', { mode: 'timestamp' }),
   createdAt: integer('created_at', { mode: 'timestamp' })
     .notNull()
     .$defaultFn(() => new Date()),
