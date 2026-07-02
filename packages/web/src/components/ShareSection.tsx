@@ -18,7 +18,7 @@ export default function ShareSection({
   // sur l'élément rendu pour obtenir le clavier email sur Android.
   useEffect(() => {
     const input = selectWrapperRef.current?.querySelector(
-      '.ant-select-selection-search-input',
+      '.ant-select-selection-search-input'
     )
     if (!input) return
     input.setAttribute('inputmode', 'email')

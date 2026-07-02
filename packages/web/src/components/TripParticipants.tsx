@@ -48,65 +48,65 @@ export default function TripParticipants({
         <p style={{ fontWeight: 600, marginBottom: 8 }}>Participants :</p>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {participants.map((p) => {
-          const isMyAvatar = p.userId === userId
-          const canRemove = amOwner && p.userId !== userId
-          const clickable = isMyAvatar || canRemove
+            const isMyAvatar = p.userId === userId
+            const canRemove = amOwner && p.userId !== userId
+            const clickable = isMyAvatar || canRemove
 
-          const items = isMyAvatar
-            ? [
-                {
-                  key: 'accepted',
-                  label: 'Je participe',
-                  onClick: () => setParticipation('accepted'),
-                },
-                {
-                  key: 'declined',
-                  label: 'Je ne participe pas',
-                  onClick: () => setParticipation('declined'),
-                },
-              ]
-            : canRemove
+            const items = isMyAvatar
               ? [
                   {
-                    key: 'remove',
-                    label: 'Retirer du voyage',
-                    danger: true,
-                    onClick: () => removeParticipant(p.userId),
+                    key: 'accepted',
+                    label: 'Je participe',
+                    onClick: () => setParticipation('accepted'),
+                  },
+                  {
+                    key: 'declined',
+                    label: 'Je ne participe pas',
+                    onClick: () => setParticipation('declined'),
                   },
                 ]
-              : []
+              : canRemove
+                ? [
+                    {
+                      key: 'remove',
+                      label: 'Retirer du voyage',
+                      danger: true,
+                      onClick: () => removeParticipant(p.userId),
+                    },
+                  ]
+                : []
 
-          const avatar = (
-            <span
-              style={{
-                display: 'inline-flex',
-                cursor: clickable ? 'pointer' : 'default',
-              }}
-            >
-              <Avatar
-                src={p.profilePicture ?? undefined}
-                style={{ border: `3px solid ${STATUS_COLOR[p.status]}` }}
+            const avatar = (
+              <span
+                style={{
+                  display: 'inline-flex',
+                  cursor: clickable ? 'pointer' : 'default',
+                }}
               >
-                {p.username?.[0]?.toUpperCase()}
-              </Avatar>
-            </span>
-          )
+                <Avatar
+                  src={p.profilePicture ?? undefined}
+                  style={{ border: `3px solid ${STATUS_COLOR[p.status]}` }}
+                >
+                  {p.username?.[0]?.toUpperCase()}
+                </Avatar>
+              </span>
+            )
 
-          return (
-            <Tooltip
-              key={p.userId}
-              title={`${p.username}${p.isOwner ? ' (organisateur)' : ''} — ${STATUS_LABEL[p.status]}`}
-            >
-              {clickable ? (
-                <Dropdown menu={{ items }} trigger={['click']}>
-                  {avatar}
-                </Dropdown>
-              ) : (
-                avatar
-              )}
-            </Tooltip>
-          )
-        })}
+            return (
+              <Tooltip
+                key={p.userId}
+                title={`${p.username}${p.isOwner ? ' (organisateur)' : ''} — ${STATUS_LABEL[p.status]}`}
+              >
+                {clickable ? (
+                  <Dropdown menu={{ items }} trigger={['click']}>
+                    {avatar}
+                  </Dropdown>
+                ) : (
+                  avatar
+                )}
+              </Tooltip>
+            )
+          })}
         </div>
       </div>
 

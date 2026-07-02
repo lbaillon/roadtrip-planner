@@ -28,22 +28,15 @@
           "name": "track_shares_emails_fk_track_id_tracks_id_fk",
           "tableFrom": "track_shares_emails",
           "tableTo": "tracks",
-          "columnsFrom": [
-            "fk_track_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["fk_track_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
         "track_shares_emails_fk_track_id_email_pk": {
-          "columns": [
-            "fk_track_id",
-            "email"
-          ],
+          "columns": ["fk_track_id", "email"],
           "name": "track_shares_emails_fk_track_id_email_pk"
         }
       },
@@ -74,12 +67,8 @@
           "name": "track_shares_users_fk_track_id_tracks_id_fk",
           "tableFrom": "track_shares_users",
           "tableTo": "tracks",
-          "columnsFrom": [
-            "fk_track_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["fk_track_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -87,22 +76,15 @@
           "name": "track_shares_users_fk_user_id_users_id_fk",
           "tableFrom": "track_shares_users",
           "tableTo": "users",
-          "columnsFrom": [
-            "fk_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["fk_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
         "track_shares_users_fk_track_id_fk_user_id_pk": {
-          "columns": [
-            "fk_track_id",
-            "fk_user_id"
-          ],
+          "columns": ["fk_track_id", "fk_user_id"],
           "name": "track_shares_users_fk_track_id_fk_user_id_pk"
         }
       },
@@ -166,9 +148,7 @@
       "indexes": {
         "tracks_user_id_idx": {
           "name": "tracks_user_id_idx",
-          "columns": [
-            "user_id"
-          ],
+          "columns": ["user_id"],
           "isUnique": false
         }
       },
@@ -177,12 +157,8 @@
           "name": "tracks_user_id_users_id_fk",
           "tableFrom": "tracks",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -215,22 +191,15 @@
           "name": "trip_shares_emails_fk_trip_id_trips_id_fk",
           "tableFrom": "trip_shares_emails",
           "tableTo": "trips",
-          "columnsFrom": [
-            "fk_trip_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["fk_trip_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
         "trip_shares_emails_fk_trip_id_email_pk": {
-          "columns": [
-            "fk_trip_id",
-            "email"
-          ],
+          "columns": ["fk_trip_id", "email"],
           "name": "trip_shares_emails_fk_trip_id_email_pk"
         }
       },
@@ -269,12 +238,8 @@
           "name": "trip_shares_users_fk_trip_id_trips_id_fk",
           "tableFrom": "trip_shares_users",
           "tableTo": "trips",
-          "columnsFrom": [
-            "fk_trip_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["fk_trip_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -282,22 +247,15 @@
           "name": "trip_shares_users_fk_user_id_users_id_fk",
           "tableFrom": "trip_shares_users",
           "tableTo": "users",
-          "columnsFrom": [
-            "fk_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["fk_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
         "trip_shares_users_fk_trip_id_fk_user_id_pk": {
-          "columns": [
-            "fk_trip_id",
-            "fk_user_id"
-          ],
+          "columns": ["fk_trip_id", "fk_user_id"],
           "name": "trip_shares_users_fk_trip_id_fk_user_id_pk"
         }
       },
@@ -342,12 +300,8 @@
           "name": "trip_tracks_trip_id_trips_id_fk",
           "tableFrom": "trip_tracks",
           "tableTo": "trips",
-          "columnsFrom": [
-            "trip_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["trip_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -355,22 +309,15 @@
           "name": "trip_tracks_track_id_tracks_id_fk",
           "tableFrom": "trip_tracks",
           "tableTo": "tracks",
-          "columnsFrom": [
-            "track_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["track_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
         "trip_tracks_trip_id_track_id_pk": {
-          "columns": [
-            "trip_id",
-            "track_id"
-          ],
+          "columns": ["trip_id", "track_id"],
           "name": "trip_tracks_trip_id_track_id_pk"
         }
       },
@@ -449,9 +396,7 @@
       "indexes": {
         "trips_user_id_idx": {
           "name": "trips_user_id_idx",
-          "columns": [
-            "user_id"
-          ],
+          "columns": ["user_id"],
           "isUnique": false
         }
       },
@@ -460,12 +405,8 @@
           "name": "trips_user_id_users_id_fk",
           "tableFrom": "trips",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -544,16 +485,12 @@
       "indexes": {
         "users_email_unique": {
           "name": "users_email_unique",
-          "columns": [
-            "email"
-          ],
+          "columns": ["email"],
           "isUnique": true
         },
         "users_username_unique": {
           "name": "users_username_unique",
-          "columns": [
-            "username"
-          ],
+          "columns": ["username"],
           "isUnique": true
         }
       },
