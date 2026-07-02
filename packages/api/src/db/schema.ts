@@ -61,6 +61,11 @@ export const trips = sqliteTable(
     isPublic: integer('is_public', { mode: 'boolean' })
       .notNull()
       .default(false),
+    ownerStatus: text('owner_status', {
+      enum: ['pending', 'accepted', 'declined'],
+    })
+      .notNull()
+      .default('accepted'),
   },
   (table) => [index('trips_user_id_idx').on(table.userId)]
 )

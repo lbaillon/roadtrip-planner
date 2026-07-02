@@ -532,7 +532,7 @@ async function getTripParticipants(
     throw new UnauthorizedError('Missing user', codes.MISSING_USER)
   }
   const [trip] = await db
-    .select({ userId: trips.userId })
+    .select({ userId: trips.userId, ownerStatus: trips.ownerStatus })
     .from(trips)
     .where(eq(trips.id, id))
   if (!trip) {
@@ -580,7 +580,7 @@ async function getTripParticipants(
       userId: owner.userId,
       username: owner.username,
       profilePicture: owner.profilePicture ?? null,
-      status: 'accepted',
+      status: trip.ownerStatus,
       isOwner: true,
     },
     ...shared.map((s) => ({
@@ -609,6 +609,15 @@ async function setParticipation(
 ): Promise<void> {
   if (!user) {
     throw new UnauthorizedError('Missing user', codes.MISSING_USER)
+  }
+  // Owner participation is stored on the trip itself.
+  const ownerUpdate = await db
+    .update(trips)
+    .set({ ownerStatus: status })
+    .where(and(eq(trips.id, id), eq(trips.userId, user.userId)))
+    .returning()
+  if (ownerUpdate.length > 0) {
+    return
   }
   const updated = await db
     .update(tripSharesUsers)

@@ -48,11 +48,11 @@ export default function TripParticipants({
         <p style={{ fontWeight: 600, marginBottom: 8 }}>Participants :</p>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {participants.map((p) => {
-          const isMe = p.userId === userId && !p.isOwner
-          const canRemove = amOwner && !p.isOwner && p.userId !== userId
-          const clickable = isMe || canRemove
+          const isMyAvatar = p.userId === userId
+          const canRemove = amOwner && p.userId !== userId
+          const clickable = isMyAvatar || canRemove
 
-          const items = isMe
+          const items = isMyAvatar
             ? [
                 {
                   key: 'accepted',

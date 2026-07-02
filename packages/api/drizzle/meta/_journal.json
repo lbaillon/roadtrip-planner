@@ -57,6 +57,13 @@
       "when": 1782998793353,
       "tag": "0007_public_butterfly",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1783000772455,
+      "tag": "0008_polite_rawhide_kid",
+      "breakpoints": true
     }
   ]
 }
