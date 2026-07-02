@@ -2,6 +2,7 @@ import type {
   GetMeResponse,
   LogInResponse,
   UpdateMeRequest,
+  UpdateProfilePictureRequest,
 } from '@roadtrip/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useApi } from './useApi'
@@ -9,9 +10,11 @@ import { useAuth } from './useAuth'
 
 export function useGetMe() {
   const api = useApi()
+  const { userId } = useAuth()
   return useQuery({
     queryKey: ['me'],
     queryFn: () => api<GetMeResponse>('/api/users/me'),
+    enabled: !!userId,
   })
 }
 
@@ -29,5 +32,18 @@ export function useUpdateMe() {
       setAccessToken(data.accessToken)
       await queryClient.invalidateQueries({ queryKey: ['me'] })
     },
+  })
+}
+
+export function useUpdateProfilePicture() {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (image: string) =>
+      api<void>('/api/users/me/photo', {
+        method: 'PUT',
+        body: JSON.stringify({ image } satisfies UpdateProfilePictureRequest),
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['me'] }),
   })
 }
