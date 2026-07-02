@@ -26,6 +26,7 @@ import { useUpdateTripVisibility } from '#web/hooks/mutations/useUpdateTripVisib
 import { Button, Collapse, Input, Modal, Switch, message } from 'antd'
 import { useAuth } from '#web/hooks/useAuth'
 import ShareSection from '#web/components/ShareSection'
+import TripParticipants from '#web/components/TripParticipants'
 import { useGetTripShares, useShareTrip } from '#web/hooks/useShares'
 
 const MapView = lazy(() => import('#web/components/MapView'))
@@ -182,7 +183,12 @@ export default function TripDetails() {
               {
                 key: 'description',
                 label: 'Description',
-                children: trip?.description ?? 'Aucune description',
+                children: (
+                  <>
+                    <p>{trip?.description ?? 'Aucune description'}</p>
+                    <TripParticipants tripId={id} />
+                  </>
+                ),
               },
             ]}
           />
