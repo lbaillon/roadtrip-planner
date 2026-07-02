@@ -96,6 +96,15 @@ export const ResendConfirmationRequestSchema = z.object({
   email: z.email(),
 })
 
+export const ForgotPasswordRequestSchema = z.object({
+  email: z.email(),
+})
+
+export const ResetPasswordRequestSchema = z.object({
+  token: z.string().min(1),
+  password: z.string().min(1),
+})
+
 // Response schemas
 
 export const GetWeatherResponseSchema = z.array(WeatherDataSchema)
@@ -179,3 +188,5 @@ export type UpdateProfilePictureRequest = z.infer<
 export type ResendConfirmationRequest = z.infer<
   typeof ResendConfirmationRequestSchema
 >
+export type ForgotPasswordRequest = z.infer<typeof ForgotPasswordRequestSchema>
+export type ResetPasswordRequest = z.infer<typeof ResetPasswordRequestSchema>
