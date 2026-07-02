@@ -36,6 +36,13 @@ export const CreateTrackRequestSchema = z.object({
   gpxContent: z.string().min(1, 'GPX content cannot be empty'),
 })
 
+export const UpdateMeRequestSchema = z.object({
+  username: z.string().min(1).optional(),
+  email: z.email().optional(),
+  password: z.string().min(1).optional(),
+  currentPassword: z.string().optional(),
+})
+
 export const UpdateUserRequestSchema = z.object({
   email: z.string().min(1, 'Cannot be empty').optional(),
   password: z.string().min(1, 'Cannot be empty').optional(),
@@ -161,6 +168,7 @@ export type UpdateTripPublicStatusRequest = z.infer<
 export type ShareRequest = z.infer<typeof ShareRequestSchema>
 export type GetSharesResponse = z.infer<typeof GetSharesResponseSchema>
 export type GetMeResponse = z.infer<typeof GetMeResponseSchema>
+export type UpdateMeRequest = z.infer<typeof UpdateMeRequestSchema>
 export type ResendConfirmationRequest = z.infer<
   typeof ResendConfirmationRequestSchema
 >

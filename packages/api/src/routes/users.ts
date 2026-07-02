@@ -11,17 +11,24 @@ import {
   ConflictError,
   ForbiddenError,
   NotFoundError,
+  UnauthorizedError,
 } from '#api/errors/app-errors.js'
 import { codes } from '#api/errors/error-codes.js'
-import { authenticate } from '#api/middlewares/auth.js'
-import { hashPassword, JWTPayload } from '#api/services/authentication.js'
+import { authenticate, AuthenticatedRequest } from '#api/middlewares/auth.js'
+import {
+  comparePassword,
+  hashPassword,
+  JWTPayload,
+  signAccessToken,
+  signRefreshToken,
+} from '#api/services/authentication.js'
 import { sendConfirmationEmail } from '#api/services/mail.js'
 import { env } from '#api/env.js'
+import { refreshTokenCookieParameters } from './auth.js'
 import {
   processDelete,
   processGet,
   processPost,
-  processPut,
 } from '#api/utils/route-handler.js'
 import { LibsqlError } from '@libsql/client'
 import {
@@ -32,8 +39,7 @@ import {
   IdParamsSchema,
   ResendConfirmationRequest,
   ResendConfirmationRequestSchema,
-  UpdateUserRequest,
-  UpdateUserRequestSchema,
+  UpdateMeRequestSchema,
 } from '@roadtrip/shared'
 import { DrizzleQueryError, eq } from 'drizzle-orm'
 import { Request, Response, Router } from 'express'
@@ -153,54 +159,90 @@ router.delete(
   })
 )
 
-async function updateUser(
-  id: string,
-  body: UpdateUserRequest,
-  user?: JWTPayload
-) {
-  if (!user || user.role != 'admin' || user.userId != id) {
-    throw new ForbiddenError('Action is forbidden', codes.FORBIDDEN)
-  }
-  const updateData: Partial<NewUser> = {
-    username: body.username,
-    email: body.email,
-  }
-  if (body.password) {
-    updateData.password = await hashPassword(body.password)
-  }
-  try {
-    const [updatedUser] = await db
-      .update(users)
-      .set(updateData)
-      .where(eq(users.id, id))
-      .returning()
-    if (!updatedUser) {
+router.put(
+  '/me',
+  authenticate,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const user = req.user
+    if (!user) {
+      res.status(401).json({ message: 'Unauthorized' })
+      return
+    }
+    const body = UpdateMeRequestSchema.parse(req.body)
+
+    const [current] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, user.userId))
+    if (!current) {
       throw new NotFoundError('user not found', codes.MISSING_USER)
     }
-  } catch (err) {
-    if (
-      err instanceof DrizzleQueryError &&
-      err.cause instanceof LibsqlError &&
-      err.cause?.extendedCode === 'SQLITE_CONSTRAINT_UNIQUE'
-    ) {
-      throw new ConflictError(
-        'username or email already exists',
-        codes.USER_CONFLICT,
-        { cause: err }
+
+    const changingEmail = body.email != null && body.email !== current.email
+    const changingPassword = body.password != null
+
+    if (changingEmail || changingPassword) {
+      const ok =
+        body.currentPassword != null &&
+        (await comparePassword(body.currentPassword, current.password))
+      if (!ok) {
+        throw new UnauthorizedError(
+          'Invalid current password',
+          codes.WRONG_LOGIN
+        )
+      }
+    }
+
+    const updateData: Partial<NewUser> = {}
+    if (body.username) updateData.username = body.username
+    if (changingPassword) {
+      updateData.password = await hashPassword(body.password as string)
+    }
+
+    let confirmationKey: string | null = null
+    if (changingEmail) {
+      confirmationKey = crypto.randomUUID()
+      updateData.email = body.email
+      updateData.confirmationKey = confirmationKey
+    }
+
+    if (Object.keys(updateData).length > 0) {
+      try {
+        await db.update(users).set(updateData).where(eq(users.id, user.userId))
+      } catch (err) {
+        if (
+          err instanceof DrizzleQueryError &&
+          err.cause instanceof LibsqlError &&
+          err.cause?.extendedCode === 'SQLITE_CONSTRAINT_UNIQUE'
+        ) {
+          throw new ConflictError(
+            'username or email already exists',
+            codes.USER_CONFLICT,
+            { cause: err }
+          )
+        }
+        throw err
+      }
+    }
+
+    if (changingEmail && confirmationKey) {
+      await sendConfirmationEmail(
+        body.email as string,
+        `${env.API_URL}/api/users_confirmation/${confirmationKey}`
       )
     }
-    throw err
-  }
-}
 
-router.put(
-  '/:id',
-  authenticate,
-  processPut({
-    paramsSchema: IdParamsSchema,
-    bodySchema: UpdateUserRequestSchema,
-    handler: ({ params, body, user }) => updateUser(params.id, body, user),
-  })
+    const payload = {
+      userId: user.userId,
+      email: body.email ?? current.email,
+      username: body.username ?? current.username,
+      role: user.role,
+    }
+    const accessToken = await signAccessToken(payload)
+    const refreshToken = await signRefreshToken(payload)
+    res.cookie('refreshToken', refreshToken, refreshTokenCookieParameters)
+    res.json({ accessToken })
+  }
 )
 
 async function convertEmailShares(userId: string, email: string) {

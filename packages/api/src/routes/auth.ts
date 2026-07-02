@@ -28,7 +28,7 @@ async function login(body: LogInRequest) {
   return user
 }
 
-const refreshTokenCookieParameters = {
+export const refreshTokenCookieParameters = {
   httpOnly: true,
   secure: !env.isDev,
   sameSite: 'lax',
