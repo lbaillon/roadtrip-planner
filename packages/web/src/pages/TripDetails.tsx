@@ -194,17 +194,16 @@ export default function TripDetails() {
 
         {coordinates.length > 0 && (
           <Suspense fallback={<div>Chargement de la carte...</div>}>
-            <div style={{ height: '400px', marginTop: '20px' }}>
-              <MapView
-                subTracks={subTracks}
-                coordinates={coordinates}
-                weather={[]}
-                timepointIndex={[]}
-                waypoints={[]}
-                userPosition={userPosition}
-                setUserPosition={setUserPosition}
-              />
-            </div>
+            <MapView
+              subTracks={subTracks}
+              coordinates={coordinates}
+              weather={[]}
+              timepointIndex={[]}
+              waypoints={[]}
+              userPosition={userPosition}
+              setUserPosition={setUserPosition}
+              style={{ width: '100%', margin: '20px auto 0' }}
+            />
           </Suspense>
         )}
 

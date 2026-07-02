@@ -5,7 +5,7 @@ import type { GpxCoordinate, GpxWaypoint, WeatherData } from '@roadtrip/shared'
 import type { MenuProps } from 'antd'
 import { Button, Dropdown, Switch } from 'antd'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import { useEffect, useMemo, useState } from 'react'
+import { type CSSProperties, useEffect, useMemo, useState } from 'react'
 import type { MapMouseEvent } from 'react-map-gl/maplibre'
 import Map, { Layer, Marker, Popup, Source } from 'react-map-gl/maplibre'
 import styles from './MapView.module.css'
@@ -37,6 +37,7 @@ interface MapViewProps {
     } | null
   ) => void
   routeColor?: string
+  style?: CSSProperties
 }
 
 export default function MapView({
@@ -54,6 +55,7 @@ export default function MapView({
   userPosition,
   setUserPosition,
   routeColor,
+  style,
 }: MapViewProps) {
   const [selectedWeather, setSelectedWeather] = useState<WeatherData | null>(
     null
@@ -133,6 +135,14 @@ export default function MapView({
     }),
     [subTracks, routeColor]
   )
+
+  const distinctColors = [
+    ...new Set(
+      subTracks.map(
+        (_, i) => routeColor ?? TRACK_COLORS[i % TRACK_COLORS.length]
+      )
+    ),
+  ]
 
   if (coordinates.length === 0) return null
 
@@ -284,6 +294,7 @@ export default function MapView({
   return (
     <div
       className={`${styles.mapMain} ${isEditMode ? styles.mapEditMode : ''}`}
+      style={style}
     >
       <div className={styles.layersControl}>
         <Dropdown
@@ -335,48 +346,65 @@ export default function MapView({
         mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
         onClick={handleMapClick}
       >
-        {/* Route lines: a single source with data-driven styling — solid base
-            for every segment + dashed overlay on shared (overlapping) portions.
-            One GL source regardless of how many segments the split produces. */}
+        {/* Route lines: one GL source, one layer per distinct color with a
+            constant line-color + a CPU-side filter. Avoids data-driven colors,
+            which some mobile GPUs don't honor (all lines would collapse to one
+            color). Solid base for every segment + dashed overlay on shared
+            (overlapping) portions. */}
         <Source id="routes" type="geojson" data={routeData}>
-          <Layer
-            id="routes-solid"
-            type="line"
-            paint={{
-              'line-color': ['get', 'color'],
-              'line-width': 4,
-              'line-opacity': 0.8,
-            }}
-          />
-          <Layer
-            id="routes-dash"
-            type="line"
-            filter={['==', ['get', 'dashed'], true]}
-            paint={{
-              'line-color': ['get', 'altColor'],
-              'line-width': 4,
-              'line-opacity': 0.95,
-              'line-dasharray': [2, 2],
-            }}
-          />
+          {distinctColors.map((c) => (
+            <Layer
+              key={`solid-${c}`}
+              id={`routes-solid-${c}`}
+              type="line"
+              filter={['==', ['get', 'color'], c]}
+              paint={{
+                'line-color': c,
+                'line-width': 4,
+                'line-opacity': 0.8,
+              }}
+            />
+          ))}
+          {distinctColors.map((c) => (
+            <Layer
+              key={`dash-${c}`}
+              id={`routes-dash-${c}`}
+              type="line"
+              filter={[
+                'all',
+                ['==', ['get', 'dashed'], true],
+                ['==', ['get', 'altColor'], c],
+              ]}
+              paint={{
+                'line-color': c,
+                'line-width': 4,
+                'line-opacity': 0.95,
+                'line-dasharray': [2, 2],
+              }}
+            />
+          ))}
         </Source>
 
-        {/* Direction arrows on the full track geometry (single source) */}
+        {/* Direction arrows on the full track geometry (one layer per color) */}
         {directionEnable && (
           <Source id="route-arrows" type="geojson" data={arrowData}>
-            <Layer
-              id="direction-signs"
-              type="symbol"
-              layout={{
-                'symbol-placement': 'line',
-                'text-field': '>',
-                'text-size': 20,
-                'symbol-spacing': 5,
-                'text-keep-upright': false,
-                'text-font': ['Open Sans Bold'],
-              }}
-              paint={{ 'text-color': ['get', 'color'] }}
-            />
+            {distinctColors.map((c) => (
+              <Layer
+                key={`dir-${c}`}
+                id={`direction-signs-${c}`}
+                type="symbol"
+                filter={['==', ['get', 'color'], c]}
+                layout={{
+                  'symbol-placement': 'line',
+                  'text-field': '>',
+                  'text-size': 20,
+                  'symbol-spacing': 5,
+                  'text-keep-upright': false,
+                  'text-font': ['Open Sans Bold'],
+                }}
+                paint={{ 'text-color': c }}
+              />
+            ))}
           </Source>
         )}
         {startflagEnable && (
