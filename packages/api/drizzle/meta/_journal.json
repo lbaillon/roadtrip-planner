@@ -50,6 +50,13 @@
       "when": 1782994322498,
       "tag": "0006_fast_kabuki",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1782998793353,
+      "tag": "0007_public_butterfly",
+      "breakpoints": true
     }
   ]
 }

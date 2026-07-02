@@ -1,0 +1,1 @@
+ALTER TABLE `trip_shares_users` ADD `status` text DEFAULT 'pending' NOT NULL;

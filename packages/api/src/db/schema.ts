@@ -126,6 +126,11 @@ export const tripSharesUsers = sqliteTable(
     userId: text('fk_user_id')
       .references(() => users.id, { onDelete: 'cascade' })
       .notNull(),
+    status: text('status', {
+      enum: ['pending', 'accepted', 'declined'],
+    })
+      .notNull()
+      .default('pending'),
   },
   (table) => [primaryKey({ columns: [table.tripId, table.userId] })]
 )
