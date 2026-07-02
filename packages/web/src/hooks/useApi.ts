@@ -2,11 +2,13 @@ import { ApiError, fetchApi, refreshAccessToken } from '#web/lib/api-client'
 import {
   type CreateResponse,
   type CreateUserRequest,
+  type ForgotPasswordRequest,
   type GetWeatherRequest,
   type GetWeatherResponse,
   type LogInRequest,
   type LogInResponse,
   type ResendConfirmationRequest,
+  type ResetPasswordRequest,
 } from '@roadtrip/shared'
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
 import { useEffect, useRef } from 'react'
@@ -110,6 +112,28 @@ export function useResendConfirmation() {
   return useMutation({
     mutationFn: (request: ResendConfirmationRequest) =>
       api<void>('/api/users/resend-confirmation', {
+        method: 'POST',
+        body: JSON.stringify(request),
+      }),
+  })
+}
+
+export function useForgotPassword() {
+  const api = useApi()
+  return useMutation({
+    mutationFn: (request: ForgotPasswordRequest) =>
+      api<void>('/api/auth/forgot-password', {
+        method: 'POST',
+        body: JSON.stringify(request),
+      }),
+  })
+}
+
+export function useResetPassword() {
+  const api = useApi()
+  return useMutation({
+    mutationFn: (request: ResetPasswordRequest) =>
+      api<void>('/api/auth/reset-password', {
         method: 'POST',
         body: JSON.stringify(request),
       }),
