@@ -687,4 +687,31 @@ router.delete(
   })
 )
 
+async function leaveTrip(id: string, user?: JWTPayload): Promise<void> {
+  if (!user) {
+    throw new UnauthorizedError('Missing user', codes.MISSING_USER)
+  }
+  const result = await db
+    .delete(tripSharesUsers)
+    .where(
+      and(
+        eq(tripSharesUsers.tripId, id),
+        eq(tripSharesUsers.userId, user.userId)
+      )
+    )
+    .returning()
+  if (result.length === 0) {
+    throw new NotFoundError('Trip share not found', codes.MISSING_TRIP)
+  }
+}
+
+router.delete(
+  '/:id/shares/me',
+  authenticate,
+  processDelete({
+    paramsSchema: IdParamsSchema,
+    handler: ({ params, user }) => leaveTrip(params.id, user),
+  })
+)
+
 export default router

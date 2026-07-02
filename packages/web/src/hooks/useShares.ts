@@ -21,6 +21,7 @@ export function useGetTripParticipants(id: string | undefined) {
     queryFn: () =>
       api<GetTripParticipantsResponse>(`/api/trips/${id}/participants`),
     enabled: !!id,
+    staleTime: 0,
   })
 }
 
@@ -82,6 +83,7 @@ export function useGetTrackShares(id: string | undefined, enabled = true) {
     queryFn: () => api<GetSharesResponse>(`/api/tracks/${id}/shares`),
     enabled: !!id && enabled,
     placeholderData: keepPreviousData,
+    staleTime: 0,
   })
 }
 
@@ -92,6 +94,29 @@ export function useGetTripShares(id: string | undefined, enabled = true) {
     queryFn: () => api<GetSharesResponse>(`/api/trips/${id}/shares`),
     enabled: !!id && enabled,
     placeholderData: keepPreviousData,
+    staleTime: 0,
+  })
+}
+
+export function useLeaveSharedTrack() {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (trackId: string) =>
+      api<void>(`/api/tracks/${trackId}/shares/me`, { method: 'DELETE' }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ['tracks', 'shared'] }),
+  })
+}
+
+export function useLeaveSharedTrip() {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (tripId: string) =>
+      api<void>(`/api/trips/${tripId}/shares/me`, { method: 'DELETE' }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ['trips', 'shared'] }),
   })
 }
 
