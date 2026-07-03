@@ -348,7 +348,7 @@ export async function confirmUserHandler(req: Request, res: Response) {
       return res.redirect(`${env.WEB_APP_URL}/login?confirmed=0`)
     }
     await convertEmailShares(user.id, user.email)
-    return res.redirect(`${env.WEB_APP_URL}/login?confirmed=1`)
+    return res.redirect(`${env.WEB_APP_URL}/?confirmed=1`)
   } catch {
     return res.redirect(`${env.WEB_APP_URL}/login?confirmed=0`)
   }

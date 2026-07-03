@@ -6,7 +6,8 @@ import { useSaveTrack } from '#web/hooks/useSaveTrack'
 import { parseGpxFile } from '#web/lib/gpx-utils'
 import type { ParsedGpx } from '@roadtrip/shared'
 import { Button, message } from 'antd'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import styles from './Home.module.css'
 
 export default function Home() {
@@ -15,6 +16,15 @@ export default function Home() {
   const [messageApi, contextHolder] = message.useMessage()
   const { isReady } = useHealth()
   const save = useSaveTrack()
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  useEffect(() => {
+    if (searchParams.get('confirmed') !== '1') return
+    messageApi.success('Email confirmé avec succès, bienvenue !')
+    const next = new URLSearchParams(searchParams)
+    next.delete('confirmed')
+    setSearchParams(next, { replace: true })
+  }, [searchParams, setSearchParams, messageApi])
 
   const handleFileSelect = (content: string) => {
     try {
