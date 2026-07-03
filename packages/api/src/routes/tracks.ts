@@ -4,6 +4,7 @@ import {
   trackSharesUsers,
   tracks,
   trips,
+  tripSharesUsers,
   tripTracks,
   users,
 } from '#api/db/schema.js'
@@ -202,6 +203,7 @@ async function getTrack(
     .leftJoin(tripTracks, eq(tripTracks.trackId, tracks.id))
     .leftJoin(trips, eq(trips.id, tripTracks.tripId))
     .leftJoin(trackSharesUsers, eq(trackSharesUsers.trackId, tracks.id))
+    .leftJoin(tripSharesUsers, eq(tripSharesUsers.tripId, trips.id))
     .where(
       and(
         eq(tracks.id, id),
@@ -209,7 +211,8 @@ async function getTrack(
           eq(tracks.isPublic, true),
           eq(tracks.userId, user?.userId ?? ''),
           eq(trips.isPublic, true),
-          eq(trackSharesUsers.userId, user?.userId ?? '')
+          eq(trackSharesUsers.userId, user?.userId ?? ''),
+          eq(tripSharesUsers.userId, user?.userId ?? '')
         )
       )
     )
