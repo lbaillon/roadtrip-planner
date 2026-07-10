@@ -71,12 +71,6 @@ export default function AuthForm<M extends 'login' | 'signup'>({
   const getNotice = (): AlertState => {
     if (mode !== 'login') return null
     const confirmed = searchParams.get('confirmed')
-    if (confirmed === '1') {
-      return {
-        type: 'success',
-        message: 'Email confirmé avec succès, vous pouvez vous connecter.',
-      }
-    }
     if (confirmed === '0') {
       return {
         type: 'error',

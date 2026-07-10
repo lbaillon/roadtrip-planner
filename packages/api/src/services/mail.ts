@@ -11,7 +11,7 @@ async function sendMail(to: string, subject: string, html: string) {
     return
   }
   try {
-    const { error } = await resend.emails.send({
+    const { data, error } = await resend.emails.send({
       from: env.MAIL_FROM,
       to,
       subject,
@@ -19,6 +19,10 @@ async function sendMail(to: string, subject: string, html: string) {
     })
     if (error) {
       console.error('[mail] send failed:', error)
+    } else {
+      console.info(
+        `[mail] sent id=${data?.id} from=${env.MAIL_FROM} to=${to} subject="${subject}"`
+      )
     }
   } catch (err) {
     console.error('[mail] send threw:', err)

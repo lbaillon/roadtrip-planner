@@ -196,11 +196,11 @@ export default function TripDetails() {
 
         <TracksList
           tracks={tracks ?? []}
-          onDelete={removeTrackFromTrip}
-          onReorder={updateTracksOrder}
+          onDelete={trip?.isOwner ? removeTrackFromTrip : undefined}
+          onReorder={trip?.isOwner ? updateTracksOrder : undefined}
           colorsById={colorsById}
         />
-        <AddTrackToTripModal tripId={id} />
+        {trip?.isOwner && <AddTrackToTripModal tripId={id} />}
 
         {coordinates.length > 0 && (
           <Suspense fallback={<div>Chargement de la carte...</div>}>
