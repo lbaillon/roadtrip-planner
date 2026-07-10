@@ -26,7 +26,9 @@ if (!env.isDev && env.API_URL.includes('localhost')) {
   throw new Error('API_URL must be set to the public API URL in production')
 }
 if (!env.isDev && env.WEB_APP_URL.includes('localhost')) {
-  throw new Error('WEB_APP_URL must be set to the public web app URL in production')
+  throw new Error(
+    'WEB_APP_URL must be set to the public web app URL in production'
+  )
 }
 if (!env.OPENWEATHER_API_KEY) {
   throw new Error('API key undefined')
