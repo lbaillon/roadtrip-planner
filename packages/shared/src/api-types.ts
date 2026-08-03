@@ -160,7 +160,7 @@ export type TripSummary = {
   sharedBy?: string
 }
 export type TripTrack = { id: string; order: number }
-export type TrackSummary = { id: string; name: string }
+export type TrackSummary = { id: string; name: string; inTrip?: boolean }
 
 export type ParticipationStatus = 'pending' | 'accepted' | 'declined'
 export type TripParticipant = {
