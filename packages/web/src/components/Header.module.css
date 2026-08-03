@@ -10,7 +10,18 @@
 }
 
 .headerIcon{
-  font-size: 1.75rem;
+  box-sizing: border-box;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 6px;
   cursor: pointer;
   color: var(--primary);
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.headerIcon:hover{
+  background: rgba(255, 255, 255, 0.65);
+  transform: scale(1.08);
 }
