@@ -154,6 +154,18 @@ export default function TrackContent({
 
   const timepointIndices = getTimepointIndices()
 
+  // Estimated passing time at each sampled point (aligned with `weather`)
+  const passingTimes =
+    departureTime && speedKmh
+      ? sampledWithKm.map(
+          (point) =>
+            new Date(
+              departureTime.getTime() +
+                (point.cumulativeKm / speedKmh) * 3600 * 1000
+            )
+        )
+      : null
+
   function handleMapClick(lat: number, lon: number) {
     setPendingClickCoords({ lat, lon })
     setEditingWaypoint(null)
@@ -339,6 +351,7 @@ export default function TrackContent({
             new Array(parsed.coordinates.length).fill(timepointIndex)
           }
           waypoints={parsed.waypoints}
+          passingTimes={passingTimes}
           isEditMode={isEditMode}
           showEditToggle={!!accessToken && !!id && !!isOwner}
           onToggleEditMode={() => setIsEditMode((prev) => !prev)}

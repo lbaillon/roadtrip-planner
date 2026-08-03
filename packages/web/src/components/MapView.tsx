@@ -17,6 +17,7 @@ interface MapViewProps {
   waypoints?: GpxWaypoint[]
   weather: WeatherData[]
   timepointIndex: number[]
+  passingTimes: Date[] | null
   isEditMode?: boolean
   showEditToggle?: boolean
   onToggleEditMode?: () => void
@@ -46,6 +47,7 @@ export default function MapView({
   waypoints = [],
   weather,
   timepointIndex,
+  passingTimes,
   isEditMode = false,
   showEditToggle = false,
   onToggleEditMode,
@@ -62,6 +64,9 @@ export default function MapView({
   )
   const [selectedWeatherTimepointIdx, setSelectedWeatherTimepointIdx] =
     useState(0)
+  const [selectedWeatherIdx, setSelectedWeatherIdx] = useState<number | null>(
+    null
+  )
   const [selectedWaypoint, setSelectedWaypoint] = useState<GpxWaypoint | null>(
     null
   )
@@ -522,6 +527,7 @@ export default function MapView({
                 setSelectedWeather(w)
                 setSelectedWaypoint(null)
                 setSelectedWeatherTimepointIdx(timepointIndex[idx] ?? 0)
+                setSelectedWeatherIdx(idx)
               }}
             >
               <img
@@ -552,7 +558,10 @@ export default function MapView({
             longitude={selectedWeather.lon}
             latitude={selectedWeather.lat}
             anchor="top"
-            onClose={() => setSelectedWeather(null)}
+            onClose={() => {
+              setSelectedWeather(null)
+              setSelectedWeatherIdx(null)
+            }}
             closeOnClick={false}
           >
             <div style={{ padding: '8px' }}>
@@ -582,6 +591,18 @@ export default function MapView({
               💧{' '}
               {selectedWeather.timepoints[selectedWeatherTimepointIdx].humidity}
               % humidity
+              {passingTimes &&
+                selectedWeatherIdx != null &&
+                passingTimes[selectedWeatherIdx] && (
+                  <>
+                    <br />
+                    🕐 :{' '}
+                    {passingTimes[selectedWeatherIdx].toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </>
+                )}
             </div>
           </Popup>
         )}
