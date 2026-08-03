@@ -277,13 +277,27 @@ export default function TrackContent({
             Distance : {(parsed.distance / 1000).toFixed(2)} km
           </p>
         )}
-        {arrivalTime && (
+        {(departureTime || arrivalTime) && (
           <p className={styles.routeName}>
-            Arrivée estimée :{' '}
-            {arrivalTime.toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
+            {departureTime && (
+              <>
+                Heure de départ :{' '}
+                {departureTime.toLocaleTimeString([], {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </>
+            )}
+            {departureTime && arrivalTime && ' — '}
+            {arrivalTime && (
+              <>
+                Arrivée estimée :{' '}
+                {arrivalTime.toLocaleTimeString([], {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </>
+            )}
           </p>
         )}
         <div className={styles.invertAndDownload}>
