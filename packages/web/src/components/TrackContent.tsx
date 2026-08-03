@@ -1,4 +1,3 @@
-import { HumidityChart } from '#web/components/HumidityChart'
 import { TimeSelector } from '#web/components/TimeSelector'
 import WaypointFormModal from '#web/components/WaypointFormModal'
 import {
@@ -33,8 +32,7 @@ import { lazy, Suspense, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styles from './TrackContent.module.css'
 import { TRACK_COLORS } from './MapViewTracksColors'
-import { ElevationChart } from './ElevationChart'
-import { WindSpeedChart } from './WindSpeedChart'
+import { TrackCharts } from './TrackCharts'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faArrowLeftLong,
@@ -425,24 +423,9 @@ export default function TrackContent({
               : 'Heure et vitesse personnalisées'}
           </Button>
 
-          {parsed.coordinates.some((c) => c.ele != null) && (
-            <h3 className={styles.humidityPlot}>Altitude</h3>
-          )}
-          <ElevationChart coordinates={actualCoords} />
+          <h3 className={styles.humidityPlot}>Profil du circuit</h3>
 
-          <h3 className={styles.humidityPlot}>Taux d'humidité</h3>
-
-          <HumidityChart
-            coordinates={actualCoords}
-            weather={weather}
-            timepointIndex={
-              timepointIndices ??
-              new Array(parsed.coordinates.length).fill(timepointIndex)
-            }
-          />
-          <h3 className={styles.humidityPlot}>Vitesse du vent</h3>
-
-          <WindSpeedChart
+          <TrackCharts
             coordinates={actualCoords}
             weather={weather}
             timepointIndex={
