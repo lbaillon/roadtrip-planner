@@ -432,6 +432,8 @@ export default function TrackContent({
               timepointIndices ??
               new Array(parsed.coordinates.length).fill(timepointIndex)
             }
+            departureTime={departureTime}
+            speedKmh={speedKmh}
           />
         </>
       )}

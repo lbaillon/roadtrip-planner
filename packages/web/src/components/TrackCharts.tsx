@@ -7,6 +7,8 @@ interface TrackChartsProps {
   coordinates: GpxCoordinate[]
   weather: WeatherData[]
   timepointIndex: number[]
+  departureTime: Date | null
+  speedKmh: number | null
 }
 
 interface EnrichedPoint {
@@ -56,6 +58,8 @@ export function TrackCharts({
   coordinates,
   weather,
   timepointIndex,
+  departureTime,
+  speedKmh,
 }: TrackChartsProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [containerWidth, setContainerWidth] = useState(0)
@@ -130,7 +134,7 @@ export function TrackCharts({
 
     if (presentKeys.length === 0) return
 
-    const margin = { top: 40, right: 24, bottom: 52, left: 20 }
+    const margin = { top: 40, right: 24, bottom: 60, left: 20 }
     const width = containerWidth - margin.left - margin.right
     const height = 280 - margin.top - margin.bottom
 
@@ -189,7 +193,7 @@ export function TrackCharts({
       )
 
     // X axis (shared)
-    svg
+    const xAxis = svg
       .append('g')
       .attr('transform', `translate(0,${height})`)
       .call(
@@ -198,16 +202,32 @@ export function TrackCharts({
           .ticks(6)
           .tickFormat((d) => `${d} km`)
       )
-      .call((g) => g.select('.domain').attr('stroke', '#cbd5e1'))
-      .call((g) => g.selectAll('.tick line').attr('stroke', '#cbd5e1'))
-      .call((g) =>
-        g.selectAll('.tick text').attr('fill', '#64748b').attr('font-size', '11px')
-      )
+    xAxis.call((g) => g.select('.domain').attr('stroke', '#cbd5e1'))
+    xAxis.call((g) => g.selectAll('.tick line').attr('stroke', '#cbd5e1'))
+    xAxis.call((g) =>
+      g.selectAll('.tick text').attr('fill', '#64748b').attr('font-size', '11px')
+    )
+
+    // When a departure time and speed are set, show the ETA at each tick's km
+    if (departureTime && speedKmh) {
+      const departureMs = departureTime.getTime()
+      xAxis.selectAll<SVGTextElement, number>('.tick text').each(function (d) {
+        const eta = new Date(departureMs + (d / speedKmh) * 3600 * 1000)
+        d3.select(this)
+          .append('tspan')
+          .attr('x', 0)
+          .attr('dy', '1.1em')
+          .attr('fill', '#94a3b8')
+          .text(
+            eta.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          )
+      })
+    }
 
     svg
       .append('text')
       .attr('x', width / 2)
-      .attr('y', height + 44)
+      .attr('y', height + 52)
       .attr('text-anchor', 'middle')
       .attr('fill', '#94a3b8')
       .attr('font-size', '12px')
@@ -415,7 +435,7 @@ export function TrackCharts({
     }
     // dataSignature captures every drawn value, so `data` is covered by it
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dataSignature, containerWidth])
+  }, [dataSignature, containerWidth, departureTime?.getTime() ?? 0, speedKmh ?? 0])
 
   if (data.length === 0) return null
 
