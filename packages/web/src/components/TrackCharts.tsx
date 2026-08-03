@@ -339,6 +339,9 @@ export function TrackCharts({
       .style('opacity', 0)
       .style('z-index', '9999')
       .style('transition', 'opacity 0.15s ease')
+      // Anchor point (left/top) is the tooltip's bottom-center, so it sits
+      // centered above the cursor / finger
+      .style('transform', 'translate(-50%, -100%)')
 
     // Single vertical hover line shared by all curves
     const hoverLine = svg
@@ -394,8 +397,8 @@ export function TrackCharts({
       tooltip
         .style('opacity', 1)
         .html(parts.join('<br/>'))
-        .style('left', `${pageX + 14}px`)
-        .style('top', `${pageY - 48}px`)
+        .style('left', `${pageX}px`)
+        .style('top', `${pageY - 16}px`)
     }
 
     function hideHover() {
