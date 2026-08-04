@@ -299,7 +299,7 @@ export default function Account() {
         confirmLoading={isDeleting}
       >
         <p>
-          Cette action est irréversible. Vos circuits et voyages seront
+          Cette action est irréversible. Vos traces et voyages seront
           définitivement supprimés. Confirmer la suppression de votre compte ?
         </p>
       </Modal>

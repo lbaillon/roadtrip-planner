@@ -58,7 +58,7 @@ export default function Home() {
             parsed={parsedGpx}
             headerAction={
               <Button onClick={() => void save(gpxContent)}>
-                Sauvegarder ce circuit
+                Sauvegarder cette trace
               </Button>
             }
           />

@@ -1,4 +1,3 @@
-import { HumidityChart } from '#web/components/HumidityChart'
 import { TimeSelector } from '#web/components/TimeSelector'
 import WaypointFormModal from '#web/components/WaypointFormModal'
 import {
@@ -33,8 +32,7 @@ import { lazy, Suspense, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styles from './TrackContent.module.css'
 import { TRACK_COLORS } from './MapViewTracksColors'
-import { ElevationChart } from './ElevationChart'
-import { WindSpeedChart } from './WindSpeedChart'
+import { TrackCharts } from './TrackCharts'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faArrowLeftLong,
@@ -155,6 +153,18 @@ export default function TrackContent({
       : null
 
   const timepointIndices = getTimepointIndices()
+
+  // Estimated passing time at each sampled point (aligned with `weather`)
+  const passingTimes =
+    departureTime && speedKmh
+      ? sampledWithKm.map(
+          (point) =>
+            new Date(
+              departureTime.getTime() +
+                (point.cumulativeKm / speedKmh) * 3600 * 1000
+            )
+        )
+      : null
 
   function handleMapClick(lat: number, lon: number) {
     setPendingClickCoords({ lat, lon })
@@ -279,13 +289,27 @@ export default function TrackContent({
             Distance : {(parsed.distance / 1000).toFixed(2)} km
           </p>
         )}
-        {arrivalTime && (
+        {(departureTime || arrivalTime) && (
           <p className={styles.routeName}>
-            Arrivée estimée :{' '}
-            {arrivalTime.toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
+            {departureTime && (
+              <>
+                Heure de départ :{' '}
+                {departureTime.toLocaleTimeString([], {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </>
+            )}
+            {departureTime && arrivalTime && ' — '}
+            {arrivalTime && (
+              <>
+                Arrivée estimée :{' '}
+                {arrivalTime.toLocaleTimeString([], {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </>
+            )}
           </p>
         )}
         <div className={styles.invertAndDownload}>
@@ -327,6 +351,7 @@ export default function TrackContent({
             new Array(parsed.coordinates.length).fill(timepointIndex)
           }
           waypoints={parsed.waypoints}
+          passingTimes={passingTimes}
           isEditMode={isEditMode}
           showEditToggle={!!accessToken && !!id && !!isOwner}
           onToggleEditMode={() => setIsEditMode((prev) => !prev)}
@@ -425,36 +450,23 @@ export default function TrackContent({
               : 'Heure et vitesse personnalisées'}
           </Button>
 
-          {parsed.coordinates.some((c) => c.ele != null) && (
-            <h3 className={styles.humidityPlot}>Altitude</h3>
-          )}
-          <ElevationChart coordinates={actualCoords} />
+          <h3 className={styles.humidityPlot}>Profil de la trace</h3>
 
-          <h3 className={styles.humidityPlot}>Taux d'humidité</h3>
-
-          <HumidityChart
+          <TrackCharts
             coordinates={actualCoords}
             weather={weather}
             timepointIndex={
               timepointIndices ??
               new Array(parsed.coordinates.length).fill(timepointIndex)
             }
-          />
-          <h3 className={styles.humidityPlot}>Vitesse du vent</h3>
-
-          <WindSpeedChart
-            coordinates={actualCoords}
-            weather={weather}
-            timepointIndex={
-              timepointIndices ??
-              new Array(parsed.coordinates.length).fill(timepointIndex)
-            }
+            departureTime={departureTime}
+            speedKmh={speedKmh}
           />
         </>
       )}
 
       <Modal
-        title="Modifier le circuit"
+        title="Modifier la trace"
         open={isEditNameModalOpen}
         onCancel={() => setIsEditNameModalOpen(false)}
         onOk={handleRenameSubmit}
@@ -467,7 +479,7 @@ export default function TrackContent({
             value={nameInput}
             onChange={(e) => setNameInput(e.target.value)}
             disabled={isRenaming}
-            placeholder="Nom du circuit"
+            placeholder="Nom de la trace"
             autoFocus
             onKeyDown={(e) => {
               if (e.key === 'Enter') handleRenameSubmit()
@@ -484,7 +496,7 @@ export default function TrackContent({
               unCheckedChildren="Privé"
             />
             <span className={styles.modalVisibilityLabel}>
-              {isPublic ? 'Circuit public' : 'Circuit privé'}
+              {isPublic ? 'Trace publique' : 'Trace privée'}
             </span>
           </div>
           <ShareSection
@@ -492,7 +504,7 @@ export default function TrackContent({
             isSharing={isSharing}
             onShare={(emails) =>
               shareTrack(emails, {
-                onSuccess: () => messageApi.success('Circuit partagé'),
+                onSuccess: () => messageApi.success('Trace partagée'),
                 onError: () => messageApi.error('Erreur lors du partage'),
               })
             }

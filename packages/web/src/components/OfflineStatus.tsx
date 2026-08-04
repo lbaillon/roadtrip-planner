@@ -5,15 +5,15 @@ import { useState } from 'react'
 import styles from './OfflineStatus.module.css'
 
 const MUTATION_LABELS: Record<FailedMutation['type'], string> = {
-  CREATE_TRACK: 'Créer un circuit',
-  PUT_TRACK_GPX: 'Modifier un circuit',
-  DELETE_TRACK: 'Supprimer un circuit',
-  UPDATE_TRACK_VISIBILITY: "Modifier la visibilité d'un circuit",
+  CREATE_TRACK: 'Créer une trace',
+  PUT_TRACK_GPX: 'Modifier une trace',
+  DELETE_TRACK: 'Supprimer une trace',
+  UPDATE_TRACK_VISIBILITY: "Modifier la visibilité d'une trace",
   CREATE_TRIP: 'Créer un voyage',
   DELETE_TRIP: 'Supprimer un voyage',
-  ADD_TRACK_TO_TRIP: 'Ajouter un circuit au voyage',
-  REMOVE_TRACK_FROM_TRIP: 'Retirer un circuit du voyage',
-  REORDER_TRIP_TRACKS: 'Réorganiser les circuits',
+  ADD_TRACK_TO_TRIP: 'Ajouter une trace au voyage',
+  REMOVE_TRACK_FROM_TRIP: 'Retirer une trace du voyage',
+  REORDER_TRIP_TRACKS: 'Réorganiser les traces',
   UPDATE_TRIP: "Modifer les infos d'un voyage",
   UPDATE_TRIP_VISIBILITY: "Modifier la visibilité d'un voyage",
 }

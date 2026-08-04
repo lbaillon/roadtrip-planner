@@ -5,10 +5,12 @@ import { useLocation, useNavigate } from 'react-router-dom'
 export default function AuthRequiredNotice({
   resource,
 }: {
-  resource: 'circuit' | 'voyage'
+  resource: 'trace' | 'voyage'
 }) {
   const navigate = useNavigate()
   const location = useLocation()
+  // "trace" is feminine, "voyage" masculine
+  const demonstrative = resource === 'trace' ? 'cette' : 'ce'
 
   const goToAuth = (path: string) => {
     localStorage.setItem(POST_AUTH_REDIRECT_KEY, location.pathname)
@@ -26,7 +28,9 @@ export default function AuthRequiredNotice({
         textAlign: 'center',
       }}
     >
-      <p>Connectez-vous pour voir ce {resource}.</p>
+      <p>
+        Connectez-vous pour voir {demonstrative} {resource}.
+      </p>
       <div style={{ display: 'flex', gap: 12 }}>
         <Button type="primary" onClick={() => goToAuth('/login')}>
           Se connecter

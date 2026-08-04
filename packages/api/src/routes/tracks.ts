@@ -46,7 +46,7 @@ import {
   UpdateTrackPublicStatusRequestSchema,
 } from '@roadtrip/shared'
 
-import { and, eq, or } from 'drizzle-orm'
+import { and, eq, ne, or, sql } from 'drizzle-orm'
 import { Router } from 'express'
 import { XMLParser } from 'fast-xml-parser'
 
@@ -157,10 +157,18 @@ router.put(
 )
 
 async function getUserTracks(user?: JWTPayload): Promise<TrackSummary[]> {
-  return await db
-    .select()
+  const rows = await db
+    .select({
+      id: tracks.id,
+      name: tracks.name,
+      inTrip: sql<number>`EXISTS (
+        SELECT 1 FROM ${tripTracks} WHERE ${tripTracks.trackId} = ${tracks.id}
+      )`,
+    })
     .from(tracks)
     .where(eq(tracks.userId, user?.userId ?? ''))
+
+  return rows.map((row) => ({ ...row, inTrip: row.inTrip === 1 }))
 }
 
 router.get(
@@ -177,7 +185,12 @@ async function getSharedTracks(user?: JWTPayload): Promise<TrackSummary[]> {
     .select({ id: tracks.id, name: tracks.name })
     .from(trackSharesUsers)
     .innerJoin(tracks, eq(tracks.id, trackSharesUsers.trackId))
-    .where(eq(trackSharesUsers.userId, user.userId))
+    .where(
+      and(
+        eq(trackSharesUsers.userId, user.userId),
+        ne(tracks.userId, user.userId)
+      )
+    )
 }
 
 router.get(
@@ -330,6 +343,10 @@ export async function shareTrack(
       .select({ id: users.id })
       .from(users)
       .where(eq(users.email, email))
+    // Sharing a track with yourself is a no-op (you already own it)
+    if (existing?.id === user.userId) {
+      continue
+    }
     if (existing) {
       await db
         .insert(trackSharesUsers)
@@ -344,7 +361,7 @@ export async function shareTrack(
     await sendShareEmail(
       email,
       user.username,
-      'circuit',
+      'trace',
       track.name,
       url,
       !!existing

@@ -47,7 +47,7 @@ import {
   UpdateTripRequestSchema,
   UpdateTripTracksOrderRequestSchema,
 } from '@roadtrip/shared'
-import { and, eq, or, sql } from 'drizzle-orm'
+import { and, eq, ne, or, sql } from 'drizzle-orm'
 import { Router } from 'express'
 
 const router: Router = Router()
@@ -168,7 +168,12 @@ async function getSharedTrips(user?: JWTPayload): Promise<TripSummary[]> {
       })
       .from(tripSharesUsers)
       .innerJoin(trips, eq(trips.id, tripSharesUsers.tripId))
-      .where(eq(tripSharesUsers.userId, user.userId))
+      .where(
+        and(
+          eq(tripSharesUsers.userId, user.userId),
+          ne(trips.userId, user.userId)
+        )
+      )
   ).map((trip) => ({
     id: trip.id,
     name: trip.name,
@@ -457,6 +462,10 @@ export async function shareTrip(
       .select({ id: users.id })
       .from(users)
       .where(eq(users.email, email))
+    // Sharing a trip with yourself is a no-op (you already own it)
+    if (existing?.id === user.userId) {
+      continue
+    }
     if (existing) {
       await db
         .insert(tripSharesUsers)
