@@ -128,6 +128,11 @@ export function TrackCharts({
     )
     .join('|')
 
+  // Primitive deps for the drawing effect (kept out of the array so the
+  // exhaustive-deps rule can check them statically)
+  const departureMsKey = departureTime?.getTime() ?? 0
+  const speedKey = speedKmh ?? 0
+
   useEffect(() => {
     if (!svgRef.current || data.length === 0 || containerWidth === 0) return
 
@@ -449,12 +454,7 @@ export function TrackCharts({
     }
     // dataSignature captures every drawn value, so `data` is covered by it
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    dataSignature,
-    containerWidth,
-    departureTime?.getTime() ?? 0,
-    speedKmh ?? 0,
-  ])
+  }, [dataSignature, containerWidth, departureMsKey, speedKey])
 
   if (data.length === 0) return null
 
