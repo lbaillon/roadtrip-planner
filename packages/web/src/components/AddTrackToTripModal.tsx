@@ -37,7 +37,7 @@ export default function AddTrackToTripModal({ tripId }: Props) {
         className={styles.modalButton}
       >
         Ajouter une trace au voyage
-</Button>
+      </Button>
       <Modal
         title="Ajouter une trace au voyage"
         open={open}
