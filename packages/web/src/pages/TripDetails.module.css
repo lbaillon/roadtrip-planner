@@ -33,6 +33,16 @@
   font-size: 20px;
 }
 
+.badgeRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.downloadButton {
+  margin-left: auto;
+}
+
 .badge {
   display: inline-flex;
   align-items: center;

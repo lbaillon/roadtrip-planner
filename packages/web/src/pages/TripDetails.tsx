@@ -9,13 +9,15 @@ import { useUpdateTripTracksOrder } from '#web/hooks/mutations/useReorderTripTra
 import { useApi } from '#web/hooks/useApi'
 import { useGetTrip, useGetTripTracks } from '#web/hooks/useTrips'
 import { TRACK_COLORS } from '#web/components/MapViewTracksColors'
-import { parseGpxFile } from '#web/lib/gpx-utils'
+import { getGpxName, parseGpxFile } from '#web/lib/gpx-utils'
 import {
   faArrowLeftLong,
+  faDownload,
   faGlobe,
   faLock,
   faPencil,
 } from '@fortawesome/free-solid-svg-icons'
+import { strToU8, zipSync } from 'fflate'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import type { GetTrackResponse } from '@roadtrip/shared'
 import { useQueries } from '@tanstack/react-query'
@@ -97,6 +99,44 @@ export default function TripDetails() {
     ])
   )
 
+  const hasTracks = (tracks ?? []).length > 0
+  const allGpxLoaded =
+    hasTracks && trackQueries.every((query) => !!query.data?.gpxContent)
+
+  function sanitizeFileName(name: string) {
+    return name.replace(/[/\\?%*:|"<>]/g, '-').trim() || 'circuit'
+  }
+
+  function handleDownloadZip() {
+    const usedNames = new Set<string>()
+    const files: Record<string, Uint8Array> = {}
+
+    trackQueries.forEach((query, index) => {
+      const gpxContent = query.data?.gpxContent
+      if (!gpxContent) return
+
+      const base = sanitizeFileName(
+        getGpxName(gpxContent) ?? `circuit-${index + 1}`
+      )
+      let fileName = `${base}.gpx`
+      let suffix = 2
+      while (usedNames.has(fileName)) {
+        fileName = `${base}-${suffix}.gpx`
+        suffix++
+      }
+      usedNames.add(fileName)
+      files[fileName] = strToU8(gpxContent)
+    })
+
+    const blob = new Blob([zipSync(files)], { type: 'application/zip' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${sanitizeFileName(trip?.name ?? 'voyage')}.zip`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   function openEditModal() {
     setNameInput(trip?.name ?? '')
     setDescriptionInput(trip?.description ?? '')
@@ -157,14 +197,26 @@ export default function TripDetails() {
             )}
           </div>
 
-          {accessToken && id && (
-            <span
-              className={`${styles.badge} ${trip?.isPublic ? styles.badgePublic : styles.badgePrivate}`}
-            >
-              <FontAwesomeIcon icon={trip?.isPublic ? faGlobe : faLock} />
-              {trip?.isPublic ? 'Public' : 'Privé'}
-            </span>
-          )}
+          <div className={styles.badgeRow}>
+            {accessToken && id && (
+              <span
+                className={`${styles.badge} ${trip?.isPublic ? styles.badgePublic : styles.badgePrivate}`}
+              >
+                <FontAwesomeIcon icon={trip?.isPublic ? faGlobe : faLock} />
+                {trip?.isPublic ? 'Public' : 'Privé'}
+              </span>
+            )}
+            {hasTracks && (
+              <Button
+                className={`${styles.button} ${styles.downloadButton}`}
+                onClick={handleDownloadZip}
+                disabled={!allGpxLoaded}
+                title="Télécharger les circuits (.zip)"
+              >
+                <FontAwesomeIcon icon={faDownload} className={styles.icon} />
+              </Button>
+            )}
+          </div>
 
           {!trip?.isOwner && trip?.sharedBy && (
             <p style={{ opacity: 0.7 }}>Partagé par {trip.sharedBy}</p>
