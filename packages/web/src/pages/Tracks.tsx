@@ -45,7 +45,7 @@ export default function Tracks() {
             marginBottom: 16,
           }}
         >
-          <BoxTitle>Mes circuits</BoxTitle>
+          <BoxTitle>Mes traces</BoxTitle>
           <Dropdown
             trigger={['click']}
             menu={{

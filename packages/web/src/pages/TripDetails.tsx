@@ -104,7 +104,7 @@ export default function TripDetails() {
     hasTracks && trackQueries.every((query) => !!query.data?.gpxContent)
 
   function sanitizeFileName(name: string) {
-    return name.replace(/[/\\?%*:|"<>]/g, '-').trim() || 'circuit'
+    return name.replace(/[/\\?%*:|"<>]/g, '-').trim() || 'trace'
   }
 
   function handleDownloadZip() {
@@ -116,7 +116,7 @@ export default function TripDetails() {
       if (!gpxContent) return
 
       const base = sanitizeFileName(
-        getGpxName(gpxContent) ?? `circuit-${index + 1}`
+        getGpxName(gpxContent) ?? `trace-${index + 1}`
       )
       let fileName = `${base}.gpx`
       let suffix = 2
@@ -211,7 +211,7 @@ export default function TripDetails() {
                 className={`${styles.button} ${styles.downloadButton}`}
                 onClick={handleDownloadZip}
                 disabled={!allGpxLoaded}
-                title="Télécharger les circuits (.zip)"
+                title="Télécharger les traces (.zip)"
               >
                 <FontAwesomeIcon icon={faDownload} className={styles.icon} />
               </Button>

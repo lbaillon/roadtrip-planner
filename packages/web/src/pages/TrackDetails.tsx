@@ -26,7 +26,7 @@ export default function TrackDetails() {
 
   useEffect(() => {
     if (!justSaved) return
-    messageApi.success({ content: 'Circuit sauvegardé', key: 'track-saved' })
+    messageApi.success({ content: 'Trace sauvegardée', key: 'track-saved' })
     // Nettoie le state pour ne pas ré-afficher le toast sur refresh / retour.
     navigate(location.pathname, { replace: true, state: null })
   }, [justSaved, messageApi, navigate, location.pathname])
@@ -47,10 +47,10 @@ export default function TrackDetails() {
   return (
     <div className={styles.contentBox}>
       {contextHolder}
-      {!accessToken && isError && <AuthRequiredNotice resource="circuit" />}
+      {!accessToken && isError && <AuthRequiredNotice resource="trace" />}
       {isLoading && (
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <p>Chargement du circuit...</p>
+          <p>Chargement de la trace...</p>
         </div>
       )}
 

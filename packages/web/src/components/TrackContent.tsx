@@ -450,7 +450,7 @@ export default function TrackContent({
               : 'Heure et vitesse personnalisées'}
           </Button>
 
-          <h3 className={styles.humidityPlot}>Profil du circuit</h3>
+          <h3 className={styles.humidityPlot}>Profil de la trace</h3>
 
           <TrackCharts
             coordinates={actualCoords}
@@ -466,7 +466,7 @@ export default function TrackContent({
       )}
 
       <Modal
-        title="Modifier le circuit"
+        title="Modifier la trace"
         open={isEditNameModalOpen}
         onCancel={() => setIsEditNameModalOpen(false)}
         onOk={handleRenameSubmit}
@@ -479,7 +479,7 @@ export default function TrackContent({
             value={nameInput}
             onChange={(e) => setNameInput(e.target.value)}
             disabled={isRenaming}
-            placeholder="Nom du circuit"
+            placeholder="Nom de la trace"
             autoFocus
             onKeyDown={(e) => {
               if (e.key === 'Enter') handleRenameSubmit()
@@ -496,7 +496,7 @@ export default function TrackContent({
               unCheckedChildren="Privé"
             />
             <span className={styles.modalVisibilityLabel}>
-              {isPublic ? 'Circuit public' : 'Circuit privé'}
+              {isPublic ? 'Trace publique' : 'Trace privée'}
             </span>
           </div>
           <ShareSection
@@ -504,7 +504,7 @@ export default function TrackContent({
             isSharing={isSharing}
             onShare={(emails) =>
               shareTrack(emails, {
-                onSuccess: () => messageApi.success('Circuit partagé'),
+                onSuccess: () => messageApi.success('Trace partagée'),
                 onError: () => messageApi.error('Erreur lors du partage'),
               })
             }

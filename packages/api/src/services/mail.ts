@@ -55,17 +55,21 @@ export async function sendPasswordResetEmail(to: string, resetUrl: string) {
 export async function sendShareEmail(
   to: string,
   inviterName: string,
-  resourceLabel: 'circuit' | 'voyage',
+  resourceLabel: 'trace' | 'voyage',
   resourceName: string,
   url: string,
   hasAccount: boolean
 ) {
+  // "trace" is feminine, "voyage" masculine
+  const isFeminine = resourceLabel === 'trace'
+  const definiteArticle = isFeminine ? 'la' : 'le'
+  const indefiniteArticle = isFeminine ? 'une' : 'un'
   const callToAction = hasAccount
-    ? `<p><a href="${url}">Voir le ${resourceLabel}</a></p>`
+    ? `<p><a href="${url}">Voir ${definiteArticle} ${resourceLabel}</a></p>`
     : `<p>Créez un compte pour y accéder : <a href="${url}">${url}</a></p>`
   await sendMail(
     to,
-    `${inviterName} a partagé un ${resourceLabel} avec vous`,
-    `<p>${inviterName} a partagé le ${resourceLabel} « ${resourceName} » avec vous.</p>${callToAction}`
+    `${inviterName} a partagé ${indefiniteArticle} ${resourceLabel} avec vous`,
+    `<p>${inviterName} a partagé ${definiteArticle} ${resourceLabel} « ${resourceName} » avec vous.</p>${callToAction}`
   )
 }

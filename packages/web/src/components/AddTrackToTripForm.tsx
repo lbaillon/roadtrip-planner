@@ -33,12 +33,12 @@ export function AddTrackToTripForm({ form, tripId, onSuccess }: Props) {
       onFinish={handleSubmit}
     >
       <Form.Item<AddTrackToTripFormValues>
-        label="Circuits"
+        label="Traces"
         name="trackIds"
         rules={[
           {
             required: true,
-            message: 'Veuillez sélectionner au moins un circuit',
+            message: 'Veuillez sélectionner au moins une trace',
           },
         ]}
       >

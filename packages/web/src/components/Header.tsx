@@ -73,7 +73,7 @@ export default function Header() {
         key: 'home',
       },
       {
-        label: <Link to="/tracks">Mes circuits</Link>,
+        label: <Link to="/tracks">Mes traces</Link>,
         key: 'tracks',
       },
       {

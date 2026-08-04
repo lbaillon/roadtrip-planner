@@ -41,7 +41,7 @@ describe('Header', () => {
     await user.click(barsIcon)
 
     expect(await screen.findByText('Accueil')).toBeInTheDocument()
-    expect(await screen.findByText('Mes circuits')).toBeInTheDocument()
+    expect(await screen.findByText('Mes traces')).toBeInTheDocument()
     expect(await screen.findByText('Mes voyages')).toBeInTheDocument()
     expect(await screen.findByText('À propos')).toBeInTheDocument()
 
@@ -68,7 +68,7 @@ describe('Header', () => {
     await user.click(barsIcon)
 
     expect(await screen.findByText('Accueil')).toBeInTheDocument()
-    expect(screen.queryByText('Mes circuits')).not.toBeInTheDocument()
+    expect(screen.queryByText('Mes traces')).not.toBeInTheDocument()
     expect(screen.queryByText('Mes voyages')).not.toBeInTheDocument()
     expect(await screen.findByText('À propos')).toBeInTheDocument()
 

@@ -361,7 +361,7 @@ export async function shareTrack(
     await sendShareEmail(
       email,
       user.username,
-      'circuit',
+      'trace',
       track.name,
       url,
       !!existing
