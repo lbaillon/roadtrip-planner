@@ -17,7 +17,7 @@ interface MapViewProps {
   waypoints?: GpxWaypoint[]
   weather: WeatherData[]
   timepointIndex: number[]
-  passingTimes: Date[] | null
+  passingTimes?: Date[] | null
   isEditMode?: boolean
   showEditToggle?: boolean
   onToggleEditMode?: () => void
