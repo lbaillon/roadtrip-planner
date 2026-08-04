@@ -122,7 +122,10 @@ export function TrackCharts({
   // Stable primitive key describing the drawn values, so the effect below has a
   // constant-length dependency array (the raw `data` array is rebuilt every render).
   const dataSignature = data
-    .map((d) => `${d.distanceKm}:${d.ele ?? ''}:${d.humidity ?? ''}:${d.windSpeed ?? ''}`)
+    .map(
+      (d) =>
+        `${d.distanceKm}:${d.ele ?? ''}:${d.humidity ?? ''}:${d.windSpeed ?? ''}`
+    )
     .join('|')
 
   useEffect(() => {
@@ -165,7 +168,10 @@ export function TrackCharts({
       // Guard against a flat series (min === max) → center it at 50%
       norm[key] =
         min === max
-          ? d3.scaleLinear().domain([min - 1, max + 1]).range([0, 100])
+          ? d3
+              .scaleLinear()
+              .domain([min - 1, max + 1])
+              .range([0, 100])
           : d3.scaleLinear().domain([min, max]).range([0, 100])
     })
 
@@ -205,7 +211,10 @@ export function TrackCharts({
     xAxis.call((g) => g.select('.domain').attr('stroke', '#cbd5e1'))
     xAxis.call((g) => g.selectAll('.tick line').attr('stroke', '#cbd5e1'))
     xAxis.call((g) =>
-      g.selectAll('.tick text').attr('fill', '#64748b').attr('font-size', '11px')
+      g
+        .selectAll('.tick text')
+        .attr('fill', '#64748b')
+        .attr('font-size', '11px')
     )
 
     // When a departure time and speed are set, show the ETA at each tick's km
@@ -237,7 +246,9 @@ export function TrackCharts({
     const legend = svg.append('g').attr('transform', `translate(0,${-22})`)
     let legendX = 0
     presentKeys.forEach((key) => {
-      const item = legend.append('g').attr('transform', `translate(${legendX},0)`)
+      const item = legend
+        .append('g')
+        .attr('transform', `translate(${legendX},0)`)
       item
         .append('rect')
         .attr('width', 12)
@@ -438,7 +449,12 @@ export function TrackCharts({
     }
     // dataSignature captures every drawn value, so `data` is covered by it
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dataSignature, containerWidth, departureTime?.getTime() ?? 0, speedKmh ?? 0])
+  }, [
+    dataSignature,
+    containerWidth,
+    departureTime?.getTime() ?? 0,
+    speedKmh ?? 0,
+  ])
 
   if (data.length === 0) return null
 
