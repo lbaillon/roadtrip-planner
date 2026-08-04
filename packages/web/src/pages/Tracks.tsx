@@ -69,7 +69,7 @@ export default function Tracks() {
         {sharedTracks && sharedTracks.length > 0 && (
           <>
             <Divider style={{ marginTop: 32 }} />
-            <BoxTitle>Partagés avec moi</BoxTitle>
+            <BoxTitle>Partagées avec moi</BoxTitle>
             <TracksList tracks={sharedTracks} onDelete={leaveSharedTrack} />
           </>
         )}
